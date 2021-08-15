@@ -1,7 +1,8 @@
 from flask import Flask
 from flask_restful import reqparse, abort, Api, Resource
+
 import model.TreeBuilder as TB
-import projects.watergap as WG
+from watergap import WaterGAP as wg
 
 app = Flask(__name__)
 api = Api(app)
@@ -10,13 +11,18 @@ parser = reqparse.RequestParser()
 parser.add_argument('tree')
 
 # Read in current available project -> later through config file
-t_watergap = TB.TreeBuilder(WG, 5, 2)
+t_watergap = TB.TreeBuilder(wg(), 5, 2)
 t_mohan = None
 
 projects = {
     'watergap': t_watergap,
     'mohan': t_mohan
 }
+
+# TODO fit on-the-fly or cache fits
+print("Loading trees ...")
+projects["watergap"].fit()
+print("Finished fitting")
 
 
 def abort_tree_doesnt_exist(tree_id):
@@ -39,7 +45,6 @@ class Tree(Resource):
         abort_tree_doesnt_exist(tree_id)
         # need to think when it is best to actually built the tree
         # TODO implement serialization of already fitted tree!!
-        projects[tree_id].fit()
         print("Put! {id}".format(id=tree_id))
 
 

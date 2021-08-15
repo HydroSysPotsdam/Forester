@@ -1,3 +1,5 @@
+from .DataBuilder import DataBuilder
+
 from sklearn.tree import DecisionTreeClassifier
 import json
 from json import JSONEncoder
@@ -15,12 +17,14 @@ class NumpyArrayEncoder(JSONEncoder):
 class TreeBuilder(object):
 
     def __init__(self, data_builder, depth, min_s):
+        if not isinstance(data_builder, DataBuilder):
+            raise Exception("Not a proper data builder.")
         self.clf = DecisionTreeClassifier(max_depth=depth, min_samples_leaf=min_s)
         self.data = data_builder
         self.depth = depth
         self.min_s = min_s
-        self.classnames = self.data.classnames()
-        self.featurenames = self.data.featurenames()
+        self.classnames = self.data.classnames
+        self.featurenames = self.data.featurenames
 
     def fit(self):
         X, y = self.data.get_x(), self.data.get_y()

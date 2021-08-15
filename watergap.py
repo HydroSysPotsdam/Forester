@@ -1,10 +1,11 @@
-from ..model import DataBuilder
 from datetime import datetime as dt
 import numpy as np
 import xarray as xr
 import pandas as pd
 
-data_p = "../CART-ISIMIP/data/"
+from model.DataBuilder import DataBuilder
+
+data_p = "../../CART-ISIMIP/data/"
 inputs = [
     {"data": "watergap_22c_landcover.nc4", "varname": "landcover", "label": "LC", "cat": True},
     # 1 - Evergreen needleleaf forest, 2 - Evergreen broadleaf forest, 3 - Deciduous needleleaf forest,
@@ -87,8 +88,10 @@ def cut(d):
 
 
 class WaterGAP(DataBuilder):
-    cells = None
-    cut_land = True
+
+    def __init__(self):
+        self.cells = None
+        self.cut_land = True
 
     def get_x(self):
         x = self.load_inputs()
@@ -126,7 +129,6 @@ class WaterGAP(DataBuilder):
             # TODO adapt to real categorical
             df[varn] = df[varn].apply(lambda x: 1 if x > 6 else 2)
 
-        print(df.head(10))
         return df[varn].values
 
     def load_precip(self):
@@ -194,3 +196,4 @@ class WaterGAP(DataBuilder):
         df = df.merge(self.cells, how="right", on=["lat", "lon"])
         p = pd.cut(df.qr, bins=bins, labels=cn)
         return p.cat.codes.to_numpy()
+

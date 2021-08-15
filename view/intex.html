@@ -84,7 +84,7 @@
                         url: '127.0.0.1:5000/trees/watergap',
                         type: 'PUT',
                         success: function(result) {
-                            // Do something with the result
+                            console.log("Created the tree.")
                         }
                     });
                     var treeJSON = d3.json("127.0.0.1:5000/trees/watergap", draw_tree);

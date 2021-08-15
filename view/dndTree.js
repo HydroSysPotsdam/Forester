@@ -375,27 +375,66 @@ function draw_tree(error, treeData) {
         }
     }
 
+    // Mouse-in function
     var overCircle = function(d) {
         selectedNode = d;
         updateTempConnector();
     };
+
+    // Mouse-out function
     var outCircle = function(d) {
         selectedNode = null;
         updateTempConnector();
     };
 
+    var getPath = function (a) {
+            // we have reached the root node
+            if (a.parent === undefined) return a.id;
+            else {
+                return [a.id].concat(getPath(a.parent));
+            }
+        }
+
+    // Highlight all similar leaf nodes and their path to the root
+    var highlightPath_on = function(d) {
+        if (d.type != "leaf") return;
+        let path = getPath(d)
+        //get all similar node
+        node[0].forEach(function (el){
+            // FIXME there has to be a more d3 typical way to do this
+            if ((el.__data__.type == "leaf") && (el.__data__.class == d.class)){
+                path.push(el.__data__.id);
+            }
+        })
+        let unique = [...new Set(path)];
+        svgGroup.selectAll("g.node").select("circle")
+            .style("fill", function (d){
+               if (! unique.includes(d.id)) return "gray";
+               else return "red";
+            });
+    }
+
+    // Toggle the path off again - Mouse leave event
+    var highlightPath_off = function(d) {
+        if (d.type !== "leaf") return;
+        let path = getPath(d)
+        svgGroup.selectAll("g.node").select("circle")
+            .style("fill", colorNode);
+    }
+
   // color a node properly
   function colorNode(d) {
+        let n = d.cl.length
+        color = d3.scale.linear().domain([0, n]).range(['yellow', 'blue']);
         result = "#fff";
+
         if (d.synthetic == true) {
           result = (d._children || d.children) ? "darkgray" : "lightgray";
         }
         else {
-          if (d.type == "USDA") {
-            result = (d._children || d.children) ? "orangered" : "orange";
-          } else if (d.type == "Produce") {
-            result = (d._children || d.children) ? "yellowgreen" : "yellow";
-          } else if (d.type == "RecipeIngredient") {
+          if (d.type == "leaf") {
+            result = color(d.cpos);
+          } else if (d.type == "split-node") {
             result = (d._children || d.children) ? "skyblue" : "royalblue";
           } else {
             result = "lightsteelblue"
@@ -487,7 +526,7 @@ function draw_tree(error, treeData) {
             }
         };
         childCount(0, root);
-        var newHeight = d3.max(levelWidth) * 25; // 25 pixels per line  
+        var newHeight = d3.max(levelWidth) * 50; // control spacing between nodes
         tree = tree.size([newHeight, viewerWidth]);
 
         // Compute the new tree layout.
@@ -499,7 +538,8 @@ function draw_tree(error, treeData) {
             //d.y = (d.depth * (maxLabelLength * 10)); //maxLabelLength * 10px
             // alternatively to keep a fixed scale one can set a fixed depth per level
             // Normalize for fixed-depth by commenting out below line
-            d.y = (d.depth * 300); //500px per level.
+            // Control height of graph
+            d.y = (d.depth * 100); //500px per level.
         });
 
         // Update the nodes…
@@ -520,7 +560,14 @@ function draw_tree(error, treeData) {
         nodeEnter.append("circle")
             .attr('class', 'nodeCircle')
             .attr("r", 0)
-            .style("fill", colorNode);
+            .style("fill", colorNode)
+            .attr('pointer-events', 'mouseover')
+            .on("mouseover", function(node) {
+                highlightPath_on(node);
+            })
+            .on("mouseout", function(node) {
+                highlightPath_off(node);
+            });
 
         nodeEnter.append("text")
             .attr("x", function(d) {
@@ -558,9 +605,18 @@ function draw_tree(error, treeData) {
             .attr("text-anchor", function(d) {
                 return d.children || d._children ? "end" : "start";
             })
-            .text(function(d) {
-                return d.name;
-            });
+            .html(function(d) {
+                if (d.type == "leaf") return "<tspan x='0' dy='1.2em'>" + "Gini = " + d.impurity+ "</tspan>" +
+                    "<tspan x='0' dy='1.2em'>" + d.class + "</tspan>";
+
+                return "<tspan x='0' dy='1.2em'>" + d.name + "</tspan>" +
+                    "<tspan x='0' dy='1.2em'>" + "<=" + d.th.toFixed(2) + "</tspan>";
+            })
+
+        // Add bars to show the impurity of the leaf
+        //node.append('rect')
+        //    .attr('height', 1)
+        //    .attr('width', 2);
 
         // Change the circle fill depending on whether it has children and is collapsed
         node.select("circle.nodeCircle")
@@ -614,6 +670,10 @@ function draw_tree(error, treeData) {
                     source: o,
                     target: o
                 });
+            })
+            // Control size of the connections
+            .style("stroke-width", function (d){
+                return Math.log( d.target.samples * 1.5);
             });
 
         // Transition links to their new position.

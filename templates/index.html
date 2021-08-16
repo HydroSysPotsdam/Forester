@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <head>
 <meta charset="utf-8">
-<link rel="stylesheet" href="css/foundation.css" />
-<link rel="stylesheet" href="css/app.css" />
-<link rel="stylesheet" href="css/d3-context-menu.css" />
+<link rel="stylesheet" href="view/css/foundation.css" />
+<link rel="stylesheet" href="view/css/app.css" />
+<link rel="stylesheet" href="view/css/d3-context-menu.css" />
 </head>
 <body>
         <div id="RenameNodeModal" class="reveal-modal" data-reveal aria-labelledby="modalTitle" aria-hidden="true" role="dialog">
@@ -54,13 +54,13 @@
 
         <div id="tree-container"></div>
 
-        <script src="libs/d3.v3.min.js"></script>
-        <script src="dndTree.js"></script>
-        <script src="libs/d3-context-menu.js"></script>
-        <script src="libs/underscore-min.js"></script>
-        <script src="libs/jquery.js"></script>
-        <script src="libs/fastclick.js"></script>
-        <script src="libs/foundation.min.js"></script>
+        <script src="view/libs/d3.v3.min.js"></script>
+        <script src="view/dndTree.js"></script>
+        <script src="view/libs/d3-context-menu.js"></script>
+        <script src="view/libs/underscore-min.js"></script>
+        <script src="view/libs/jquery.js"></script>
+        <script src="view/libs/fastclick.js"></script>
+        <script src="view/libs/foundation.min.js"></script>
         <script>
                 // for the first initialization
                 $('document').ready(function(){
@@ -81,13 +81,13 @@
                             return false;
                     });
                     $.ajax({
-                        url: '127.0.0.1:5000/trees/watergap',
+                        url: 'trees/watergap',
                         type: 'PUT',
                         success: function(result) {
                             console.log("Created the tree.")
                         }
                     });
-                    var treeJSON = d3.json("127.0.0.1:5000/trees/watergap", draw_tree);
+                    var treeJSON = d3.json("trees/watergap", draw_tree);
                 });
         </script>
 </body>

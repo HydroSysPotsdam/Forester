@@ -28,9 +28,11 @@ class TreeBuilder(object):
 
     def fit(self):
         X, y = self.data.get_x(), self.data.get_y()
+        print("Features: {}".format(self.featurenames))
+        print("Classes: {}".format(self.classnames))
         print("Input (samples) dimensions: {}".format(X.shape))
         print("Output (labels) dimensions: {}".format(y.shape))
-        self.clf.ft(X, y)
+        self.clf.fit(X, y)
 
     def to_json(self):
         n_nodes = self.clf.tree_.node_count

@@ -21,9 +21,13 @@ class DataBuilder(object):
     @property
     @abc.abstractmethod
     def classnames(self):
-        return 'Should never reach here'
+        """
+        :return: Should never be reached
+        """
 
     @property
     @abc.abstractmethod
     def featurenames(self):
-        return 'Should never reach here'
+        """
+        :return: Should never be reached
+        """

@@ -1,17 +1,18 @@
 from flask import Flask
 from flask_restful import reqparse, abort, Api, Resource
+from flask import render_template
 
 import model.TreeBuilder as TB
 from watergap import WaterGAP as wg
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='view')
 api = Api(app)
 
 parser = reqparse.RequestParser()
 parser.add_argument('tree')
 
 # Read in current available project -> later through config file
-t_watergap = TB.TreeBuilder(wg(), 5, 2)
+t_watergap = TB.TreeBuilder(wg("../../CART-ISIMIP/data/"), 5, 2)
 t_mohan = None
 
 projects = {
@@ -28,6 +29,11 @@ print("Finished fitting")
 def abort_tree_doesnt_exist(tree_id):
     if tree_id not in projects:
         abort(404, message="Tree {} does not exit".format(tree_id))
+
+
+@app.route("/")
+def index():
+    return render_template("index.html")
 
 
 # Representation of a tree that can be requested to be displayed, created or deleted

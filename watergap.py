@@ -5,7 +5,7 @@ import pandas as pd
 
 from model.DataBuilder import DataBuilder
 
-data_p = "../../CART-ISIMIP/data/"
+
 inputs = [
     {"data": "watergap_22c_landcover.nc4", "varname": "landcover", "label": "LC", "cat": True},
     # 1 - Evergreen needleleaf forest, 2 - Evergreen broadleaf forest, 3 - Deciduous needleleaf forest,
@@ -89,9 +89,10 @@ def cut(d):
 
 class WaterGAP(DataBuilder):
 
-    def __init__(self):
+    def __init__(self, path):
         self.cells = None
         self.cut_land = True
+        self.data_p = path
 
     def get_x(self):
         x = self.load_inputs()
@@ -101,12 +102,12 @@ class WaterGAP(DataBuilder):
         return self.load_outputs()
 
     @property
-    def classname(self):
-        return fn
+    def classnames(self):
+        return cn
 
     @property
     def featurenames(self):
-        return cn
+        return fn
 
     def __clean(self, xf, varn):
         '''
@@ -122,7 +123,7 @@ class WaterGAP(DataBuilder):
         df.dropna(axis=0, inplace=True)
 
         if self.cells is None:
-            cells = df[["lat", "lon"]]
+            self.cells = df[["lat", "lon"]]
 
         if varn == "landcover":
             # Maps landcover to binary values
@@ -133,7 +134,7 @@ class WaterGAP(DataBuilder):
 
     def load_precip(self):
         path = 'precip_monthly_1975-2005.nc4'
-        date = xr.open_dataset(data_p + "pr_hist_HadGEM2-ES/" + path)
+        date = xr.open_dataset(self.data_p + "pr_hist_HadGEM2-ES/" + path)
         d = date.resample(time="1Y").sum() # calculate mm/year
         d = d.mean("time")
         if self.cut_land:
@@ -142,7 +143,7 @@ class WaterGAP(DataBuilder):
         df.sort_index(level=1, inplace=True)
         df = df.dropna()
         df = df.merge(self.cells, how="right", on=["lat", "lon"])
-        print(df.head(10))
+        # print(df.head(10))
         return df.pr.values
 
     def load_inputs(self):
@@ -152,7 +153,7 @@ class WaterGAP(DataBuilder):
         data = []
 
         for i in inputs:
-            date = xr.open_dataset(data_p + "inputs/" + i["data"], decode_times=False)
+            date = xr.open_dataset(self.data_p + "inputs/" + i["data"], decode_times=False)
 
             date_clean = self.__clean(date, i["varname"])
             data.append(date_clean)
@@ -174,7 +175,7 @@ class WaterGAP(DataBuilder):
         # Thus hist data = 01/01/1861 = 2400 months since 1661
 
         n = "watergap2_gfdl-esm2m_ewembi_historical_histsoc_co2_qr_global_monthly_1861_2005.nc4"
-        date = xr.open_dataset(data_p + "watergap/" + n, decode_times=False)
+        date = xr.open_dataset(self.data_p + "watergap/" + n, decode_times=False)
         date = date * conv
         date = date.sel(time=slice(m_start, m_end))
         units, year = date.time.attrs['units'].split('since')

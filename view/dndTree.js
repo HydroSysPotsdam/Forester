@@ -606,7 +606,7 @@ function draw_tree(error, treeData) {
                 return d.children || d._children ? "end" : "start";
             })
             .html(function(d) {
-                if (d.type == "leaf") return "<tspan x='0' dy='1.2em'>" + "Gini = " + d.impurity+ "</tspan>" +
+                if (d.type == "leaf") return "<tspan x='0' dy='1.2em'>" + "Gini = " + d.impurity.toFixed(2)+ "</tspan>" +
                     "<tspan x='0' dy='1.2em'>" + d.class + "</tspan>";
 
                 return "<tspan x='0' dy='1.2em'>" + d.name + "</tspan>" +

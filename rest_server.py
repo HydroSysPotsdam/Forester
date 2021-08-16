@@ -1,6 +1,6 @@
 from flask import Flask
 from flask_restful import reqparse, abort, Api, Resource
-from flask import render_template
+from flask import render_template, jsonify
 
 import model.TreeBuilder as TB
 from watergap import WaterGAP as wg
@@ -42,7 +42,7 @@ class Tree(Resource):
     def get(self, tree_id):
         abort_tree_doesnt_exist(tree_id)
         print("GET! {id}".format(id=tree_id))
-        return projects[tree_id].to_json()
+        return jsonify(projects[tree_id].to_json())
 
     def delete(self, tree_id):
         print("Delete! {id}".format(id=tree_id))

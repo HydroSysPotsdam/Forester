@@ -87,7 +87,14 @@
                             console.log("Created the tree.")
                         }
                     });
-                    var treeJSON = d3.json("trees/watergap", draw_tree);
+                    $.get(
+                        "/trees/watergap",
+                        function(data) {
+                            // for whatever reason d3 does not parse the json string correctly to an object
+                           var jobj = $.parseJSON(data);
+                           draw_tree("", jobj);
+                        }
+                    );
                 });
         </script>
 </body>

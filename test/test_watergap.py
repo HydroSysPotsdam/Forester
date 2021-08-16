@@ -10,3 +10,4 @@ import model.TreeBuilder as TB
 t_watergap = TB.TreeBuilder(wg("../../../CART-ISIMIP/data/"), 5, 2)
 t_watergap.fit()
 a = t_watergap.to_json()
+print(a)

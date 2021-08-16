@@ -58,7 +58,7 @@ class TreeBuilder(object):
                 return {"name": "LN", "impurity": float(impurity[i]), "type": "leaf",
                         "samples": int(samples[i]), "cl": val, "class": c_name, "cpos": int(pos)}
             else:
-                n = {"name": self.featurenames[feature[i] - 1], "type": "split-node", "samples": int(samples[i]),
+                n = {"name": self.featurenames[feature[i]], "type": "split-node", "samples": int(samples[i]),
                      "th": float(threshold[i]), "impurity": float(impurity[i]), "cl": val, "class": c_name,
                      "cpos": int(pos),
                      "children": [build_tree(left), build_tree(right)]}

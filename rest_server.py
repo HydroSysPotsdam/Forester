@@ -4,6 +4,7 @@ from flask import render_template, jsonify
 
 import model.TreeBuilder as TB
 from watergap import WaterGAP as wg
+from mohanetal import Mohanetal as mh
 
 app = Flask(__name__, static_folder='view')
 api = Api(app)
@@ -13,7 +14,8 @@ parser.add_argument('tree')
 
 # Read in current available project -> later through config file
 t_watergap = TB.TreeBuilder(wg("../../CART-ISIMIP/data/"), 5, 2)
-t_mohan = None
+t_mohan = TB.TreeBuilder(mh("../../CART-ISIMIP/data/Mohan-data/data.csv"), 5, 2)
+
 
 projects = {
     'watergap': t_watergap,
@@ -22,7 +24,8 @@ projects = {
 
 # TODO fit on-the-fly or cache fits
 print("Loading trees ...")
-projects["watergap"].fit()
+for p in projects.values():
+    p.fit()
 print("Finished fitting")
 
 

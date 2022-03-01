@@ -13,12 +13,12 @@ parser = reqparse.RequestParser()
 parser.add_argument('tree')
 
 # Read in current available project -> later through config file
-t_watergap = TB.TreeBuilder(wg("../../CART-ISIMIP/data/"), 5, 2)
-t_mohan = TB.TreeBuilder(mh("../../CART-ISIMIP/data/Mohan-data/data.csv"), 5, 2)
+t_watergap = TB.TreeBuilder(wg("test/data/"), 5, 2)
+t_mohan = TB.TreeBuilder(mh("test/data/mohan.csv"), 5, 2)
 
 
 projects = {
-    'watergap': t_watergap,
+#    'watergap': t_watergap,
     'mohan': t_mohan
 }
 

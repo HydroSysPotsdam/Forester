@@ -7,7 +7,7 @@ sys.path.append("..")
 from mohanetal import Mohanetal as mh
 import model.TreeBuilder as TB
 
-t_mohan = TB.TreeBuilder(mh("../../../CART-ISIMIP/data/Mohan-data/data.csv"), 5, 2)
+t_mohan = TB.TreeBuilder(mh("data/mohan.csv"), 5, 2)
 t_mohan.fit()
 a = t_mohan.to_json()
 print(a)

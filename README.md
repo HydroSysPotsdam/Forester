@@ -5,3 +5,5 @@ Interactive human-in-the-loop web-based vizualization of machine learning trees
 
 * Flask (inlcuding flask_restful)
 * Scipy
+
+David has contributed something really important!

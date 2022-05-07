@@ -1,7 +1,3 @@
-const myData = Array(40).fill().map(() => 100*Math.random());
-
-let bbox = d3.select("svg").node().getBoundingClientRect();
-
 fetch("/example/iris.json")
     .then(response => response.json())
     .then(treeData => buildTree(treeData))

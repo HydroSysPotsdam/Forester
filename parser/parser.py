@@ -60,6 +60,14 @@ def _parse_rpart_class(**kwargs):
                              write_degree_below(node['children'][1]) + len(node['children'])
             return node['degree']
 
+    def write_data_id_below(node, found_in_leaf):
+        if node['type'] == 'leaf':
+            node['data_id'] = np.sort(np.where(found_in_leaf == node['id'])[0]).tolist()
+        else:
+            node['data_id'] = write_data_id_below(node['children'][0], found_in_leaf) + \
+                              write_data_id_below(node['children'][1], found_in_leaf)
+        return node['data_id']
+
     # ----------- PARSING RPART ----------
     name = kwargs['name']
     fit = ro.r[name]
@@ -96,6 +104,10 @@ def _parse_rpart_class(**kwargs):
     classes = np.transpose(classes)
     n_classes = int((classes.shape[1] - 2) / 2)
 
+    # extract info on where the entries in the database ended up
+    # - 1 because the root node is 0 here
+    found_in_leaf = np.array(fit[1]) - 1
+
     # setup tree, the first element references the root node
     stack = []
 
@@ -108,7 +120,8 @@ def _parse_rpart_class(**kwargs):
             'degree': -1,
             'children': [],
             'samples': frame['n'][i],
-            'in': list(classes[i, 1:(n_classes + 1)]),
+            'data_id': -1,
+            'distribution': list(classes[i, 1:(n_classes + 1)]),
             'vote': int(classes[i, 0])
         }
 
@@ -116,9 +129,8 @@ def _parse_rpart_class(**kwargs):
             split = splits[split_index[i]]
             node['split'] = {
                 'feature': frame['var'][i],
-                'location': split[3],
-                'direction': '<' if split[1] < 0 else '>',
-                'inclusive': False
+                'operator': '<' if split[1] < 0 else '>',
+                'location': split[3]
             }
 
         # reconstruct tree structure
@@ -142,6 +154,10 @@ def _parse_rpart_class(**kwargs):
 
     # count the total number of children per node
     write_degree_below(stack[0])
+
+    # for each observation, write the data id into each node
+    # that is traversed during the decision
+    write_data_id_below(stack[0], found_in_leaf)
 
     tree = {
         'type': 'classification',

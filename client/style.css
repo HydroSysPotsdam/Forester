@@ -12,25 +12,15 @@ html, body {
     text: center;
 }
 
-.node {
-    text-anchor: start;
+.outline {
+    fill-opacity: 0;
+    stroke: black;
+    stroke-width: 2;
 }
 
-.node.root {
-    fill: darkblue;
-}
-
-.node.internal {
-    fill: cornflowerblue;
-}
-
-.node.leaf {
-    fill: lightskyblue;
-}
-
-.node circle:hover {
-    stroke-width: 4;
+.outline:hover {
     stroke: red;
+    stroke-width: 2;
 }
 
 .link {

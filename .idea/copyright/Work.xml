@@ -1,0 +1,6 @@
+<component name="CopyrightManager">
+  <copyright>
+    <option name="notice" value="CC-0 &amp;#36;originalComment.match(&quot;CC-0 \(c\) (\d+)&quot;, 1, &quot;-&quot;, &quot;&amp;#36;today.year&quot;)&amp;#36;today.year. &#10;David Strahl, University of Potsdam&#10;Forester: Interactive human-in-the-loop web-based visualization of machine learning trees" />
+    <option name="myName" value="Work" />
+  </copyright>
+</component>

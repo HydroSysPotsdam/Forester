@@ -2,7 +2,7 @@ const myData = Array(40).fill().map(() => 100*Math.random());
 
 let bbox = d3.select("svg").node().getBoundingClientRect();
 
-fetch("test.json")
+fetch("/example/iris.json")
     .then(response => response.json())
     .then(treeData => buildTree(treeData))
 
@@ -61,39 +61,47 @@ function buildTree (treeData) {
                    })
 
     // generate html nodes
-    const node = d3.select('.tree')
+    const all_node = d3.select('.tree')
                    .selectAll('g')
                    .data(nodes.descendants())
                    .join('g')
                    .attr('class', (d, i) => 'node ' + (i == 0 ? 'root' : (d.children ? 'internal' : 'leaf')))
+                   .attr('id', (d, i) => 'node' + d.data.id)
+                   .attr('transform', d => "translate(" + d.x + ", " + d.y + ")")
 
-    // place a circle at each node
-    node.append('circle')
-        .attr('r', 4)
-        .attr('cx', d => d.x)
-        .attr('cy', d => d.y)
-        .on('mouseenter', function (e, d) {
-            selection = d.id
-            buildTree(treeData)
-        })
-        .on('mouseout', function (e, d) {
-            selection = null
-            buildTree(treeData)
-        })
+    for (let i = 0; i < all_node.size(); i++) {
+        let node = d3.select('#node' + i)
+        let data = node.datum().data
+        CCircleIconView.illustrate(node, data)
+    }
+
+    // // place a circle at each node
+    // node.append('circle')
+    //     .attr('r', 4)
+    //     .attr('cx', d => d.x)
+    //     .attr('cy', d => d.y)
+    //     .on('mouseenter', function (e, d) {
+    //         selection = d.id
+    //         buildTree(treeData)
+    //     })
+    //     .on('mouseout', function (e, d) {
+    //         selection = null
+    //         buildTree(treeData)
+    //     })
 
     // add test text
     // TODO find a better solution to the alignment of the text
-    node.append('text')
-        .attr('x', d => d.x + 2)
-        .attr('y', d => d.y + 4)
-        .attr('dx', 5)
-        .text(function(d) {
-            if (d.data.type != 'leaf') {
-                return d.data.split.feature + " " + d.data.split.direction + " " + d.data.split.location.toFixed(2);
-            } else {
-                return d.data.vote;
-            }
-        });
+    // node.append('text')
+    //     .attr('x', d => d.x + 2)
+    //     .attr('y', d => d.y + 4)
+    //     .attr('dx', 5)
+    //     .text(function(d) {
+    //         if (d.data.type != 'leaf') {
+    //             return d.data.split.feature + " " + d.data.split.direction + " " + d.data.split.location.toFixed(2);
+    //         } else {
+    //             return d.data.vote;
+    //         }
+    //     });
 }
 
 function levelTraverse (tree, visitFn) {

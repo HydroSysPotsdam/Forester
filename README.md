@@ -15,11 +15,9 @@ __JavaScript__
 tree: {
         id:             "unique id in tree",
         type:           "root | split | leaf",
-        depth:          "depth of this node (root = 0)",
         children:       ["other nodes"], // children have the same structure
-        degree:         "total number of children connected to this node",
         samples:        "samples at the node",
-        in:             ["class distribution going in" | "regression values going in"]
+        distribution:   ["class distribution going in" | "regression values going in"]
         vote:           "majority vote class" | "regression value" | unknown
         split:    {
             feature:   "feature to split (variable)",

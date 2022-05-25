@@ -21,9 +21,14 @@ class View {
      * checking properties of the node.
      * @param node - The node that should be checked.
      */
-    applicable(data) {
+    applicable(node, meta) {
         throw Error("View does not implement function \'applicable\'")
         return false
+    }
+
+    size(node, meta) {
+        throw Error("View does not implement function \'size\'")
+        return this
     }
 
     /*
@@ -32,7 +37,7 @@ class View {
      * @param id   - The key of the HTML <g> element to which the
      *               illustration should be appended.
      */
-    illustrate(node, data) {
+    illustrate(selection, node, meta) {
         throw Error("View does not implement function \'illustrate\'")
         return this
     }
@@ -44,24 +49,28 @@ class View {
  * number of samples determines the size of the circle.
  */
 CCircleIconView = new View("Circle Icon View",
-    {'colors': ['#DDAA33', '#BB5566', '#004488'], 'r': 15})
+    {'colors': ['#DDAA33', '#BB5566', '#004488'], 'r': 25})
 
-CCircleIconView.applicable = function (data) {
-    return true
+CCircleIconView.applicable = function (node, meta) {
+    return Array.isArray(node.data.distribution)
 }
 
-CCircleIconView.illustrate = function (node, data) {
-    node.selectAll("path")
-        .data(d3.pie()(data.in))
+CCircleIconView.size = function (node, meta) {
+    let ns = 1 + node.data.samples/meta.samples*this.args.r
+    //console.log(ns)
+    return [24, 24]
+}
+
+CCircleIconView.illustrate = function (selection, node, meta) {
+    selection.selectAll("path")
+        .data(d3.pie()(node.data.distribution))
         .join("path")
-        .attr('d', d3.arc()
-                     .innerRadius(0)
-                     .outerRadius(this.args.r))
+        .attr('d', d3.arc().innerRadius(0).outerRadius(node.size[0]))
         .attr('fill', (d, i) => this.args.colors[i])
 
-    node.append('circle')
+    selection.append('circle')
         .attr('class', 'outline')
-        .attr('r', this.args.r)
+        .attr('r', d => node.size[0])
 }
 
 CSplitBarView = new View("Bar Chart Split View",
@@ -69,11 +78,11 @@ CSplitBarView = new View("Bar Chart Split View",
 
 CSplitBarView.illustrate = function (node, data) {
     let x = d3.scaleBand()
-              .domain(data.in.map((e, i) => "C" + (i + 1)))
+              .domain(data.distribution.map((e, i) => "C" + (i + 1)))
               .range([0, this.args.width])
               .padding(0.2)
     let y = d3.scaleLinear()
-              .domain([0, data.in.reduce((a, b) => a + b, 0)])
+              .domain([0, data.distribution.reduce((a, b) => a + b, 0)])
               .range([0, this.args.height])
 
     node.append('rect')
@@ -87,7 +96,7 @@ CSplitBarView.illustrate = function (node, data) {
     node.append('g')
         .attr('transform', 'translate(' + -this.args.width/2 + ', ' + -this.args.height/2 + ')')
         .selectAll('rect')
-        .data(data.in)
+        .data(data.distribution)
         .join('rect')
         .attr("x", (d, i) => x("C" + (i + 1)))
         .attr("y", d => y(d))

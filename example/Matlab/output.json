@@ -1,0 +1,881 @@
+{
+  "Y": [
+    "setosa", "setosa", "setosa", "setosa", "setosa", "setosa", "setosa", "setosa", "setosa", "setosa", "setosa",
+    "setosa", "setosa", "setosa", "setosa", "setosa", "setosa", "setosa", "setosa", "setosa", "setosa", "setosa",
+    "setosa", "setosa", "setosa", "setosa", "setosa", "setosa", "setosa", "setosa", "setosa", "setosa", "setosa",
+    "setosa", "setosa", "setosa", "setosa", "setosa", "setosa", "setosa", "setosa", "setosa", "setosa", "setosa",
+    "setosa", "setosa", "setosa", "setosa", "setosa", "setosa", "versicolor", "versicolor", "versicolor", "versicolor",
+    "versicolor", "versicolor", "versicolor", "versicolor", "versicolor", "versicolor", "versicolor", "versicolor",
+    "versicolor", "versicolor", "versicolor", "versicolor", "versicolor", "versicolor", "versicolor", "versicolor",
+    "versicolor", "versicolor", "versicolor", "versicolor", "versicolor", "versicolor", "versicolor", "versicolor",
+    "versicolor", "versicolor", "versicolor", "versicolor", "versicolor", "versicolor", "versicolor", "versicolor",
+    "versicolor", "versicolor", "versicolor", "versicolor", "versicolor", "versicolor", "versicolor", "versicolor",
+    "versicolor", "versicolor", "versicolor", "versicolor", "versicolor", "versicolor", "virginica", "virginica",
+    "virginica", "virginica", "virginica", "virginica", "virginica", "virginica", "virginica", "virginica", "virginica",
+    "virginica", "virginica", "virginica", "virginica", "virginica", "virginica", "virginica", "virginica", "virginica",
+    "virginica", "virginica", "virginica", "virginica", "virginica", "virginica", "virginica", "virginica", "virginica",
+    "virginica", "virginica", "virginica", "virginica", "virginica", "virginica", "virginica", "virginica", "virginica",
+    "virginica", "virginica", "virginica", "virginica", "virginica", "virginica", "virginica", "virginica", "virginica",
+    "virginica", "virginica", "virginica"
+  ],
+  "X": [
+    {
+      "Sepal_Length": 5.1,
+      "Sepal_Width": 3.5,
+      "Petal_Length": 1.4,
+      "Petal_Width": 0.2
+    }, {
+      "Sepal_Length": 4.9,
+      "Sepal_Width": 3,
+      "Petal_Length": 1.4,
+      "Petal_Width": 0.2
+    }, {
+      "Sepal_Length": 4.7,
+      "Sepal_Width": 3.2,
+      "Petal_Length": 1.3,
+      "Petal_Width": 0.2
+    }, {
+      "Sepal_Length": 4.6,
+      "Sepal_Width": 3.1,
+      "Petal_Length": 1.5,
+      "Petal_Width": 0.2
+    }, {
+      "Sepal_Length": 5,
+      "Sepal_Width": 3.6,
+      "Petal_Length": 1.4,
+      "Petal_Width": 0.2
+    }, {
+      "Sepal_Length": 5.4,
+      "Sepal_Width": 3.9,
+      "Petal_Length": 1.7,
+      "Petal_Width": 0.4
+    }, {
+      "Sepal_Length": 4.6,
+      "Sepal_Width": 3.4,
+      "Petal_Length": 1.4,
+      "Petal_Width": 0.3
+    }, {
+      "Sepal_Length": 5,
+      "Sepal_Width": 3.4,
+      "Petal_Length": 1.5,
+      "Petal_Width": 0.2
+    }, {
+      "Sepal_Length": 4.4,
+      "Sepal_Width": 2.9,
+      "Petal_Length": 1.4,
+      "Petal_Width": 0.2
+    }, {
+      "Sepal_Length": 4.9,
+      "Sepal_Width": 3.1,
+      "Petal_Length": 1.5,
+      "Petal_Width": 0.1
+    }, {
+      "Sepal_Length": 5.4,
+      "Sepal_Width": 3.7,
+      "Petal_Length": 1.5,
+      "Petal_Width": 0.2
+    }, {
+      "Sepal_Length": 4.8,
+      "Sepal_Width": 3.4,
+      "Petal_Length": 1.6,
+      "Petal_Width": 0.2
+    }, {
+      "Sepal_Length": 4.8,
+      "Sepal_Width": 3,
+      "Petal_Length": 1.4,
+      "Petal_Width": 0.1
+    }, {
+      "Sepal_Length": 4.3,
+      "Sepal_Width": 3,
+      "Petal_Length": 1.1,
+      "Petal_Width": 0.1
+    }, {
+      "Sepal_Length": 5.8,
+      "Sepal_Width": 4,
+      "Petal_Length": 1.2,
+      "Petal_Width": 0.2
+    }, {
+      "Sepal_Length": 5.7,
+      "Sepal_Width": 4.4,
+      "Petal_Length": 1.5,
+      "Petal_Width": 0.4
+    }, {
+      "Sepal_Length": 5.4,
+      "Sepal_Width": 3.9,
+      "Petal_Length": 1.3,
+      "Petal_Width": 0.4
+    }, {
+      "Sepal_Length": 5.1,
+      "Sepal_Width": 3.5,
+      "Petal_Length": 1.4,
+      "Petal_Width": 0.3
+    }, {
+      "Sepal_Length": 5.7,
+      "Sepal_Width": 3.8,
+      "Petal_Length": 1.7,
+      "Petal_Width": 0.3
+    }, {
+      "Sepal_Length": 5.1,
+      "Sepal_Width": 3.8,
+      "Petal_Length": 1.5,
+      "Petal_Width": 0.3
+    }, {
+      "Sepal_Length": 5.4,
+      "Sepal_Width": 3.4,
+      "Petal_Length": 1.7,
+      "Petal_Width": 0.2
+    }, {
+      "Sepal_Length": 5.1,
+      "Sepal_Width": 3.7,
+      "Petal_Length": 1.5,
+      "Petal_Width": 0.4
+    }, {
+      "Sepal_Length": 4.6,
+      "Sepal_Width": 3.6,
+      "Petal_Length": 1,
+      "Petal_Width": 0.2
+    }, {
+      "Sepal_Length": 5.1,
+      "Sepal_Width": 3.3,
+      "Petal_Length": 1.7,
+      "Petal_Width": 0.5
+    }, {
+      "Sepal_Length": 4.8,
+      "Sepal_Width": 3.4,
+      "Petal_Length": 1.9,
+      "Petal_Width": 0.2
+    }, {
+      "Sepal_Length": 5,
+      "Sepal_Width": 3,
+      "Petal_Length": 1.6,
+      "Petal_Width": 0.2
+    }, {
+      "Sepal_Length": 5,
+      "Sepal_Width": 3.4,
+      "Petal_Length": 1.6,
+      "Petal_Width": 0.4
+    }, {
+      "Sepal_Length": 5.2,
+      "Sepal_Width": 3.5,
+      "Petal_Length": 1.5,
+      "Petal_Width": 0.2
+    }, {
+      "Sepal_Length": 5.2,
+      "Sepal_Width": 3.4,
+      "Petal_Length": 1.4,
+      "Petal_Width": 0.2
+    }, {
+      "Sepal_Length": 4.7,
+      "Sepal_Width": 3.2,
+      "Petal_Length": 1.6,
+      "Petal_Width": 0.2
+    }, {
+      "Sepal_Length": 4.8,
+      "Sepal_Width": 3.1,
+      "Petal_Length": 1.6,
+      "Petal_Width": 0.2
+    }, {
+      "Sepal_Length": 5.4,
+      "Sepal_Width": 3.4,
+      "Petal_Length": 1.5,
+      "Petal_Width": 0.4
+    }, {
+      "Sepal_Length": 5.2,
+      "Sepal_Width": 4.1,
+      "Petal_Length": 1.5,
+      "Petal_Width": 0.1
+    }, {
+      "Sepal_Length": 5.5,
+      "Sepal_Width": 4.2,
+      "Petal_Length": 1.4,
+      "Petal_Width": 0.2
+    }, {
+      "Sepal_Length": 4.9,
+      "Sepal_Width": 3.1,
+      "Petal_Length": 1.5,
+      "Petal_Width": 0.2
+    }, {
+      "Sepal_Length": 5,
+      "Sepal_Width": 3.2,
+      "Petal_Length": 1.2,
+      "Petal_Width": 0.2
+    }, {
+      "Sepal_Length": 5.5,
+      "Sepal_Width": 3.5,
+      "Petal_Length": 1.3,
+      "Petal_Width": 0.2
+    }, {
+      "Sepal_Length": 4.9,
+      "Sepal_Width": 3.6,
+      "Petal_Length": 1.4,
+      "Petal_Width": 0.1
+    }, {
+      "Sepal_Length": 4.4,
+      "Sepal_Width": 3,
+      "Petal_Length": 1.3,
+      "Petal_Width": 0.2
+    }, {
+      "Sepal_Length": 5.1,
+      "Sepal_Width": 3.4,
+      "Petal_Length": 1.5,
+      "Petal_Width": 0.2
+    }, {
+      "Sepal_Length": 5,
+      "Sepal_Width": 3.5,
+      "Petal_Length": 1.3,
+      "Petal_Width": 0.3
+    }, {
+      "Sepal_Length": 4.5,
+      "Sepal_Width": 2.3,
+      "Petal_Length": 1.3,
+      "Petal_Width": 0.3
+    }, {
+      "Sepal_Length": 4.4,
+      "Sepal_Width": 3.2,
+      "Petal_Length": 1.3,
+      "Petal_Width": 0.2
+    }, {
+      "Sepal_Length": 5,
+      "Sepal_Width": 3.5,
+      "Petal_Length": 1.6,
+      "Petal_Width": 0.6
+    }, {
+      "Sepal_Length": 5.1,
+      "Sepal_Width": 3.8,
+      "Petal_Length": 1.9,
+      "Petal_Width": 0.4
+    }, {
+      "Sepal_Length": 4.8,
+      "Sepal_Width": 3,
+      "Petal_Length": 1.4,
+      "Petal_Width": 0.3
+    }, {
+      "Sepal_Length": 5.1,
+      "Sepal_Width": 3.8,
+      "Petal_Length": 1.6,
+      "Petal_Width": 0.2
+    }, {
+      "Sepal_Length": 4.6,
+      "Sepal_Width": 3.2,
+      "Petal_Length": 1.4,
+      "Petal_Width": 0.2
+    }, {
+      "Sepal_Length": 5.3,
+      "Sepal_Width": 3.7,
+      "Petal_Length": 1.5,
+      "Petal_Width": 0.2
+    }, {
+      "Sepal_Length": 5,
+      "Sepal_Width": 3.3,
+      "Petal_Length": 1.4,
+      "Petal_Width": 0.2
+    }, {
+      "Sepal_Length": 7,
+      "Sepal_Width": 3.2,
+      "Petal_Length": 4.7,
+      "Petal_Width": 1.4
+    }, {
+      "Sepal_Length": 6.4,
+      "Sepal_Width": 3.2,
+      "Petal_Length": 4.5,
+      "Petal_Width": 1.5
+    }, {
+      "Sepal_Length": 6.9,
+      "Sepal_Width": 3.1,
+      "Petal_Length": 4.9,
+      "Petal_Width": 1.5
+    }, {
+      "Sepal_Length": 5.5,
+      "Sepal_Width": 2.3,
+      "Petal_Length": 4,
+      "Petal_Width": 1.3
+    }, {
+      "Sepal_Length": 6.5,
+      "Sepal_Width": 2.8,
+      "Petal_Length": 4.6,
+      "Petal_Width": 1.5
+    }, {
+      "Sepal_Length": 5.7,
+      "Sepal_Width": 2.8,
+      "Petal_Length": 4.5,
+      "Petal_Width": 1.3
+    }, {
+      "Sepal_Length": 6.3,
+      "Sepal_Width": 3.3,
+      "Petal_Length": 4.7,
+      "Petal_Width": 1.6
+    }, {
+      "Sepal_Length": 4.9,
+      "Sepal_Width": 2.4,
+      "Petal_Length": 3.3,
+      "Petal_Width": 1
+    }, {
+      "Sepal_Length": 6.6,
+      "Sepal_Width": 2.9,
+      "Petal_Length": 4.6,
+      "Petal_Width": 1.3
+    }, {
+      "Sepal_Length": 5.2,
+      "Sepal_Width": 2.7,
+      "Petal_Length": 3.9,
+      "Petal_Width": 1.4
+    }, {
+      "Sepal_Length": 5,
+      "Sepal_Width": 2,
+      "Petal_Length": 3.5,
+      "Petal_Width": 1
+    }, {
+      "Sepal_Length": 5.9,
+      "Sepal_Width": 3,
+      "Petal_Length": 4.2,
+      "Petal_Width": 1.5
+    }, {
+      "Sepal_Length": 6,
+      "Sepal_Width": 2.2,
+      "Petal_Length": 4,
+      "Petal_Width": 1
+    }, {
+      "Sepal_Length": 6.1,
+      "Sepal_Width": 2.9,
+      "Petal_Length": 4.7,
+      "Petal_Width": 1.4
+    }, {
+      "Sepal_Length": 5.6,
+      "Sepal_Width": 2.9,
+      "Petal_Length": 3.6,
+      "Petal_Width": 1.3
+    }, {
+      "Sepal_Length": 6.7,
+      "Sepal_Width": 3.1,
+      "Petal_Length": 4.4,
+      "Petal_Width": 1.4
+    }, {
+      "Sepal_Length": 5.6,
+      "Sepal_Width": 3,
+      "Petal_Length": 4.5,
+      "Petal_Width": 1.5
+    }, {
+      "Sepal_Length": 5.8,
+      "Sepal_Width": 2.7,
+      "Petal_Length": 4.1,
+      "Petal_Width": 1
+    }, {
+      "Sepal_Length": 6.2,
+      "Sepal_Width": 2.2,
+      "Petal_Length": 4.5,
+      "Petal_Width": 1.5
+    }, {
+      "Sepal_Length": 5.6,
+      "Sepal_Width": 2.5,
+      "Petal_Length": 3.9,
+      "Petal_Width": 1.1
+    }, {
+      "Sepal_Length": 5.9,
+      "Sepal_Width": 3.2,
+      "Petal_Length": 4.8,
+      "Petal_Width": 1.8
+    }, {
+      "Sepal_Length": 6.1,
+      "Sepal_Width": 2.8,
+      "Petal_Length": 4,
+      "Petal_Width": 1.3
+    }, {
+      "Sepal_Length": 6.3,
+      "Sepal_Width": 2.5,
+      "Petal_Length": 4.9,
+      "Petal_Width": 1.5
+    }, {
+      "Sepal_Length": 6.1,
+      "Sepal_Width": 2.8,
+      "Petal_Length": 4.7,
+      "Petal_Width": 1.2
+    }, {
+      "Sepal_Length": 6.4,
+      "Sepal_Width": 2.9,
+      "Petal_Length": 4.3,
+      "Petal_Width": 1.3
+    }, {
+      "Sepal_Length": 6.6,
+      "Sepal_Width": 3,
+      "Petal_Length": 4.4,
+      "Petal_Width": 1.4
+    }, {
+      "Sepal_Length": 6.8,
+      "Sepal_Width": 2.8,
+      "Petal_Length": 4.8,
+      "Petal_Width": 1.4
+    }, {
+      "Sepal_Length": 6.7,
+      "Sepal_Width": 3,
+      "Petal_Length": 5,
+      "Petal_Width": 1.7
+    }, {
+      "Sepal_Length": 6,
+      "Sepal_Width": 2.9,
+      "Petal_Length": 4.5,
+      "Petal_Width": 1.5
+    }, {
+      "Sepal_Length": 5.7,
+      "Sepal_Width": 2.6,
+      "Petal_Length": 3.5,
+      "Petal_Width": 1
+    }, {
+      "Sepal_Length": 5.5,
+      "Sepal_Width": 2.4,
+      "Petal_Length": 3.8,
+      "Petal_Width": 1.1
+    }, {
+      "Sepal_Length": 5.5,
+      "Sepal_Width": 2.4,
+      "Petal_Length": 3.7,
+      "Petal_Width": 1
+    }, {
+      "Sepal_Length": 5.8,
+      "Sepal_Width": 2.7,
+      "Petal_Length": 3.9,
+      "Petal_Width": 1.2
+    }, {
+      "Sepal_Length": 6,
+      "Sepal_Width": 2.7,
+      "Petal_Length": 5.1,
+      "Petal_Width": 1.6
+    }, {
+      "Sepal_Length": 5.4,
+      "Sepal_Width": 3,
+      "Petal_Length": 4.5,
+      "Petal_Width": 1.5
+    }, {
+      "Sepal_Length": 6,
+      "Sepal_Width": 3.4,
+      "Petal_Length": 4.5,
+      "Petal_Width": 1.6
+    }, {
+      "Sepal_Length": 6.7,
+      "Sepal_Width": 3.1,
+      "Petal_Length": 4.7,
+      "Petal_Width": 1.5
+    }, {
+      "Sepal_Length": 6.3,
+      "Sepal_Width": 2.3,
+      "Petal_Length": 4.4,
+      "Petal_Width": 1.3
+    }, {
+      "Sepal_Length": 5.6,
+      "Sepal_Width": 3,
+      "Petal_Length": 4.1,
+      "Petal_Width": 1.3
+    }, {
+      "Sepal_Length": 5.5,
+      "Sepal_Width": 2.5,
+      "Petal_Length": 4,
+      "Petal_Width": 1.3
+    }, {
+      "Sepal_Length": 5.5,
+      "Sepal_Width": 2.6,
+      "Petal_Length": 4.4,
+      "Petal_Width": 1.2
+    }, {
+      "Sepal_Length": 6.1,
+      "Sepal_Width": 3,
+      "Petal_Length": 4.6,
+      "Petal_Width": 1.4
+    }, {
+      "Sepal_Length": 5.8,
+      "Sepal_Width": 2.6,
+      "Petal_Length": 4,
+      "Petal_Width": 1.2
+    }, {
+      "Sepal_Length": 5,
+      "Sepal_Width": 2.3,
+      "Petal_Length": 3.3,
+      "Petal_Width": 1
+    }, {
+      "Sepal_Length": 5.6,
+      "Sepal_Width": 2.7,
+      "Petal_Length": 4.2,
+      "Petal_Width": 1.3
+    }, {
+      "Sepal_Length": 5.7,
+      "Sepal_Width": 3,
+      "Petal_Length": 4.2,
+      "Petal_Width": 1.2
+    }, {
+      "Sepal_Length": 5.7,
+      "Sepal_Width": 2.9,
+      "Petal_Length": 4.2,
+      "Petal_Width": 1.3
+    }, {
+      "Sepal_Length": 6.2,
+      "Sepal_Width": 2.9,
+      "Petal_Length": 4.3,
+      "Petal_Width": 1.3
+    }, {
+      "Sepal_Length": 5.1,
+      "Sepal_Width": 2.5,
+      "Petal_Length": 3,
+      "Petal_Width": 1.1
+    }, {
+      "Sepal_Length": 5.7,
+      "Sepal_Width": 2.8,
+      "Petal_Length": 4.1,
+      "Petal_Width": 1.3
+    }, {
+      "Sepal_Length": 6.3,
+      "Sepal_Width": 3.3,
+      "Petal_Length": 6,
+      "Petal_Width": 2.5
+    }, {
+      "Sepal_Length": 5.8,
+      "Sepal_Width": 2.7,
+      "Petal_Length": 5.1,
+      "Petal_Width": 1.9
+    }, {
+      "Sepal_Length": 7.1,
+      "Sepal_Width": 3,
+      "Petal_Length": 5.9,
+      "Petal_Width": 2.1
+    }, {
+      "Sepal_Length": 6.3,
+      "Sepal_Width": 2.9,
+      "Petal_Length": 5.6,
+      "Petal_Width": 1.8
+    }, {
+      "Sepal_Length": 6.5,
+      "Sepal_Width": 3,
+      "Petal_Length": 5.8,
+      "Petal_Width": 2.2
+    }, {
+      "Sepal_Length": 7.6,
+      "Sepal_Width": 3,
+      "Petal_Length": 6.6,
+      "Petal_Width": 2.1
+    }, {
+      "Sepal_Length": 4.9,
+      "Sepal_Width": 2.5,
+      "Petal_Length": 4.5,
+      "Petal_Width": 1.7
+    }, {
+      "Sepal_Length": 7.3,
+      "Sepal_Width": 2.9,
+      "Petal_Length": 6.3,
+      "Petal_Width": 1.8
+    }, {
+      "Sepal_Length": 6.7,
+      "Sepal_Width": 2.5,
+      "Petal_Length": 5.8,
+      "Petal_Width": 1.8
+    }, {
+      "Sepal_Length": 7.2,
+      "Sepal_Width": 3.6,
+      "Petal_Length": 6.1,
+      "Petal_Width": 2.5
+    }, {
+      "Sepal_Length": 6.5,
+      "Sepal_Width": 3.2,
+      "Petal_Length": 5.1,
+      "Petal_Width": 2
+    }, {
+      "Sepal_Length": 6.4,
+      "Sepal_Width": 2.7,
+      "Petal_Length": 5.3,
+      "Petal_Width": 1.9
+    }, {
+      "Sepal_Length": 6.8,
+      "Sepal_Width": 3,
+      "Petal_Length": 5.5,
+      "Petal_Width": 2.1
+    }, {
+      "Sepal_Length": 5.7,
+      "Sepal_Width": 2.5,
+      "Petal_Length": 5,
+      "Petal_Width": 2
+    }, {
+      "Sepal_Length": 5.8,
+      "Sepal_Width": 2.8,
+      "Petal_Length": 5.1,
+      "Petal_Width": 2.4
+    }, {
+      "Sepal_Length": 6.4,
+      "Sepal_Width": 3.2,
+      "Petal_Length": 5.3,
+      "Petal_Width": 2.3
+    }, {
+      "Sepal_Length": 6.5,
+      "Sepal_Width": 3,
+      "Petal_Length": 5.5,
+      "Petal_Width": 1.8
+    }, {
+      "Sepal_Length": 7.7,
+      "Sepal_Width": 3.8,
+      "Petal_Length": 6.7,
+      "Petal_Width": 2.2
+    }, {
+      "Sepal_Length": 7.7,
+      "Sepal_Width": 2.6,
+      "Petal_Length": 6.9,
+      "Petal_Width": 2.3
+    }, {
+      "Sepal_Length": 6,
+      "Sepal_Width": 2.2,
+      "Petal_Length": 5,
+      "Petal_Width": 1.5
+    }, {
+      "Sepal_Length": 6.9,
+      "Sepal_Width": 3.2,
+      "Petal_Length": 5.7,
+      "Petal_Width": 2.3
+    }, {
+      "Sepal_Length": 5.6,
+      "Sepal_Width": 2.8,
+      "Petal_Length": 4.9,
+      "Petal_Width": 2
+    }, {
+      "Sepal_Length": 7.7,
+      "Sepal_Width": 2.8,
+      "Petal_Length": 6.7,
+      "Petal_Width": 2
+    }, {
+      "Sepal_Length": 6.3,
+      "Sepal_Width": 2.7,
+      "Petal_Length": 4.9,
+      "Petal_Width": 1.8
+    }, {
+      "Sepal_Length": 6.7,
+      "Sepal_Width": 3.3,
+      "Petal_Length": 5.7,
+      "Petal_Width": 2.1
+    }, {
+      "Sepal_Length": 7.2,
+      "Sepal_Width": 3.2,
+      "Petal_Length": 6,
+      "Petal_Width": 1.8
+    }, {
+      "Sepal_Length": 6.2,
+      "Sepal_Width": 2.8,
+      "Petal_Length": 4.8,
+      "Petal_Width": 1.8
+    }, {
+      "Sepal_Length": 6.1,
+      "Sepal_Width": 3,
+      "Petal_Length": 4.9,
+      "Petal_Width": 1.8
+    }, {
+      "Sepal_Length": 6.4,
+      "Sepal_Width": 2.8,
+      "Petal_Length": 5.6,
+      "Petal_Width": 2.1
+    }, {
+      "Sepal_Length": 7.2,
+      "Sepal_Width": 3,
+      "Petal_Length": 5.8,
+      "Petal_Width": 1.6
+    }, {
+      "Sepal_Length": 7.4,
+      "Sepal_Width": 2.8,
+      "Petal_Length": 6.1,
+      "Petal_Width": 1.9
+    }, {
+      "Sepal_Length": 7.9,
+      "Sepal_Width": 3.8,
+      "Petal_Length": 6.4,
+      "Petal_Width": 2
+    }, {
+      "Sepal_Length": 6.4,
+      "Sepal_Width": 2.8,
+      "Petal_Length": 5.6,
+      "Petal_Width": 2.2
+    }, {
+      "Sepal_Length": 6.3,
+      "Sepal_Width": 2.8,
+      "Petal_Length": 5.1,
+      "Petal_Width": 1.5
+    }, {
+      "Sepal_Length": 6.1,
+      "Sepal_Width": 2.6,
+      "Petal_Length": 5.6,
+      "Petal_Width": 1.4
+    }, {
+      "Sepal_Length": 7.7,
+      "Sepal_Width": 3,
+      "Petal_Length": 6.1,
+      "Petal_Width": 2.3
+    }, {
+      "Sepal_Length": 6.3,
+      "Sepal_Width": 3.4,
+      "Petal_Length": 5.6,
+      "Petal_Width": 2.4
+    }, {
+      "Sepal_Length": 6.4,
+      "Sepal_Width": 3.1,
+      "Petal_Length": 5.5,
+      "Petal_Width": 1.8
+    }, {
+      "Sepal_Length": 6,
+      "Sepal_Width": 3,
+      "Petal_Length": 4.8,
+      "Petal_Width": 1.8
+    }, {
+      "Sepal_Length": 6.9,
+      "Sepal_Width": 3.1,
+      "Petal_Length": 5.4,
+      "Petal_Width": 2.1
+    }, {
+      "Sepal_Length": 6.7,
+      "Sepal_Width": 3.1,
+      "Petal_Length": 5.6,
+      "Petal_Width": 2.4
+    }, {
+      "Sepal_Length": 6.9,
+      "Sepal_Width": 3.1,
+      "Petal_Length": 5.1,
+      "Petal_Width": 2.3
+    }, {
+      "Sepal_Length": 5.8,
+      "Sepal_Width": 2.7,
+      "Petal_Length": 5.1,
+      "Petal_Width": 1.9
+    }, {
+      "Sepal_Length": 6.8,
+      "Sepal_Width": 3.2,
+      "Petal_Length": 5.9,
+      "Petal_Width": 2.3
+    }, {
+      "Sepal_Length": 6.7,
+      "Sepal_Width": 3.3,
+      "Petal_Length": 5.7,
+      "Petal_Width": 2.5
+    }, {
+      "Sepal_Length": 6.7,
+      "Sepal_Width": 3,
+      "Petal_Length": 5.2,
+      "Petal_Width": 2.3
+    }, {
+      "Sepal_Length": 6.3,
+      "Sepal_Width": 2.5,
+      "Petal_Length": 5,
+      "Petal_Width": 1.9
+    }, {
+      "Sepal_Length": 6.5,
+      "Sepal_Width": 3,
+      "Petal_Length": 5.2,
+      "Petal_Width": 2
+    }, {
+      "Sepal_Length": 6.2,
+      "Sepal_Width": 3.4,
+      "Petal_Length": 5.4,
+      "Petal_Width": 2.3
+    }, {
+      "Sepal_Length": 5.9,
+      "Sepal_Width": 3,
+      "Petal_Length": 5.1,
+      "Petal_Width": 1.8
+    }
+  ],
+  "RowsUsed": [],
+  "W": [
+    0.0066666666666666662, 0.0066666666666666662, 0.0066666666666666662, 0.0066666666666666662, 0.0066666666666666662,
+    0.0066666666666666662, 0.0066666666666666662, 0.0066666666666666662, 0.0066666666666666662, 0.0066666666666666662,
+    0.0066666666666666662, 0.0066666666666666662, 0.0066666666666666662, 0.0066666666666666662, 0.0066666666666666662,
+    0.0066666666666666662, 0.0066666666666666662, 0.0066666666666666662, 0.0066666666666666662, 0.0066666666666666662,
+    0.0066666666666666662, 0.0066666666666666662, 0.0066666666666666662, 0.0066666666666666662, 0.0066666666666666662,
+    0.0066666666666666662, 0.0066666666666666662, 0.0066666666666666662, 0.0066666666666666662, 0.0066666666666666662,
+    0.0066666666666666662, 0.0066666666666666662, 0.0066666666666666662, 0.0066666666666666662, 0.0066666666666666662,
+    0.0066666666666666662, 0.0066666666666666662, 0.0066666666666666662, 0.0066666666666666662, 0.0066666666666666662,
+    0.0066666666666666662, 0.0066666666666666662, 0.0066666666666666662, 0.0066666666666666662, 0.0066666666666666662,
+    0.0066666666666666662, 0.0066666666666666662, 0.0066666666666666662, 0.0066666666666666662, 0.0066666666666666662,
+    0.0066666666666666662, 0.0066666666666666662, 0.0066666666666666662, 0.0066666666666666662, 0.0066666666666666662,
+    0.0066666666666666662, 0.0066666666666666662, 0.0066666666666666662, 0.0066666666666666662, 0.0066666666666666662,
+    0.0066666666666666662, 0.0066666666666666662, 0.0066666666666666662, 0.0066666666666666662, 0.0066666666666666662,
+    0.0066666666666666662, 0.0066666666666666662, 0.0066666666666666662, 0.0066666666666666662, 0.0066666666666666662,
+    0.0066666666666666662, 0.0066666666666666662, 0.0066666666666666662, 0.0066666666666666662, 0.0066666666666666662,
+    0.0066666666666666662, 0.0066666666666666662, 0.0066666666666666662, 0.0066666666666666662, 0.0066666666666666662,
+    0.0066666666666666662, 0.0066666666666666662, 0.0066666666666666662, 0.0066666666666666662, 0.0066666666666666662,
+    0.0066666666666666662, 0.0066666666666666662, 0.0066666666666666662, 0.0066666666666666662, 0.0066666666666666662,
+    0.0066666666666666662, 0.0066666666666666662, 0.0066666666666666662, 0.0066666666666666662, 0.0066666666666666662,
+    0.0066666666666666662, 0.0066666666666666662, 0.0066666666666666662, 0.0066666666666666662, 0.0066666666666666662,
+    0.0066666666666666662, 0.0066666666666666662, 0.0066666666666666662, 0.0066666666666666662, 0.0066666666666666662,
+    0.0066666666666666662, 0.0066666666666666662, 0.0066666666666666662, 0.0066666666666666662, 0.0066666666666666662,
+    0.0066666666666666662, 0.0066666666666666662, 0.0066666666666666662, 0.0066666666666666662, 0.0066666666666666662,
+    0.0066666666666666662, 0.0066666666666666662, 0.0066666666666666662, 0.0066666666666666662, 0.0066666666666666662,
+    0.0066666666666666662, 0.0066666666666666662, 0.0066666666666666662, 0.0066666666666666662, 0.0066666666666666662,
+    0.0066666666666666662, 0.0066666666666666662, 0.0066666666666666662, 0.0066666666666666662, 0.0066666666666666662,
+    0.0066666666666666662, 0.0066666666666666662, 0.0066666666666666662, 0.0066666666666666662, 0.0066666666666666662,
+    0.0066666666666666662, 0.0066666666666666662, 0.0066666666666666662, 0.0066666666666666662, 0.0066666666666666662,
+    0.0066666666666666662, 0.0066666666666666662, 0.0066666666666666662, 0.0066666666666666662, 0.0066666666666666662,
+    0.0066666666666666662, 0.0066666666666666662, 0.0066666666666666662, 0.0066666666666666662, 0.0066666666666666662
+  ],
+  "ModelParameters": {
+    "SplitCriterion": "gdi",
+    "MinParent": 10,
+    "MinLeaf": 1,
+    "MaxSplits": 149,
+    "NVarToSample": "all",
+    "MergeLeaves": "on",
+    "Prune": "on",
+    "PruneCriterion": "error",
+    "QEToler": [],
+    "NSurrogate": 0,
+    "MaxCat": 10,
+    "AlgCat": "auto",
+    "PredictorSelection": "allsplits",
+    "UseChisqTest": true,
+    "Stream": [],
+    "Reproducible": false,
+    "Version": 3,
+    "Method": "Tree",
+    "Type": "classification"
+  },
+  "NumObservations": 150,
+  "BinEdges": [],
+  "HyperparameterOptimizationResults": [],
+  "PredictorNames": ["Sepal.Length", "Sepal.Width", "Petal.Length", "Petal.Width"],
+  "CategoricalPredictors": [],
+  "ResponseName": "Species",
+  "ExpandedPredictorNames": ["Sepal.Length", "Sepal.Width", "Petal.Length", "Petal.Width"],
+  "ClassNames": ["setosa", "versicolor", "virginica"],
+  "Prior": [0.33333333333333331, 0.33333333333333331, 0.33333333333333331],
+  "Cost": [[0, 1, 1], [1, 0, 1], [1, 1, 0]],
+  "ScoreTransform": "none",
+  "CategoricalSplit": [],
+  "Children": [[2, 3], [0, 0], [4, 5], [6, 7], [0, 0], [8, 9], [0, 0], [0, 0], [0, 0]],
+  "ClassCount": [
+    [50, 50, 50], [50, 0, 0], [0, 50, 50], [0, 49, 5], [0, 1, 45], [0, 47, 1], [0, 2, 4], [0, 47, 0], [0, 0, 1]
+  ],
+  "ClassProbability": [
+    [0.33333333333333337, 0.33333333333333337, 0.33333333333333337], [1, 0, 0], [0, 0.5, 0.5],
+    [0, 0.90740740740740733, 0.092592592592592685], [0, 0.021739130434782629, 0.97826086956521741],
+    [0, 0.97916666666666663, 0.020833333333333353], [0, 0.33333333333333337, 0.66666666666666674], [0, 1, 0], [0, 0, 1]
+  ],
+  "CutCategories": [[], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], []],
+  "CutPoint": [2.45, null, 1.75, 4.95, null, 1.65, null, null, null],
+  "CutType": ["continuous", "", "continuous", "continuous", "", "continuous", "", "", ""],
+  "CutPredictor": ["Petal.Length", "", "Petal.Width", "Petal.Length", "", "Petal.Width", "", "", ""],
+  "CutPredictorIndex": [3, 0, 4, 3, 0, 4, 0, 0, 0],
+  "IsBranchNode": [true, false, true, true, false, true, false, false, false],
+  "NodeClass": [
+    "setosa", "setosa", "versicolor", "versicolor", "virginica", "versicolor", "virginica", "versicolor", "virginica"
+  ],
+  "NodeError": [
+    0.66666666666666674, 0, 0.5, 0.092592592592592685, 0.021739130434782629, 0.020833333333333353, 0.33333333333333337,
+    0, 0
+  ],
+  "NodeProbability": [
+    0.99999999999999889, 0.333333333333333, 0.666666666666666, 0.35999999999999965, 0.30666666666666637,
+    0.31999999999999967, 0.039999999999999994, 0.313333333333333, 0.0066666666666666662
+  ],
+  "NodeRisk": [
+    0.66666666666666585, 0, 0.333333333333333, 0.060493827160493778, 0.013043478260869575, 0.013055555555555558,
+    0.017777777777777771, 0, 0
+  ],
+  "NodeSize": [150, 50, 100, 54, 46, 48, 6, 47, 1],
+  "NumNodes": 9,
+  "Parent": [0, 1, 1, 3, 3, 4, 4, 6, 6],
+  "PruneAlpha": [0, 0.0066666666666666541, 0.013333333333333343, 0.293333333333333, 0.33333333333333287],
+  "PruneList": [4, 0, 3, 2, 0, 1, 0, 0, 0],
+  "SurrogateCutCategories": [],
+  "SurrogateCutFlip": [],
+  "SurrogateCutPoint": [],
+  "SurrogateCutType": [],
+  "SurrogateCutPredictor": [],
+  "SurrogatePredictorAssociation": []
+}

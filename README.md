@@ -12,23 +12,32 @@ __JavaScript__
 
 ## General CART Interface Format
 ```
-tree: {
-        id:             "unique id in tree",
-        type:           "root | split | leaf",
-        depth:          "depth of this node (root = 0)",
-        children:       ["other nodes"], // children have the same structure
-        degree:         "total number of children connected to this node",
-        samples:        "samples at the node",
-        in:             ["class distribution going in" | "regression values going in"]
-        vote:           "majority vote class" | "regression value" | unknown
-        split:    {
-            feature:   "feature to split (variable)",
-            operator:  "binary operator that applies to feature and location, e.g. <=, >=, =="
-            location:  "location of split (criterion)",
-            statistics: {
-                gini:  "gini impurity of split",
-                hstat: "h statistics of split"
-                // ...
-            }
+{
+    "meta": {
+    "type":        "classification | regression",
+    "features":     ["list of features"],
+    "classes":      ["list of classes"],
+    "samples":      "total sample number",
+    "data name":    "name of dataset",
+    "origin":       "R.rpart | Matlab.tree | ..."
+  },
+
+  tree: {
+    id:             "unique id in tree",
+    children:       ["other nodes"],
+    samples:        "samples at the node",
+    distribution:   ["class distribution going in" | "regression values going in"]
+    vote:           "majority vote class" | "regression value" | unknown
+    split:    {
+        feature:   "feature to split",
+        operator:      "< | > | == | != ..."
+        location:  "location of split",
+        statistics: {
+            gini:  "gini impurity of split",
+            hstat: "h statistics of split"
+            // ...
         }
+    }
+  }
+}
 ```

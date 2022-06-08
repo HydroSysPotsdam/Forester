@@ -5,6 +5,11 @@
     <orderEntry type="jdk" jdkName="Python 3.9 (Forester)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="@types/d3" level="application" />
+    <orderEntry type="library" name="@types/d3" level="application" />
+    <orderEntry type="library" name="d3.v7" level="application" />
+    <orderEntry type="library" name="chroma-js" level="application" />
+    <orderEntry type="library" name="@floating-ui" level="application" />
+    <orderEntry type="library" name="@popperjs" level="application" />
   </component>
   <component name="PyDocumentationSettings">
     <option name="renderExternalDocumentation" value="true" />
@@ -12,7 +17,7 @@
   <component name="TemplatesService">
     <option name="TEMPLATE_FOLDERS">
       <list>
-        <option value="$MODULE_DIR$/templates" />
+        <option value="$MODULE_DIR$/src/view/templates" />
       </list>
     </option>
   </component>

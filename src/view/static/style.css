@@ -12,6 +12,10 @@ html, body {
     text: center;
 }
 
+.node {
+    cursor: pointer;
+}
+
 .outline {
     fill-opacity: 0;
     stroke: black;

@@ -1,3 +1,7 @@
+#  CC-0 2022.
+#  David Strahl, University of Potsdam
+#  Forester: Interactive human-in-the-loop web-based visualization of machine learning trees
+
 import os
 import json
 import numpy as np
@@ -271,7 +275,7 @@ FORMATS = {
 # file.close()
 
 # -- matlab iris database --
-mat = parse("../example/Matlab/output.json", origin="MAT.fitctree")
-file = open("../example/Matlab/iris.json", "w")
+mat = parse("../view/static/example/Matlab/output.json", origin="MAT.fitctree")
+file = open("../view/static/example/Matlab/iris.json", "w")
 file.write(json.dumps(mat))
 file.close()

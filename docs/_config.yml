@@ -28,7 +28,7 @@ twitter_username:
 github_username:  david-strahl
 
 # Build settings
-theme: just-the-docs
+remote-theme: just-the-docs
 plugins:
   - jekyll-feed
 

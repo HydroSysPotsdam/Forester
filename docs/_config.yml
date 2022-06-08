@@ -23,7 +23,7 @@ email: david.strahl@uni-potsdam.de
 description: >- # this means to ignore newlines until "baseurl:"
   Interactive human-in-the-loop visualisation software for decision trees.
 baseurl: # the subpath of your site, e.g. /blog
-url: "https://hydrosyspotsdam.github.io" # the base hostname & protocol for your site, e.g. http://example.com
+url: # the base hostname & protocol for your site, e.g. http://example.com
 #twitter_username: jekyllrb
 github_username:  david-strahl
 
@@ -31,6 +31,7 @@ github_username:  david-strahl
 remote_theme: just-the-docs/just-the-docs
 plugins:
   - jemoji
+  - jekyll-include-cache
 
 color_scheme: forester
 
@@ -68,7 +69,7 @@ aux_links:
     - "https://github.com/HydroSysPotsdam/Forester"
 
 # Makes Aux links open in a new tab. Default is false
-aux_links_new_tab: false
+aux_links_new_tab: true
 
 # Heading anchor links appear on hover over h1-h6 tags in page content
 # allowing users to deep link to a particular heading on a page.

@@ -1,0 +1,33 @@
+
+html, body {
+  margin: 0;
+  height: 100%;
+}
+
+.center {
+    display: flex;
+    height: 100%;
+    justify-content: center;
+    align-items: center;
+    text: center;
+}
+
+.node {
+    cursor: pointer;
+}
+
+.outline {
+    fill-opacity: 0;
+    stroke: black;
+    stroke-width: 2;
+}
+
+.outline:hover {
+    stroke: red;
+    stroke-width: 2;
+}
+
+.link {
+    fill: none;
+    stroke: black;
+}

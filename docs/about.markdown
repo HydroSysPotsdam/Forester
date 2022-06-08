@@ -4,15 +4,11 @@ title: About
 permalink: /about/
 ---
 
-This is the base Jekyll theme. You can find out more info about customizing your Jekyll theme, as well as basic Jekyll usage documentation at [jekyllrb.com](https://jekyllrb.com/)
-
-You can find the source code for Minima at GitHub:
-[jekyll][jekyll-organization] /
-[minima](https://github.com/jekyll/minima)
-
-You can find the source code for Jekyll at GitHub:
-[jekyll][jekyll-organization] /
-[jekyll](https://github.com/jekyll/jekyll)
+__Forester__ is an interactive human-in-the-loop web-based visualization tool for machine learning trees brought to you by the department of Hydrological Systems at the University of Potsdam.
 
 
-[jekyll-organization]: https://github.com/jekyll
+---
+Contact Us
+* David Strahl ([david.strahl@uni-potsdam.de]((mailto:david.strahl@uni-potsdam.de)))
+* Robert Reinecke ([robert.reinecke@uni-potsdam.de]((mailto:robert.reinecke@uni-potsdam.de)))
+

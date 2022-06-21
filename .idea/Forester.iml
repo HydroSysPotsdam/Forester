@@ -11,7 +11,12 @@
     <orderEntry type="library" name="@floating-ui" level="application" />
     <orderEntry type="library" name="@popperjs" level="application" />
   </component>
+  <component name="PackageRequirementsSettings">
+    <option name="requirementsPath" value="" />
+  </component>
   <component name="PyDocumentationSettings">
+    <option name="format" value="NUMPY" />
+    <option name="myDocStringFormat" value="NumPy" />
     <option name="renderExternalDocumentation" value="true" />
   </component>
   <component name="TemplatesService">

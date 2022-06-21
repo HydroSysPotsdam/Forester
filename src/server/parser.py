@@ -1,6 +1,19 @@
-#  CC-0 2022.
-#  David Strahl, University of Potsdam
-#  Forester: Interactive human-in-the-loop web-based visualization of machine learning trees
+"""
+Conversion from Matlab, R, Python to Forester
+=============================================
+
+Module that implements conversion functionality for common R, Matlab and Python function that
+train classification or regression trees. From the output of these functions, a common 
+representation is extracted and given in `.json` format. This file can than be loaded in 
+Forester
+
+| As of today, the following functions are supported:  
+| - Matlab's ``fitctree``
+| - R's ``rpart``
+
+.. note:: For the R functionality to work, the user needs to have a **running installation
+          of R studio** and needs to have the Python module **rpy2 installed**.
+"""
 
 import os
 import json
@@ -8,7 +21,7 @@ import numpy as np
 import rpy2.robjects as ro
 
 
-def build_tree(nodes):
+def _build_tree(nodes):
     stack = []
     for node in nodes:
         if len(stack) == 0:
@@ -31,6 +44,65 @@ def build_tree(nodes):
 
 
 def parse(path, **kwargs):
+    """
+    Converts some output formats from Matlab and R into the Forester generalized format.
+
+    Output from Matlab can be parsed by first running the function ``jsonencode`` within
+    Matlab and loading the resulting .json string (file).
+
+    Output from R can be loaded by loading the .RData file that can be exported from R studio.
+
+    Parameters
+    ----------
+    path: str
+          The path to the output file to be loaded. May be absolute or relative.
+    kwargs: dict
+            Dictionary containing some additional information for the parser. See Notes.
+
+    Returns
+    -------
+    str
+        The generalized Forester tree structure as a .json string
+
+    Examples
+    --------
+
+    .. code-block:: python
+        :name: Iris dataset from R's ``rpart``
+
+            r = parse("../example/iris.RData")
+            file = open("../example/iris.json", "w")
+            file.write(json.dumps(r))
+            file.close()
+
+    .. code-block:: python
+        :name: Diabetes dataset from R's ``rpart``
+
+            r = parse("../example/diabetes.RData")
+            file = open("../example/diabetes.json", "w")
+            file.write(json.dumps(r))
+            file.close()
+
+    .. code-block:: python
+        :name: Iris dataset from Matlab's ``fitctree``
+        :emphasize-lines: 1
+
+            mat = parse("../view/static/example/Matlab/output.json", origin="MAT.fitctree")
+            file = open("../view/static/example/Matlab/iris.json", "w")
+            file.write(json.dumps(mat))
+            file.close()
+
+    Because the parser can not read .mat files directly and the result from Matlab is given as .json,
+    the user may need to set the origin algorithm using the ``origin`` field.
+
+    Notes
+    -----
+    The following values can be passed to the ``**kwargs`` field.
+
+    * **origin** - Algorithm from which the output originated, at the moment only necessary for ``"Matlab.fitctree"``
+    * **name** - Name of the R object if not at the first splot in the environment.
+
+    """
     # change to absolute path if necessary
     if not path.startswith("/"):
         path = os.path.join(os.path.dirname(__file__), path)
@@ -252,7 +324,7 @@ def _parse_fitctree(fit: dict, **kwargs: dict) -> dict:
         nodes.append(node)
 
     # assemble tree structure
-    return {'meta': meta, 'tree': build_tree(nodes)}
+    return {'meta': meta, 'tree': _build_tree(nodes)}
 
 
 FORMATS = {
@@ -261,21 +333,3 @@ FORMATS = {
     'RData.rpart': _parse_rpart_class,
     'MAT.fitctree': _parse_fitctree
 }
-
-# -- iris database --
-# r = parse("../example/iris.RData")
-# file = open("../example/iris.json", "w")
-# file.write(json.dumps(r))
-# file.close()
-
-# -- diabetes database --
-# r = parse("../example/diabetes.RData")
-# file = open("../example/diabetes.json", "w")
-# file.write(json.dumps(r))
-# file.close()
-
-# -- matlab iris database --
-mat = parse("../view/static/example/Matlab/output.json", origin="MAT.fitctree")
-file = open("../view/static/example/Matlab/iris.json", "w")
-file.write(json.dumps(mat))
-file.close()

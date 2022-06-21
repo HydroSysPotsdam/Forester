@@ -4,58 +4,52 @@
  * Forester: Interactive human-in-the-loop web-based visualization of machine learning trees
  */
 
+/**
+ * Views are code snippets that are used to illustrate nodes in the decision tree.
+ * They contain functions to determine whether an illustration can be used with one node,
+ * and to generate the illustration.
+ *
+ * .. note:: As of today, the illustration is generated once for each node and there is no d3 typical vectorization.
+ */
 export class View {
 
-    /*
-     * Generates a new empty view where the functions 'applicable' and
-     * 'illustrate' need to be implemented.
-     * @param {string} name - The name of the view that should be displayed.
-     */
     constructor(args = {}) {
         this.args = args
     }
 
-    /*
-     * Returns whether a view can be used to illustrate a given node by
-     * checking properties of the node.
-     * @param node - The node that should be checked.
+    /**
+     * Returns whether a view can be used to illustrate a given node by checking properties of the node.
+     * @param node - The node to be checked
+     * @param meta - The metadata that is linked to the node for easy access
+     * @returns {boolean} - Whether the node illustration can be used
      */
     applicable(node, meta) {
         throw Error("View does not implement function \'applicable\'")
         return false
     }
 
-    size(node, meta) {
-        throw Error("View does not implement function \'size\'")
-        return this
-    }
-
-    /*
+    /**
      * Generates the illustration for a given node and canvas key.
-     * @param node - The node that should be illustrated.
-     * @param id   - The key of the HTML <g> element to which the
-     *               illustration should be appended.
+     * @param selection - The d3 selection to which all graphic elements should be added
+     * @param node - The node that should be added
+     * @param meta - The metadata that is linked to the node for easy access
      */
     illustrate(selection, node, meta) {
         throw Error("View does not implement function \'illustrate\'")
-        return this
     }
 }
 
-/*
+/**
  * Simple node for classification trees that illustrates the class
  * distribution as a pie chart. Classes are color coded, the total
  * number of samples determines the size of the circle.
+ * @type {View}
  */
 export let CCircleIconView = new View({
     'name': "Circle Icon View",
     'color': ["#EB5353", "#F9D923", "#36AE7C", "#187498"],
     'r': 25
 })
-
-CCircleIconView.applicable = function (node, meta) {
-    return Array.isArray(node.data.distribution)
-}
 
 CCircleIconView.illustrate = function (selection, node, meta) {
     let n = this.args.color.length ? Math.max(meta.classes.length, this.args.color.length) : meta.classes.length

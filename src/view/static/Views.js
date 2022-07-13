@@ -11,10 +11,19 @@
  *
  * .. note:: As of today, the illustration is generated once for each node and there is no d3 typical vectorization.
  */
+// load settings file
+let SETTINGS = {}
+fetch("../static/settings.json")
+    .then(r => r.json())
+    .then(r => SETTINGS = r)
+
+import {Legend} from "./Forester.js";
+import {Tree} from "./Forester.js"
+
 export class View {
 
-    constructor(args = {}) {
-        this.args = args
+    constructor(name) {
+        this.name = name
     }
 
     /**
@@ -37,6 +46,10 @@ export class View {
     illustrate(selection, node, meta) {
         throw Error("View does not implement function \'illustrate\'")
     }
+
+    settings() {
+        return SETTINGS[this.name]
+    }
 }
 
 /**
@@ -45,78 +58,107 @@ export class View {
  * number of samples determines the size of the circle.
  * @type {View}
  */
-export let CCircleIconView = new View({
-    'name': "Circle Icon View",
-    'color': ["#EB5353", "#F9D923", "#36AE7C", "#187498"],
-    'r': 25
-})
+export let CCircleIconView = new View("CCircleIconView")
 
 CCircleIconView.illustrate = function (selection, node, meta) {
-    let n = this.args.color.length ? Math.max(meta.classes.length, this.args.color.length) : meta.classes.length
-    let colors = chroma.scale(this.args.color)
-                       .colors(n)
+    let d = 2 * this.settings().r
+    let colors = Legend.classColors
+    let g = selection.append("svg")
+                     .attr("class", "CCircleIconView")
+                     .attr("width", d)
+                     .attr("height", d)
+                     .append("g")
+                     .attr("transform", "translate(" + d / 2 + "," + d / 2 + ")")
 
-    selection.selectAll("path")
-             .data(d3.pie()(node.data.distribution))
-             .join("path")
-             .attr('d', d3.arc()
-                          .innerRadius(0)
-                          .outerRadius(20))
-             .attr('fill', (d, i) => colors[i])
-             .on("mouseover", function (e, node) {
-
-             })
+    g.selectAll("path")
+     .data(d3.pie()(node.data["distribution"]))
+     .join("path")
+     .attr('d', d3.arc()
+                  .innerRadius(0)
+                  .outerRadius(20))
+        // .attr('fill', (d, i) => colors[i])
+     .attr("class", "colorcoded")
+     .attr("color_key", (d, i) => "class" + i)
 }
 
-// CSplitBarView = new View("Bar Chart Split View",
-//     {width: 100, height: 100 / 1.62, padding: 2.0, colors: ['#DDAA33', '#BB5566', '#004488']})
-//
-// CSplitBarView.illustrate = function (node, data) {
-//     let x = d3.scaleBand()
-//               .domain(data.distribution.map((e, i) => "C" + (i + 1)))
-//               .range([0, this.args.width])
-//               .padding(0.2)
-//     let y = d3.scaleLinear()
-//               .domain([0, data.distribution.reduce((a, b) => a + b, 0)])
-//               .range([0, this.args.height])
-//
-//     node.append('rect')
-//         .attr('class', 'outline')
-//         .attr('transform', 'translate(' + (-this.args.width/2 - this.args.padding) + ', ' + (-this.args.height/2 - this.args.padding) + ')')
-//         .attr('width',  this.args.width + 2*this.args.padding)
-//         .attr('height', this.args.height + 2*this.args.padding)
-//         .style('fill', 'white')
-//         .style('fill-opacity', 1)
-//
-//     node.append('g')
-//         .attr('transform', 'translate(' + -this.args.width/2 + ', ' + -this.args.height/2 + ')')
-//         .selectAll('rect')
-//         .data(data.distribution)
-//         .join('rect')
-//         .attr("x", (d, i) => x("C" + (i + 1)))
-//         .attr("y", d => y(d))
-//         .attr("width", x.bandwidth())
-//         .attr("height", d => this.args.height - y(d))
-//         .style("fill", (d, i) => this.args.colors[i])
-// }
-//
-// /**
-//  * Simple node illustration with text
-//  * @type {View}
-//  */
-// TextView = new View("Split Text View")
-//
-// TextView.illustrate = function (node, data) {
-//     console.log(data)
-//     switch (data.type) {
-//         case "leaf":
-//             break
-//         default:
-//             node.append("text")
-//                 .text(data.split.feature + " " + data.split.direction + " " + data.split.location.toFixed(2))
-//                 .attr("text-anchor", "middle")
-//     }
-// }
+export let TextView = new View("TextView");
+TextView.node_html = "<table><text><span class = \"feature\">$SPLIT$</span> $OP$ $LOCATION$</text><tr><th>Vote:</th><td><span class=\"class\">$VOTE$</span></td></tr><tr><th>Samples:</th><td>$SAMPLES$</td></tr></table>"
+TextView.leaf_html = "<table><span class = \"class\">$VOTE$</span><tr><th>Samples:</th><td>$SAMPLES$</td></tr></table>"
+
+TextView.illustrate = function (selection, node, meta) {
+    // the TextView uses a div element as a base
+    // const container = selection.append("div")
+    //                            .attr("class", "TextView")
+    //
+    // // generate from predefined html
+    // if (node.data.type != "leaf") {
+    //     let html = TextView.node_html
+    //     html = html.replace("$SPLIT$", S(node.data.split["feature"]).trim().capitalize().s)
+    //     html = html.replace("$OP$", node.data.split['operator'])
+    //     html = html.replace("$LOCATION$", numeral(node.data.split['location']).format("0.00a"))
+    //     html = html.replace("$VOTE$", meta.classes[node.data["vote"] - 1])
+    //     html = html.replace("$SAMPLES$", numeral(node.data["samples"]).format("0a"))
+    //     container.html(html)
+    // } else {
+    //     let html = TextView.leaf_html
+    //     html = html.replace("$VOTE$", meta.classes[node.data["vote"] - 1])
+    //     html = html.replace("$SAMPLES$", numeral(node.data["samples"]).format("0a"))
+    //     container.html(html)
+    // }
+    //
+    // // highlight class and feature in the text using the different colors
+    // const featureColor = Legend.featureColor(node.data.split["feature"])
+    // const classColor   = Legend.classColors[node.data["vote"] - 1]
+    //
+    // container.select(".feature")
+    //          .style("background-color", featureColor)
+    //          .style("color", chroma(featureColor).luminance() > 0.5 ? "black" : "white")
+    // container.select(".class")
+    //          .style("background-color", classColor)
+    //          .style("color", chroma(classColor).luminance() > 0.5 ? "black" : "white")
+
+    const split = S(node.data.split["feature"]).trim().capitalize().s
+    const operator = node.data.split['operator']
+    const location = numeral(node.data.split['location']).format("0.00a")
+    const vote = meta.classes[node.data["vote"] - 1]
+    const samples = numeral(node.data["samples"]).format("0a")
+
+    const class_key = "class" + (node.data["vote"] - 1)
+    const feature_key = "feature" + Tree.featureNames().indexOf(split)
+
+    const table = selection.append("div")
+                           .attr("class", "TextView")
+                           .append("table")
+
+    if (node.data.type != "leaf") {
+        table.append("text")
+             .call(function (row) {
+                 row.append("span")
+                    .attr("class", "colorcoded")
+                    .attr("color_key", feature_key)
+                    .text(split)
+                 row.append("text")
+                    .text(" " + operator + " " + location)
+             })
+        table.append("tr")
+             .call(function (row) {
+                 row.append("th")
+                    .text("Vote:")
+                 row.append("td")
+                    .append("span")
+                    .attr("class", "colorcoded")
+                    .attr("color_key", class_key)
+                    .text(vote)
+             })
+        table.append("tr")
+             .call(function (row) {
+                 row.append("th")
+                    .text("Samples:")
+                 row.append("td")
+                    .text(samples)
+             })
+    }
+}
 
 
 

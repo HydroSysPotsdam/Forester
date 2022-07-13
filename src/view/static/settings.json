@@ -1,0 +1,16 @@
+{
+  "TextView": {
+    "show_vote": true,
+    "show_split": true,
+    "show_samples": true,
+    "show_class_dist": true,
+    "color_class": true,
+    "color_feature": false,
+    "alignment": "auto"
+  },
+
+  "CCircleIconView": {
+    "color": ["#EB5353", "#F9D923", "#36AE7C", "#187498"],
+    "r": 25
+  }
+}

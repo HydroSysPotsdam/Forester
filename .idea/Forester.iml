@@ -10,6 +10,9 @@
     <orderEntry type="library" name="chroma-js" level="application" />
     <orderEntry type="library" name="@floating-ui" level="application" />
     <orderEntry type="library" name="@popperjs" level="application" />
+    <orderEntry type="library" name="voca" level="application" />
+    <orderEntry type="library" name="numeral" level="application" />
+    <orderEntry type="library" name="string.js" level="application" />
   </component>
   <component name="PackageRequirementsSettings">
     <option name="requirementsPath" value="" />

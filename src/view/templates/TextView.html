@@ -1,0 +1,44 @@
+<!--
+  ~ CC-0 2022. 
+  ~ David Strahl, University of Potsdam
+  ~ Forester: Interactive human-in-the-loop web-based visualization of machine learning trees
+  -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>TextView Test</title>
+    <style>
+        div.TextView{
+            display: inline-block;
+            padding: 5px;
+            background-color: #ffffffaa;
+            border-style: solid;
+            border-width: 1px;
+            border-color: lightgray;
+            text-align: center;
+        }
+        .TextView th {
+            text-align: right;
+            font-weight: normal;
+        }
+        .TextView td {
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <div class="TextView">
+        <table><text>$SPLIT$</text><tr>
+                <th>Vote:</th>
+                <td><span>$VOTE$</span></td>
+            </tr>
+            <tr>
+                <th>Impurity:</th>
+                <td>$IMPURITY$</td>
+            </tr>
+        </table>
+    </div>
+</body>
+</html>

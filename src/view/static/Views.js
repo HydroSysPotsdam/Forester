@@ -17,8 +17,8 @@ fetch("../static/settings.json")
     .then(r => r.json())
     .then(r => SETTINGS = r)
 
-import {Legend} from "./Forester.js";
 import {Tree} from "./Forester.js"
+import {Legend} from "./Legend.js";
 
 export class View {
 
@@ -78,64 +78,33 @@ CCircleIconView.illustrate = function (selection, node, meta) {
                   .outerRadius(20))
         // .attr('fill', (d, i) => colors[i])
      .attr("class", "colorcoded")
-     .attr("color_key", (d, i) => "class" + i)
+     .attr("legend_key", (d, i) => "class" + i)
 }
 
 export let TextView = new View("TextView");
-TextView.node_html = "<table><text><span class = \"feature\">$SPLIT$</span> $OP$ $LOCATION$</text><tr><th>Vote:</th><td><span class=\"class\">$VOTE$</span></td></tr><tr><th>Samples:</th><td>$SAMPLES$</td></tr></table>"
-TextView.leaf_html = "<table><span class = \"class\">$VOTE$</span><tr><th>Samples:</th><td>$SAMPLES$</td></tr></table>"
 
 TextView.illustrate = function (selection, node, meta) {
-    // the TextView uses a div element as a base
-    // const container = selection.append("div")
-    //                            .attr("class", "TextView")
-    //
-    // // generate from predefined html
-    // if (node.data.type != "leaf") {
-    //     let html = TextView.node_html
-    //     html = html.replace("$SPLIT$", S(node.data.split["feature"]).trim().capitalize().s)
-    //     html = html.replace("$OP$", node.data.split['operator'])
-    //     html = html.replace("$LOCATION$", numeral(node.data.split['location']).format("0.00a"))
-    //     html = html.replace("$VOTE$", meta.classes[node.data["vote"] - 1])
-    //     html = html.replace("$SAMPLES$", numeral(node.data["samples"]).format("0a"))
-    //     container.html(html)
-    // } else {
-    //     let html = TextView.leaf_html
-    //     html = html.replace("$VOTE$", meta.classes[node.data["vote"] - 1])
-    //     html = html.replace("$SAMPLES$", numeral(node.data["samples"]).format("0a"))
-    //     container.html(html)
-    // }
-    //
-    // // highlight class and feature in the text using the different colors
-    // const featureColor = Legend.featureColor(node.data.split["feature"])
-    // const classColor   = Legend.classColors[node.data["vote"] - 1]
-    //
-    // container.select(".feature")
-    //          .style("background-color", featureColor)
-    //          .style("color", chroma(featureColor).luminance() > 0.5 ? "black" : "white")
-    // container.select(".class")
-    //          .style("background-color", classColor)
-    //          .style("color", chroma(classColor).luminance() > 0.5 ? "black" : "white")
-
-    const split = S(node.data.split["feature"]).trim().capitalize().s
-    const operator = node.data.split['operator']
-    const location = numeral(node.data.split['location']).format("0.00a")
     const vote = meta.classes[node.data["vote"] - 1]
     const samples = numeral(node.data["samples"]).format("0a")
-
     const class_key = "class" + (node.data["vote"] - 1)
-    const feature_key = "feature" + Tree.featureNames().indexOf(split)
 
     const table = selection.append("div")
                            .attr("class", "TextView")
                            .append("table")
 
     if (node.data.type != "leaf") {
-        table.append("text")
+        const split = S(node.data.split["feature"]).trim().capitalize().s
+        const operator = node.data.split['operator']
+        const location = numeral(node.data.split['location']).format("0.00a")
+        const feature_key = "feature" + Tree.featureNames().indexOf(split)
+
+        table.append("tr")
+             .append("td")
+             .attr("colspan", 2)
              .call(function (row) {
                  row.append("span")
                     .attr("class", "colorcoded")
-                    .attr("color_key", feature_key)
+                    .attr("legend_key", feature_key)
                     .text(split)
                  row.append("text")
                     .text(" " + operator + " " + location)
@@ -147,7 +116,7 @@ TextView.illustrate = function (selection, node, meta) {
                  row.append("td")
                     .append("span")
                     .attr("class", "colorcoded")
-                    .attr("color_key", class_key)
+                    .attr("legend_key", class_key)
                     .text(vote)
              })
         table.append("tr")
@@ -156,6 +125,27 @@ TextView.illustrate = function (selection, node, meta) {
                     .text("Samples:")
                  row.append("td")
                     .text(samples)
+             })
+    } else {
+        const class_index   = node.data["vote"] - 1
+        const distribution  = node.data["distribution"]
+        const fraction_vote = distribution[class_index]/distribution.reduce((a, b) => a + b)
+
+        table.append("tr")
+             .append("td")
+             .attr("colspan", 2)
+             .call(function (row) {
+                 row.append("span")
+                    .attr("class", "colorcoded")
+                    .attr("legend_key", class_key)
+                    .text(vote)
+             })
+        table.append("tr")
+             .call(function (row) {
+                 row.append("th")
+                    .text("Samples:")
+                 row.append("td")
+                    .text(numeral(distribution[class_index]).format("0a") + " (" + numeral(fraction_vote).format("0%") + ")")
              })
     }
 }

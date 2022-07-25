@@ -1,4 +1,5 @@
 import * as Views from "./Views.js";
+import {Legend} from "./Legend.js";
 
 let LAYOUT = d3.tree()
                .size([650, 650])
@@ -34,8 +35,9 @@ export let Tree = {
             id++
         })
 
-        Legend.generate(this)
         this.draw()
+        Legend.generate()
+        Legend.update()
     },
 
     draw: function () {
@@ -43,6 +45,7 @@ export let Tree = {
         const container = d3.select("#tree")
         const width = container.node().getBoundingClientRect().width
         const height = container.node().getBoundingClientRect().height
+
 
         // calculate layout
         d3.tree().size([width, height])(this.nodes)
@@ -81,11 +84,13 @@ export let Tree = {
           .style("visibility", "true")
           .each(function (d) {
               let selection = d3.select(this)
-              if (d.data.type == "leaf") {
-                  Views.CCircleIconView.illustrate(selection, selection.datum(), Tree.meta)
-              } else {
-                  Views.TextView.illustrate(selection, selection.datum(), Tree.meta)
-              }
+              console.log(selection.datum().data)
+              Views.TextView.illustrate(selection, selection.datum(), Tree.meta)
+              // if (d.data.type == "leaf") {
+              //     Views.CCircleIconView.illustrate(selection, selection.datum(), Tree.meta)
+              // } else {
+              //     Views.TextView.illustrate(selection, selection.datum(), Tree.meta)
+              // }
           })
         // .on("click", function (e, node) {
         //     // collapse descendants
@@ -96,8 +101,6 @@ export let Tree = {
         //     }
         //     Tree.update(node)
         // })
-
-        Legend.draw()
 
         // initial animation
         //this.update(null)
@@ -158,77 +161,6 @@ export let Tree = {
         let names = Tree.meta.features
         return names.map(n => S(n).trim().capitalize().s)
     },
-}
-
-export let Legend = {
-    featureColors: [], //["#800000", "#9A6324", "#E6194B", "#F58231", "#FFE119", "#FFFAC8"],
-    classColors:   [], //["#000075", "#4363D8", "#42D4F4", "#469990", "#3CB44B", "#AAFFC3"],
-
-    colors: {
-        "yes": "#ffffff",
-        "no":  "#aaaaaa",
-
-    },
-
-    generate: function (tree) {
-        this.classColors = chroma.scale(['green', 'blue']).mode("lab").correctLightness()
-                                 .colors(tree.meta.classes.length)
-        this.featureColors = chroma.scale(['red', 'yellow']).mode("lab").correctLightness()
-                                   .colors(tree.meta.features.length)
-
-        this.classColors.forEach((d, i) => this.colors["class" + i] = d)
-        this.featureColors.forEach((d, i) => this.colors["feature" + i] = d)
-        console.log(this.colors)
-    },
-
-    featureColor: function (featureName) {
-        const index = Tree.featureNames().indexOf(S(featureName).capitalize().s)
-        return this.featureColors[index]
-    },
-
-    classColor: function (className) {
-        const index = Tree.classNames().indexOf(className)
-        return this.classColors[index]
-    },
-
-    draw: function () {
-        const zip = (...arr) => Array(Math.max(...arr.map(a => a.length))).fill().map((_,i) => arr.map(a => a[i]));
-
-        const legend_entry = function (heading, color_labels) {
-            d3.select("#legend")
-              .append("tr")
-              .attr("class", "legend_category")
-              .text(heading)
-            d3.select("#legend")
-              .selectAll("tr")
-              .data(color_labels, d => d)
-              .enter()
-              .append("tr")
-              .call(row => {
-                  row.append("td")
-                     .attr("class", "legend_colorbox")
-                     .style("background", d => d[0])
-                  row.append("td")
-                     .attr("class", "legend_string")
-                     .text(d => d[1])
-              })
-        }
-
-        // classes
-        legend_entry("Classes",   zip(this.classColors,   Tree.classNames()))
-        legend_entry("Features",  zip(this.featureColors, Tree.featureNames()))
-
-        // find all the visible color_keys
-        let color_keys = new Set()
-        d3.selectAll(".colorcoded").each(
-            function (d) {
-                const colorcoded = d3.select(this)
-                const color_key  = colorcoded.attr("color_key")
-                color_keys.add(color_key)
-                colorcoded.style("--highlight-color", Legend.colors[color_key])
-                colorcoded.style("--contrast-color", chroma(Legend.colors[color_key]).luminance() > 0.5 ? "black" : "white")
-            })
-    }
 }
 
 Tree.from_json("../../../examples/R/diabetes.json")

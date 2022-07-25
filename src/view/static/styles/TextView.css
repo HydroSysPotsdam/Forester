@@ -17,8 +17,16 @@ div.TextView {
     text-align: right;
 }
 
+.TextView td:first-child {
+    text-align: center;
+}
+
 .TextView td {
     text-align: left;
+}
+
+.TextView tr {
+    align-content: center;
 }
 
 .TextView .colorcoded {

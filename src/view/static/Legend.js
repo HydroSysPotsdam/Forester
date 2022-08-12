@@ -6,12 +6,284 @@
 
 import {Tree} from "./Forester.js";
 
+class LegendGroup {
+
+    constructor(label) {
+        this.key = uuid.v4()
+        this.label = label
+        this.accept = "all"
+        this.linked = false
+        this.color = undefined
+        this.entries = []
+        this.collapsed = false
+        Legend.groups.push(this)
+
+        // add the ui elements
+        this._ui_group = d3.select("#groups").append("div")
+        this._ui_header = this._ui_group.append("div")
+        this._ui_container = this._ui_group.append("div")
+
+        this._ui_group
+            .attr("class", "group sortable ui-widget ui-widget-content ui-helper-clearfix ui-corner-all")
+            .attr("key", this.key)
+        this._ui_header
+            .attr("class", "group-header ui-widget-header ui-corner-all")
+        this._ui_header
+            .append("text")
+            .attr("class", "group-label")
+            .text(this.label)
+        this._ui_header
+            .append("span")
+            .attr("class", "fa fa-fw group-link")
+        this._ui_header
+            .append("span")
+            .attr("class", "fa fa-eye-slash group-toggle")
+            .on("click", callFromGroup("hide"))
+        this._ui_container
+            .attr("class", "group-content sortable")
+
+        // add sortable behaviour
+        $(".group-content.sortable").sortable({
+            placeholder: "entry-placeholder",
+            connectWith: ".group-content.sortable",
+            update: function (event, ui) {
+                const ui_entry = $(ui.item)
+                const entry = Legend.byKey(ui_entry.attr("key"))
+
+                if (ui.sender) {
+                    // remove from group
+                    const ui_source = $(ui.sender)
+                    const ui_group  = ui_source.closest(".group")
+                    const group     = Legend.byGroupKey(ui_group.attr("key"))
+                    group.entries.splice(group.entries.indexOf(entry), 1)
+                } else {
+                    // add to group
+                    const ui_group = ui_entry.closest(".group")
+                    const group = Legend.byGroupKey(ui_group.attr("key"))
+                    group.entries.push(entry)
+                    entry.group = group.key
+                }
+            }
+        }).disableSelection()
+
+        // update context menu
+        $("#groups").contextMenu({
+            selector: ".group-header",
+            className: "group-context-menu",
+            items: {
+                "linked": {name: "Link/unlink entries", icon: "fa-link", callback: callFromGroup("link")},
+                "rename": {name: "Rename", icon: "fa-edit", callback: callFromGroup("rename")},
+                "delete": {name: "Delete", icon: "fa-trash", callback: callFromGroup("delete")}
+            }
+        })
+    }
+
+    addEntries(entries) {
+        entries = Array.isArray(entries) ? entries : [entries]
+        for (const entry of entries) {
+            this.entries.push(entry)
+            entry.group = this.key
+        }
+
+        // add the ui elements for the entries
+        this._ui_container
+            .selectAll("div")
+            .data(this.entries)
+            .enter()
+            .append("div")
+            .attr("class", "entry")
+            .attr("key", entry => entry.key)
+            .call(function (entry) {
+                // link the data structure with the dom elements
+                entry.each((d, i, s) => d._ui_entry = d3.select(s[i]))
+                // add content to entries
+                entry.append("div")
+                     .attr("class", "colorcoded color-picker")
+                     .attr("legend_key", entry => entry.key)
+                     .text(entry => entry.origin)
+                entry.append("text")
+                     .text(entry => entry.label)
+                entry.append("span")
+                     .attr("class", "entry-toggle-mono")
+                     .text("M")
+                     .on("click", callFromEntry("highlight"))
+            })
+
+        // add the color picker for these elements
+        $(".color-picker").spectrum(LegendColorPicker)
+    }
+
+    removeEntries(entries) {
+        entries = Array.isArray(entries) ? entries : [entries]
+        for (let entry in entries) {
+            this.entries.splice(this.entries.indexOf(entry), 1)
+            entry.group = undefined
+        }
+    }
+
+    hide() {
+        // make jquery selections
+        const ui_group = $(this._ui_group.node())
+        const ui_container = ui_group.find(".group-content")
+        const ui_hide_icon = ui_group.find(".group-toggle")
+        const ui_group_label = ui_group.find(".group-label")
+
+        // collapse group
+        ui_container.toggle()
+
+        // update data structure
+        this.collapsed = ui_container.is(":hidden")
+
+        // swap icon
+        ui_hide_icon.toggleClass("fa-eye fa-eye-slash")
+
+        // update group label in ui
+        ui_group_label.text(this.label + (this.collapsed ? " (" + this.entries.length + ")" : ""))
+    }
+
+    rename() {
+        // make jquery selections
+        const ui_group = $(this._ui_group.node())
+        const ui_group_label = ui_group.find(".group-label")
+        const new_label = prompt("Please enter the new group name:", "")
+
+        if (new_label != null & new_label !== "") {
+            // update data structure
+            this.label = new_label
+            // update group label in UI
+            ui_group_label.text(this.label + (this.collapsed ? " (" + this.entries.length + ")" : ""))
+        }
+    }
+
+    delete() {
+        if (this.entries.length == 0) {
+            // remove group from UI
+            this._ui_group.remove()
+            Legend.groups.splice(Legend.groups.indexOf(this), 1)
+        } else {
+            alert("Can only delete an empty group!")
+        }
+    }
+
+    link() {
+        // make jquery selections
+        const ui_group     = $(this._ui_group.node())
+        const ui_link_icon = ui_group.find(".group-link")
+
+        // retrieve first color in the group
+        if (!this.color) {
+            let color = Legend.byKey(this.entries[0].key).color
+            this.color = color
+        }
+
+        // update data structure
+        this.linked = !this.linked
+
+        // enable link icon
+        ui_link_icon.toggleClass("fa-fw fa-link")
+
+        Legend.update()
+    }
+}
+
+class LegendEntry {
+
+    constructor(label, color, origin) {
+        this.key = uuid.v4()
+        this.label = label
+        this.color = color
+        this.origin = origin
+        this.group = undefined
+        this.mono = false
+        Legend.entries.push(this)
+    }
+
+    highlight() {
+        const ui_entry       = $(this._ui_entry.node())
+        const ui_mono_button = ui_entry.find(".entry-toggle-mono")
+
+        // update data structure
+        if (this.mono) {
+            this.mono = false
+        } else {
+            Legend.disableHighlight()
+            this.mono = true
+        }
+
+        // update color of mono button
+        ui_mono_button.css("color", this.mono ? "red" : "black")
+
+        Legend.update()
+    }
+
+    recolor(color) {
+        const group = Legend.byGroupKey(this.group)
+
+         if (color) {
+            color = typeof color === "string" ? color : color.toHexString()
+
+            // if group is linked, update the whole group to have this color
+            if (group.linked) {
+                group.color = color
+            } else {
+                this.color = color
+            }
+        }
+
+        Legend.update()
+    }
+
+    getColor () {
+        let group = Legend.byGroupKey(this.group)
+
+        // overwrite when mono is selected
+        if (Legend.anyMono()) {
+            return this.mono ? "red" : "white"
+        }
+
+        // group color overwrites entry color
+        return group.linked ? group.color : this.color
+    }
+
+    getLabel () {
+
+    }
+}
+
+/**
+ * This function may be passed to a DOM Event Listener and retrieve the group linked with
+ * this DOM. It then calls the function named func for this group.
+ * @param func - the function that should be called.
+ */
+let callFromGroup = function (func) {
+    return function () {
+        const ui_source = $(this)
+        const ui_group = ui_source.closest(".group")
+        const group = Legend.byGroupKey(ui_group.attr("key"))
+        group[func]()
+    }
+}
+
+/**
+ * This function may be passed to a DOM Event Listener and retrieve the entry linked with
+ * this DOM. It then calls the function named func for this entry.
+ * @param func - the function that should be called.
+ */
+let callFromEntry = function (func) {
+    return function () {
+        const ui_source = $(this)
+        const ui_entry = ui_source.closest(".entry")
+        const entry = Legend.byKey(ui_entry.attr("key"))
+        entry[func]()
+    }
+}
+
 export let Legend = {
 
     entries: [],
+    groups: [],
 
     generate: function () {
-
         let n_classes = Tree.classNames().length
         let n_features = Tree.featureNames().length
         let colors = chroma.brewer.Set3
@@ -30,67 +302,17 @@ export let Legend = {
             }
         }
 
-        Tree.classNames().forEach(function (c, i) {
-            let color = colors.shift()
-            Legend.entries.push({
-                "key": "class" + i,
-                "label": c,
-                "color": color ? color : "white",
-                "origin": "Classes",
-                "group": "Classes",
-                "mono": false
-            })
-        })
+        // add the legend entries for the classes
+        let class_entries = Tree.classNames().map(label => new LegendEntry(label, colors.shift(), "C"))
+        let classes = new LegendGroup("Classes")
+        classes.addEntries(class_entries)
 
-        Tree.featureNames().forEach(function (c, i) {
-            let color = colors.shift()
-            Legend.entries.push({
-                "key": "feature" + i,
-                "label": c,
-                "color": color ? color : "white",
-                "origin": "Features",
-                "group": "Features",
-                "mono": false
-            })
-        })
+        // add the legend entries for the classes
+        let feature_entries = Tree.featureNames().map(label => new LegendEntry(label, colors.shift(), "F"))
+        let features = new LegendGroup("Features")
+        features.addEntries(feature_entries)
 
-        // go through all entries, add corresponding groups and sort into groups
-        Legend.groups().forEach(function (group) {
-            let entries = Legend.entries.filter(e => e.group === group)
-            ui_add_group(group, entries)
-        })
-
-        // make groups panel sortable
-        $("#groups").sortable({
-            handle: ".group-header",
-            cancel: ".group-toggle",
-            placeholder: "group-placeholder",
-        });
-
-        // add 'new group' button
-        $("#group-new")
-            .addClass("ui-widget-header ui-corner-all")
-            .click(ui_new_group)
-
-        // update colors
         Legend.update()
-    },
-
-    byLabel: function (label) {
-        let e = this.entries.find(e => (e.label === label))
-        return e ? e.color : undefined
-    },
-
-    byKey: function (key) {
-        return this.entries.find(e => (e.key === key))
-    },
-
-    anyMono: function () {
-        return this.entries.find(e => e.mono) !== undefined
-    },
-
-    groups: function () {
-        return [...new Set(this.entries.map(e => e.group))]
     },
 
     update: function () {
@@ -100,157 +322,88 @@ export let Legend = {
                 const colorcoded = d3.select(this)
                 const color_key = colorcoded.attr("legend_key")
                 const entry = Legend.byKey(color_key)
-                const color = Legend.anyMono() ? (entry.mono ? "red" : "white") : entry.color
+                const color = entry.getColor()
                 colorcoded.style("--highlight-color", color)
                 colorcoded.style("--contrast-color", chroma(color).luminance() > 0.5 ? "black" : "white")
             })
     },
-}
 
-function ui_rename_group() {
-    let source = $(this)
-    let group = source.closest(".group")
-    let header = group.children(".group-header")
-    let text = header.children("text")
-    let group_name = prompt("Please enter the new group name:", "")
+    byLabel: function (label) {
+        return Legend.entries.find(e => (e.label.toUpperCase() === label.toUpperCase()))
+    },
 
-    if (group_name != null & group_name !== "") {
-        group.attr("group", group_name)
-        text.text(text.text().replace(/\w+/, group_name))
-        // TODO: implement mapping to Legend entries
+    byKey: function (key) {
+        return Legend.entries.find(e => (e.key === key))
+    },
+
+    byGroupKey: function (key) {
+        return Legend.groups.find(g => (g.key === key))
+    },
+
+    anyMono: function () {
+        return Legend.entries.find(e => e.mono) !== undefined
+    },
+
+    disableHighlight () {
+        Legend.entries.forEach(entry => entry.mono = false)
+        d3.selectAll(".entry-toggle-mono")
+          .style("color", "black")
     }
 }
 
-function ui_collapse_group() {
-    // grab the ui elements
-    let source = $(this);
-    let group = source.closest(".group")
-    let header = group.children(".group-header")
-    let content = group.children(".group-content")
+window.Legend = Legend
 
-    // swap icon
-    source.toggleClass("ui-icon-triangle-1-s ui-icon-triangle-1-n")
-
-    // collapse group
-    content.toggle()
-
-    // update header text
-    let hidden = content.is(":hidden")
-    let text = header.children("text")
-    if (hidden) {
-        let n = content.children().length
-        text.text(group.attr("group") + " (" + n + ")")
-    } else {
-        text.text(group.attr("group"))
-    }
+let LegendColorPicker = {
+    type: "color",
+    showPalette: true,
+    palette: [
+        ["#8dd3c7", "#ffffb3"],
+        ["#bebada", "#fb8072"],
+        ["#80b1d3", "#fdb462"],
+        ["#b3de69", "#fccde5"],
+        ["#d9d9d9", "#bc80bd"],
+        ["#ccebc5", "#ffed6f"],
+        ["#ffffff"]
+    ],
+    showAlpha: false,
+    allowEmpty: false,
+    move: function (color) {
+        if (color) {
+            color = color.toHexString()
+            $(this).css("--highlight-color", color)
+            $(this).css("--contrast-color", chroma(color).luminance() > 0.5 ? "black" : "white")
+        }
+    },
+    change: function (color) {
+        const ui_source = $(this)
+        const ui_entry = ui_source.closest(".entry")
+        const entry = Legend.byKey(ui_entry.attr("key"))
+        entry.recolor(color)
+    },
+    hide: Legend.update
 }
 
-function ui_toggle_mono() {
-    let key = $(this).parent().children(".colorcoded").attr("legend_key")
-    let entry = Legend.byKey(key)
-    entry.mono = !entry.mono
-    $(this).css("color", entry.mono ? "red" : "black")
-    Legend.update()
-}
+// set up the user interface for the legend
+$(function () {
+    // make groups panel sortable
+    $("#groups").sortable({
+        handle: ".group-header",
+        cancel: ".group-toggle",
+        placeholder: "group-placeholder",
+    });
 
-function ui_change_entry_color(color) {
-    if (color) {
-        color = typeof color === "string" ? color : color.toHexString()
-        let key = $(this).attr("legend_key")
-        Legend.byKey(key).color = color
-    }
-    Legend.update()
-}
+    // add 'new group' button
+    $("#group-new")
+        .addClass("ui-widget-header ui-corner-all")
+        .click(function () {
+            let new_group_label = prompt("Enter the group name:", "")
 
-function ui_new_group() {
-    let group_name = prompt("Enter the group name:", "")
-    if (group_name != null & group_name !== "") {
-        ui_add_group(group_name, null)
-    }
-    Legend.update()
-}
-
-function ui_add_group(group_name, entries) {
-    // add group
-    let group = d3
-        .select("#groups")
-        .append("div")
-        .attr("class", "group sortable ui-widget ui-widget-content ui-helper-clearfix ui-corner-all")
-        .attr("group", group_name)
-
-    // add group header
-    let header = group
-        .append("div")
-        .attr("class", "group-header ui-widget-header ui-corner-all")
-
-    // contents of header
-    header
-        .append("text")
-        .text(group_name)
-    header
-        .append("span")
-        .attr("class", "ui-icon ui-icon-pencil group-rename")
-        .on("click", ui_rename_group)
-    header
-        .append("span")
-        .attr("class", "ui-icon ui-icon-triangle-1-n group-toggle")
-        .on("click", ui_collapse_group)
-
-    if (!entries) {
-        entries = []
-    }
-
-    // add group containers
-    group
-        .append("div")
-        .attr("class", "group-content sortable")
-        .selectAll("div")
-        .data(entries)
-        .enter()
-        .append("div")
-        .attr("class", "entry")
-        .call(function (entry) {
-            entry.append("div")
-                 .attr("class", "colorcoded color-picker")
-                 .attr("legend_key", d => d.key)
-                 .text(d => d.origin[0])
-            entry.append("text")
-                 .text(d => d.label)
-            entry.append("span")
-                 .attr("class", "entry-toggle-mono")
-                 .text("M")
-                 .on("click", ui_toggle_mono)
+            // add new group when label is valid
+            if (new_group_label != null & new_group_label !== "") {
+                let group = new LegendGroup(new_group_label)
+            }
         })
 
-    $(".color-picker").spectrum({
-        type: "color",
-        showPalette: true,
-        palette: [
-            ["#8dd3c7", "#ffffb3"],
-            ["#bebada", "#fb8072"],
-            ["#80b1d3", "#fdb462"],
-            ["#b3de69", "#fccde5"],
-            ["#d9d9d9", "#bc80bd"],
-            ["#ccebc5", "#ffed6f"],
-            ["#ffffff"]
-        ],
-        showAlpha: false,
-        allowEmpty: false,
-        move: function (color) {
-            if (color) {
-                color = color.toHexString()
-                $(this).css("--highlight-color", color)
-                $(this).css("--contrast-color", chroma(color).luminance() > 0.5 ? "black" : "white")
-            }
-        },
-        change: ui_change_entry_color,
-        hide: Legend.update
-
-    })
-
-    // add sortability
-    $(".group-content.sortable").sortable({
-        placeholder: "entry-placeholder",
-        connectWith: ".group-content.sortable"
-    }).disableSelection()
-}
+    // update colors
+    Legend.update()
+})

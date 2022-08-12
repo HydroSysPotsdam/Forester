@@ -1,4 +1,5 @@
 import * as Views from "./Views.js";
+// import {Legend} from "./Legend_old.js";
 import {Legend} from "./Legend.js";
 
 let LAYOUT = d3.tree()
@@ -35,8 +36,8 @@ export let Tree = {
             id++
         })
 
-        this.draw()
         Legend.generate()
+        this.draw()
         Legend.update()
     },
 
@@ -84,7 +85,6 @@ export let Tree = {
           .style("visibility", "true")
           .each(function (d) {
               let selection = d3.select(this)
-              console.log(selection.datum().data)
               Views.TextView.illustrate(selection, selection.datum(), Tree.meta)
               // if (d.data.type == "leaf") {
               //     Views.CCircleIconView.illustrate(selection, selection.datum(), Tree.meta)

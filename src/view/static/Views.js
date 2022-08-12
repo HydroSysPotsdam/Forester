@@ -78,7 +78,7 @@ CCircleIconView.illustrate = function (selection, node, meta) {
                   .outerRadius(20))
         // .attr('fill', (d, i) => colors[i])
      .attr("class", "colorcoded")
-     .attr("legend_key", (d, i) => "class" + i)
+     .attr("legend_key", (d, i) => Legend.byLabel(Tree.classNames()[i]).key)
 }
 
 export let TextView = new View("TextView");
@@ -86,17 +86,17 @@ export let TextView = new View("TextView");
 TextView.illustrate = function (selection, node, meta) {
     const vote = meta.classes[node.data["vote"] - 1]
     const samples = numeral(node.data["samples"]).format("0a")
-    const class_key = "class" + (node.data["vote"] - 1)
+    const class_key = Legend.byLabel(vote).key
 
     const table = selection.append("div")
                            .attr("class", "TextView")
                            .append("table")
 
     if (node.data.type != "leaf") {
-        const split = S(node.data.split["feature"]).trim().capitalize().s
+        const split = S(node.data.split["feature"]).trim().capitalize().toString()
         const operator = node.data.split['operator']
         const location = numeral(node.data.split['location']).format("0.00a")
-        const feature_key = "feature" + Tree.featureNames().indexOf(split)
+        const feature_key = Legend.byLabel(split).key
 
         table.append("tr")
              .append("td")

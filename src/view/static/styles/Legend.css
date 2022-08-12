@@ -22,9 +22,9 @@
 .groups {
     max-height: 90%;
     padding: 5px;
-
     display: flex;
     flex-direction: column;
+    overflow: scroll;
 }
 
 .group {
@@ -44,6 +44,8 @@
 .group-content {
     padding: 0.4em;
     min-height: 1em;
+    max-height: 20em;
+    overflow: scroll;
 }
 
 .group-placeholder {
@@ -87,5 +89,15 @@
 .entry-toggle-mono {
     font-size: small;
     padding-right: 0.5em;
+}
+
+.group-link {
+    margin-right: 0.5em;
+}
+
+.context-menu-item {
+    font-family: Arial !important;
+    font-weight: 400 !important;
+    font-size: 1em !important;
 }
 

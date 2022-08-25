@@ -1,13 +1,12 @@
 import * as Views from "./Views.js";
-// import {Legend} from "./Legend_old.js";
 import {Legend} from "./Legend.js";
+import {Panzoom} from "./Panzoom.js";
 
 let LAYOUT = d3.tree()
                .size([650, 650])
 LAYOUT.xtransform = x => 25 + (x + 1) * 650 / 2
 LAYOUT.ytransform = y => 25 + y * 650
 LAYOUT.path = function (d) {
-    console.log()
     return d3.line()
              .curve(d3.curveBasis)([
                  [d.x, d.y],
@@ -19,46 +18,155 @@ LAYOUT.path = function (d) {
 
 export let Tree = {
 
-    from_json: function (path) {
-        fetch(path).then(r => r.json()).then(json => this.initialize(json))
+    fromJson: function (path) {
+        fetch(path).then(r => r.json()).then(json => {
+            this.initialize(json)
+        })
+    },
+
+    clear() {
+        this.nodes = []
+        this.meta  = []
+
+        // remove dom elements
+        d3.select("#tree")
+          .selectAll("*")
+          .remove()
+    },
+
+    initializeNodes: function () {
+        let id = 0
+        let max_depth = 0
+        this.nodes
+            .each(function (node) {
+                // initial values
+                node.id = id
+                node.collapsed = false
+                id++
+
+                // branch and depth values for root
+                if (node.id == 0) {
+                    node.branch = 0
+                    node.depth = 0
+                }
+
+                // add branch value and count children
+                if (node.children) {
+                    node.children[0].branch = node.branch - 1
+                    node.children[1].branch = node.branch + 1
+
+                    node.children_total = node.descendants().length - 1
+                }
+
+                // add depth value
+                if (node.parent) {
+                    node.depth = node.parent.depth + 1
+                    max_depth = Math.max(max_depth, node.depth)
+                }
+
+                // copy values of data into node
+                for (const key of ["distribution", "samples", "split", "type", "vote"]) {
+                    node[key] = node.data[key]
+                }
+
+                // add easy accessors for the class info
+                node.vote_index = node.vote
+                node.vote = Tree.meta.classes[node.vote_index]
+                node.vote_fraction = node.distribution[node.vote_index] / node.distribution.reduce((a, b) => a + b)
+                node.vote_samples = node.distribution[node.vote_index]
+
+                // add easy accessors for the feature info
+                if (node.split) {
+                    node.split.feature_index = node.split.feature
+                    node.split.feature = Tree.meta.features[node.split.feature_index]
+                }
+            })
+            .each(function (node) {
+                node.height = max_depth - node.depth
+            })
     },
 
     initialize: function (json) {
+        Tree.clear()
+
         this.nodes = d3.hierarchy(json['tree'], d => d.children)
         this.meta = json['meta']
 
-        // set predefined fields for all nodes
-        let id = 0
-        this.nodes.each(function (d) {
-            d.id = id
-            d.collapsed = false
-            d.size = 1
-            id++
-        })
+        // add initial data to nodes and clean up some fields
+        this.initializeNodes()
+
+        // add meta information
+        this.meta.branches = this.nodes.descendants().map(node => node.branch)
+        this.meta.branches = Math.max(...this.meta.branches) - Math.min(...this.meta.branches) + 1
+
+        window.Tree = Tree
 
         Legend.generate()
+        this.layout("vertical")
         this.draw()
-        Legend.update()
+    },
+
+    layout: function (direction, tightness) {
+        // helper function
+        const range = x => Math.max(...x) - Math.min(...x)
+
+        let tree, width, height, xoffset, yoffset;
+
+        // calculate layout
+        if (direction === "vertical" || direction == undefined) {
+            tree = d3.tree().nodeSize([100, 80])(this.nodes)
+            width = range(this.nodes.descendants().map(node => node.x)) + 100
+            height = range(this.nodes.descendants().map(node => node.y)) + 100
+            // offset center the elements in the container and add padding
+            xoffset = -Math.min(...this.nodes.descendants().map(node => node.x)) + 50
+            yoffset = 50
+            this.nodes.descendants().forEach(node => {
+                node.x = node.x + xoffset;
+                node.y = node.y + yoffset
+            })
+        } else if (direction === "horizontal") {
+            tree = d3.tree().nodeSize([80, 100])(this.nodes)
+            this.nodes.descendants().forEach(node => {
+                [node.x, node.y] = [node.y, node.x]
+            })
+            width = range(this.nodes.descendants().map(node => node.x)) + 100
+            height = range(this.nodes.descendants().map(node => node.y)) + 100
+            // offset center the elements in the container and add padding
+            xoffset = 50
+            yoffset = -Math.min(...this.nodes.descendants().map(node => node.y)) + 50
+            this.nodes.descendants().forEach(node => {
+                node.x = node.x + xoffset;
+                node.y = node.y + yoffset
+            })
+        }
+
+        // page and legend for placing the container
+        let page   = document.body.getBoundingClientRect()
+        let legend = document.getElementById("legend").getBoundingClientRect()
+
+        // resize container
+        d3.select("#tree")
+          .style("width", width + "px")
+          .style("height", height + "px")
+          .style("left", legend.left/2 + "px")
+          .style("top", "50%")
+          .style("transform", "translate(-50%, -50%)")
+
+         // add pan and zoom funcionality
+        Tree.panzoom = new Panzoom(document.getElementById("tree"), {
+            initialZoom: Math.min(1, legend.left/width, page.height/height)
+        })
     },
 
     draw: function () {
-        // find size of canvas
-        const container = d3.select("#tree")
-        const width = container.node().getBoundingClientRect().width
-        const height = container.node().getBoundingClientRect().height
-
-
-        // calculate layout
-        d3.tree().size([width, height])(this.nodes)
+        // clear the canvas
+        d3.select("#tree")
+          .selectAll("*")
+          .remove()
 
         // grab data for easy access
         // changes in data are not mapped to the tree structure
         let data = this.nodes.descendants()
-
-        // clear canvas
-        // d3.select('#tree')
-        //   .selectAll('*')
-        //   .remove()
 
         // prepare links between nodes
         d3.select("#tree")
@@ -85,12 +193,13 @@ export let Tree = {
           .style("visibility", "true")
           .each(function (d) {
               let selection = d3.select(this)
-              Views.TextView.illustrate(selection, selection.datum(), Tree.meta)
-              // if (d.data.type == "leaf") {
-              //     Views.CCircleIconView.illustrate(selection, selection.datum(), Tree.meta)
-              // } else {
-              //     Views.TextView.illustrate(selection, selection.datum(), Tree.meta)
-              // }
+              let node = selection.datum()
+              // Views.TextView.illustrate(selection, selection.datum(), Tree.meta)
+              if (node.type == "leaf") {
+                  Views.CCircleIconView.illustrate(selection, selection.datum(), Tree.meta)
+              } else {
+                  Views.TextView.illustrate(selection, selection.datum(), Tree.meta)
+              }
           })
         // .on("click", function (e, node) {
         //     // collapse descendants
@@ -104,6 +213,8 @@ export let Tree = {
 
         // initial animation
         //this.update(null)
+
+        Legend.update()
     },
 
     update: function (node) {
@@ -163,4 +274,112 @@ export let Tree = {
     },
 }
 
-Tree.from_json("../../../examples/R/diabetes.json")
+$('document').ready(function () {
+    Tree.fromJson("../../../examples/R/diabetes.json")
+
+    let legend_intro = {
+        steps: [
+            {
+                title: "🏳️‍🌈 Legend",
+                element: document.getElementById("legend"),
+                intro: "The legend displays information on the colorcoding of classes and features.",
+                position: "left"
+            },
+            {
+                element: document.querySelector(".group"),
+                intro: "Entries are initially grouped based on classes and features.",
+                position: "left"
+            },
+            {
+                element: document.querySelector(".group-toggle"),
+                intro: "Click this icon to hide a group.",
+                position: "left"
+            },
+            {
+                element: document.querySelector(".entry"),
+                intro: "Each entry represents one visible feature or class and is matched to one color.",
+                position: "left"
+            },
+            {
+                element: document.querySelector(".entry .colorcoded"),
+                intro: "Click this field to change a color.",
+                position: "left"
+            },
+            {
+                element: document.querySelector("#group-new"),
+                intro: "Click this button to add a new group.",
+                position: "left",
+                onchange: function () {
+                    console.log("Something happened")
+                }
+            }
+        ]
+    }
+
+    /**
+     * HINTS
+     */
+    fetch("../static/hints.json")
+        .then(obj => obj.json())
+        .then(function (hints) {
+            for (let hint of hints) {
+                d3.selectAll(hint.selector)
+                  .classed("hinted", true)
+                  .attr("hint-title", hint.title)
+                  .attr("hint-text", hint.hint)
+                  .on("mouseover", function (event) {
+                      event.stopPropagation()
+                      const hinted = d3.select(this)
+                      d3.select("#hint .hint-title")
+                        .html(hinted.attr("hint-title"))
+                      d3.select("#hint .hint-text")
+                        .html(hinted.attr("hint-text"))
+                  })
+            }
+        })
+
+    d3.select("#hint")
+      .on("click", function () {
+          const hint = d3.select(this)
+          const content = hint.select(".hint-content")
+          const icon = hint.select(".fa-info")
+          const open = hint.attr("open")
+
+          if (open === "false") {
+              hint
+                  .transition()
+                  .style("width", "300px")
+                  .style("height", "200px")
+              hint.attr("open", true)
+              content.style("visibility", "visible")
+          } else {
+              hint
+                  .transition()
+                  .style("width", "25px")
+                  .style("height", "25px")
+              hint.attr("open", false)
+              content.style("visibility", "hidden")
+          }
+      })
+
+    $("#example").selectmenu({
+        change: function (event, data) {
+            switch (data.item.index) {
+                case 0:
+                    Tree.fromJson("../../../examples/R/iris.json")
+                    return
+                case 1:
+                    Tree.fromJson("../../../examples/Matlab/iris.json")
+                    return
+                case 2:
+                    Tree.fromJson("../../../examples/R/diabetes.json")
+                    return
+                case 3:
+                    Tree.fromJson("../../../examples/Matlab/fanny.json")
+                    return
+            }
+        }
+    })
+
+    // introJs().setOptions(legend_intro).start()
+})

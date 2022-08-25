@@ -14,14 +14,31 @@
     <link rel="stylesheet" href="../static/styles/style.css"/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-contextmenu/2.7.1/jquery.contextMenu.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.2/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intro.js/6.0.0/introjs.min.css">
 </head>
 
 <body>
     <div id="tree">
     </div>
+    <div id="example_selector">
+        <label for="example">Select an example tree</label>
+        <select name="example" id="example">
+          <option>Iris [R]</option>
+          <option>Iris [Matlab]</option>
+          <option selected="selected">Diabetes [R]</option>
+          <option>Fenny [Matlab]</option>
+        </select>
+    </div>
     <div id="legend">
         <div id="groups"></div>
         <button id="group-new">New group</button>
+    </div>
+    <div id="hint" open="false">
+        <span class="fa fa-info"></span>
+        <div class="hint-content" style="visibility: hidden">
+            <span class="hint-title">Hints</span>
+            <div class="hint-text">Try hovering over different elements of Forester to learn about their usage.</div>
+        </div>
     </div>
 
     <!-- packages to load -->
@@ -30,11 +47,14 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/string.js/0.2.1/string.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/numeral.js/2.0.6/numeral.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/uuid/8.3.2/uuid.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/intro.js/6.0.0/intro.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.js"></script>
     <script src="https://code.jquery.com/ui/1.13.1/jquery-ui.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-contextmenu/2.7.1/jquery.contextMenu.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-contextmenu/2.7.1/jquery.ui.position.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/spectrum-colorpicker2/dist/spectrum.min.js"></script>
+    <script src="../static/lib/validator.js"></script>
 
     <!--    <script src="https://unpkg.com/@floating-ui/core@0.7.2"></script>-->
     <!--    <script src="https://unpkg.com/@floating-ui/dom@0.5.2"></script>-->

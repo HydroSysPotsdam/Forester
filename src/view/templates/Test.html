@@ -9,23 +9,32 @@
 <head>
     <meta charset="UTF-8">
     <title>Forester</title>
-    <link rel="stylesheet" href="../static/styles/style.css"/>
+    <style>
+        .panzoom-parent {
+            position: relative;
+        }
+        #box {
+            position: relative;
+            width: 400px;
+            height: 400px;
+            background-image: url("https://i.guim.co.uk/img/media/26392d05302e02f7bf4eb143bb84c8097d09144b/446_167_3683_2210/master/3683.jpg?width=1200&height=900&quality=85&auto=format&fit=crop&s=11e949fc5d06576bc8b80ec192896753");
+            background-size: cover;
+            border: 2px solid black;
+        }
+    </style>
 </head>
-
 <body>
-    <div class="center">
-        <svg class="tree" width="700px" height="700px"/>
-    </div>
-    <div id="tooltip" style="background: chocolate">
+    <div class="panzoom-parent">
+        <div id="box">
+        </div>
     </div>
 
-    <!-- packages to load -->
-    <script src="https://d3js.org/d3.v7.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/chroma-js/2.4.2/chroma.min.js"></script>
-    <script src="https://unpkg.com/@floating-ui/core@0.7.2"></script>
-    <script src="https://unpkg.com/@floating-ui/dom@0.5.2"></script>
-
-    <script type="module" src="../static/test.js"></script>
+    <script src="https://unpkg.com/@panzoom/panzoom@4.5.0/dist/panzoom.min.js"></script>
+    <script type="text/javascript">
+        const box = document.getElementById("box")
+        let pz = Panzoom(box, {minScale: 0.5, maxScale: 2})
+        box.parentElement.addEventListener('wheel', pz.zoomWithWheel)
+    </script>
 
 </body>
 </html>

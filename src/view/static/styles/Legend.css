@@ -5,9 +5,9 @@
  */
 
 #legend {
-    position: absolute;
+    position: fixed;
     width: 200px;
-    height: 100%;
+    max-height: 90%;
     margin: 5px;
     left: 95%;
     top: 50%;
@@ -88,7 +88,7 @@
 
 .entry-toggle-mono {
     font-size: small;
-    padding-right: 0.5em;
+    padding-right: 1em;
 }
 
 .group-link {
@@ -96,7 +96,7 @@
 }
 
 .context-menu-item {
-    font-family: Arial !important;
+    font-family: Verdana !important;
     font-weight: 400 !important;
     font-size: 1em !important;
 }

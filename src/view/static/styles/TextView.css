@@ -7,10 +7,10 @@
 div.TextView {
     display: block;
     padding: 1px;
-    background-color: #ffffffdd;
-    /*text-align: center;*/
+    background-color: #ffffffee;
     font-size: x-small;
     line-height: 0.9;
+    white-space: nowrap;
 }
 
 .TextView th {

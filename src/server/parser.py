@@ -36,12 +36,15 @@ def _build_tree(nodes):
             if len(parent['children']) < 2:
                 parent['children'].append(node)
 
-                node['depth'] = len(stack)
-
                 if node['type'] == 'node':
                     stack.append(node)
     return stack[0]
 
+def _humanize(S):
+    if type(S) is not list:
+        return S.strip().capitalize()
+    else:
+        return [s.strip().capitalize() for s in S]
 
 def parse(path, **kwargs):
     """
@@ -70,16 +73,16 @@ def parse(path, **kwargs):
     .. code-block:: python
         :name: Iris dataset from R's ``rpart``
 
-            r = parse("../example/iris.RData")
-            file = open("../example/iris.json", "w")
+            r = parse("../../examples/R/iris.RData")
+            file = open("../../examples/R/iris.json", "w")
             file.write(json.dumps(r))
             file.close()
 
     .. code-block:: python
         :name: Diabetes dataset from R's ``rpart``
 
-            r = parse("../example/diabetes.RData")
-            file = open("../example/diabetes.json", "w")
+            r = parse("../../examples/R/diabetes.RData")
+            file = open("../../example/R/diabetes.json", "w")
             file.write(json.dumps(r))
             file.close()
 
@@ -157,25 +160,6 @@ def _parse_rpart_class(**kwargs):
     def rdf_to_dict(df: ro.DataFrame):
         return dict(zip(list(df.names), map(list, list(df))))
 
-    # TODO write one function that generates depth and number of attached children
-    # count total children
-    # def write_degree_below(node):
-    #     if len(node['children']) == 0:
-    #         node['degree'] = 0
-    #         return 0
-    #     else:
-    #         node['degree'] = write_degree_below(node['children'][0]) + \
-    #                          write_degree_below(node['children'][1]) + len(node['children'])
-    #         return node['degree']
-    #
-    # def write_data_id_below(node, found_in_leaf):
-    #     if node['type'] == 'leaf':
-    #         node['data_id'] = np.sort(np.where(found_in_leaf == node['id'])[0]).tolist()
-    #     else:
-    #         node['data_id'] = write_data_id_below(node['children'][0], found_in_leaf) + \
-    #                           write_data_id_below(node['children'][1], found_in_leaf)
-    #     return node['data_id']
-
     # ----------- PARSING RPART ----------
     name = kwargs['name']
     fit = ro.r[name]
@@ -218,64 +202,38 @@ def _parse_rpart_class(**kwargs):
     found_in_leaf = np.array(fit[1]) - 1
 
     # setup tree, the first element references the root node
-    stack = []
+    nodes = []
 
     # go through all nodes and set up structure
     for i in range(n_nodes):
         node = {
             'children': [],
-            #'id': i,
             'type': 'root' if i == 0 else ('leaf' if frame['var'][i] == '<leaf>' else 'node'),
-            #'depth': 0,  # root node, other nodes will be overwritten
-            #'degree': -1,
-            'samples': frame['n'][i],
-            'data_id': -1,
-            'distribution': list(class_dist[i, 1:(n_classes + 1)]),
-            'vote': int(class_dist[i, 0])
+            'samples': int(frame['n'][i]),
+            'distribution': [int(s) for s in list(class_dist[i, 1:(n_classes + 1)])],
+            'vote': int(class_dist[i, 0]) - 1
         }
 
         if not node['type'] == 'leaf':
             split = splits[split_index[i]]
             node['split'] = {
-                'feature': frame['var'][i],
+                'feature': features.index(frame['var'][i]),
                 'operator': '<' if split[1] < 0 else '>',
                 'location': split[3]
             }
 
-        # reconstruct tree structure
-        # TODO Use the outsourced function to do this
-        if len(stack) == 0:
-            stack.append(node)
-        else:
-            parent = stack[len(stack) - 1]
+        nodes.append(node)
 
-            while len(parent['children']) == 2:
-                stack.pop()
-                parent = stack[len(stack) - 1]
-
-            if len(parent['children']) < 2:
-                parent['children'].append(node)
-
-                node['depth'] = len(stack)
-
-                if node['type'] == 'node':
-                    stack.append(node)
-
-    # count the total number of children per node
-    #write_degree_below(stack[0])
-
-    # for each observation, write the data id into each node
-    # that is traversed during the decision
-    #write_data_id_below(stack[0], found_in_leaf)
+    _build_tree(nodes)
 
     meta = {
         'type': 'classification',
-        'features': features,
-        'classes': classes,
-        'samples': stack[0]['samples'],
+        'features': _humanize(features),
+        'classes': _humanize(classes),
+        'samples': int(nodes[0]['samples']),
     }
 
-    return {'meta': meta, 'tree': stack[0]}
+    return {'meta': meta, 'tree': nodes[0]}
 
 
 def _parse_fitctree(fit: dict, **kwargs: dict) -> dict:
@@ -293,9 +251,9 @@ def _parse_fitctree(fit: dict, **kwargs: dict) -> dict:
     # general info describing the tree
     meta = {
         'type': 'classification',
-        'features': fit['PredictorNames'],
-        'classes': fit['ClassNames'],
-        'samples': fit['NumObservations']
+        'features': _humanize(fit['PredictorNames']),
+        'classes': _humanize(fit['ClassNames']),
+        'samples': int(fit['NumObservations'])
     }
 
     # total number of nodes
@@ -308,8 +266,8 @@ def _parse_fitctree(fit: dict, **kwargs: dict) -> dict:
         node = {
             'children': [],
             'type': 'root' if fit['Parent'][i] == 0 else ('leaf' if sum(fit['Children'][i]) == 0 else 'node'),
-            'samples': fit['NodeSize'][i],
-            'distribution': fit['ClassCount'][i],
+            'samples': int(fit['NodeSize'][i]),
+            'distribution': [int(s) for s in fit['ClassCount'][i]],
             'vote': int(np.argmax(fit['ClassProbability'][i]))
         }
 
@@ -333,3 +291,27 @@ FORMATS = {
     'RData.rpart': _parse_rpart_class,
     'MAT.fitctree': _parse_fitctree
 }
+
+# # R diabetes dataset
+# r = parse("../../examples/R/diabetes.RData")
+# file = open("../../examples/R/diabetes.json", "w")
+# file.write(json.dumps(r))
+# file.close()
+#
+# # R iris dataset
+# r = parse("../../examples/R/iris.RData")
+# file = open("../../examples/R/iris.json", "w")
+# file.write(json.dumps(r))
+# file.close()
+#
+# # Matlab fenny dataset
+# m = parse("../../examples/Matlab/fanny_out.json", origin="MAT.fitctree")
+# file = open("../../examples/Matlab/fanny.json", "w")
+# file.write(json.dumps(m))
+# file.close()
+#
+# # Matlab iris dataset
+# m = parse("../../examples/Matlab/iris_out.json", origin="MAT.fitctree")
+# file = open("../../examples/Matlab/iris.json", "w")
+# file.write(json.dumps(m))
+# file.close()

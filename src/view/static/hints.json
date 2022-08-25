@@ -1,0 +1,37 @@
+[
+  {
+    "selector": ".group-header",
+    "title": "Legend Grouping",
+    "hint": "Legend entries may be grouped. This helps the user to clean up the legend and maintain an overview over all features and classes.<p>Right-clicking the group header allows the user to delete or rename the group. Here, the group entries can also be linked, to have the same color.</p>"
+  },
+  {
+    "selector": ".entry",
+    "title": "Legend Entries",
+    "hint": "Each legend entry represents one class or feature.<p>Its color may be changed by clicking the colored panel.</p>"
+  },
+  {
+    "selector": ".group-toggle",
+    "title": "Hiding a Group",
+    "hint": "By clicking the little eye icon, the user is able to hide groups from the legend.<p>Entries that are inside a hidden group have their colorcoding removed. In the tree visualization they appear without a color.</p>"
+  },
+  {
+    "selector": ".entry-toggle-mono",
+    "title": "Highlighting Entries",
+    "hint": "By clicking the little M icon, the user can highlight any one class or feature in the visualization. <p>For the selected entry, the color is changed to a bright red, while the colorcoding of all other entries is removed. Only one entry can be highlighted at all times.</p>"
+  },
+  {
+    "selector": ".TextView",
+    "title": "Node: Basic Info",
+    "hint": "The most basic node visualization gives some information on the split's feature and location (Sp), the voted class and class distribution (V) and the sample number (S). <p>Note, how class and feature names are colored according to the legend entries.</p>"
+  },
+  {
+    "selector": ".CCircleIconView",
+    "title": "Node: Pie Charts",
+    "hint": "This node visualization illustrates the class distribution at this node as a pie chart. For the sake of simplicity, only the five most abundand classes are shown. <p>Note, how class colors are related to the legend.</p>"
+  },
+  {
+    "selector": "#group-new",
+    "title": "Adding a Group",
+    "hint": "By clicking the \"New group\" button, the user can add an empty group to the legend. A popup menu requests the groups name so make sure that you browser does not block Forester."
+  }
+]

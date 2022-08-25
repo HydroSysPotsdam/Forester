@@ -84,70 +84,54 @@ CCircleIconView.illustrate = function (selection, node, meta) {
 export let TextView = new View("TextView");
 
 TextView.illustrate = function (selection, node, meta) {
-    const vote = meta.classes[node.data["vote"] - 1]
-    const samples = numeral(node.data["samples"]).format("0a")
-    const class_key = Legend.byLabel(vote).key
+    const entry_vote = Legend.byLabel(node.vote)
+    const entry_feature = node.split ? Legend.byLabel(node.split.feature) : undefined
 
-    const table = selection.append("div")
-                           .attr("class", "TextView")
-                           .append("table")
+    const table =
+        selection.append("div")
+                 .attr("class", "TextView")
+                 .append("table")
 
-    if (node.data.type != "leaf") {
-        const split = S(node.data.split["feature"]).trim().capitalize().toString()
-        const operator = node.data.split['operator']
-        const location = numeral(node.data.split['location']).format("0.00a")
-        const feature_key = Legend.byLabel(split).key
-
-        table.append("tr")
-             .append("td")
-             .attr("colspan", 2)
-             .call(function (row) {
-                 row.append("span")
-                    .attr("class", "colorcoded")
-                    .attr("legend_key", feature_key)
-                    .text(split)
-                 row.append("text")
-                    .text(" " + operator + " " + location)
-             })
+    // SPLIT
+    if (node.type != "leaf") {
         table.append("tr")
              .call(function (row) {
                  row.append("th")
-                    .text("Vote:")
+                    .text("Sp")
                  row.append("td")
-                    .append("span")
-                    .attr("class", "colorcoded")
-                    .attr("legend_key", class_key)
-                    .text(vote)
-             })
-        table.append("tr")
-             .call(function (row) {
-                 row.append("th")
-                    .text("Samples:")
-                 row.append("td")
-                    .text(samples)
-             })
-    } else {
-        const class_index   = node.data["vote"] - 1
-        const distribution  = node.data["distribution"]
-        const fraction_vote = distribution[class_index]/distribution.reduce((a, b) => a + b)
-
-        table.append("tr")
-             .append("td")
-             .attr("colspan", 2)
-             .call(function (row) {
-                 row.append("span")
-                    .attr("class", "colorcoded")
-                    .attr("legend_key", class_key)
-                    .text(vote)
-             })
-        table.append("tr")
-             .call(function (row) {
-                 row.append("th")
-                    .text("Samples:")
-                 row.append("td")
-                    .text(numeral(distribution[class_index]).format("0a") + " (" + numeral(fraction_vote).format("0%") + ")")
+                    .call(function (row) {
+                        row.append("span")
+                           .attr("class", "colorcoded")
+                           .attr("legend_key", entry_feature.key)
+                           .text(node.split.feature)
+                        row.append("text")
+                           .text(" " + node.split.operator + " " + numeral(node.split.location).format("0.00a"))
+                    })
              })
     }
+
+    // VOTE
+    table.append("tr")
+         .call(function (row) {
+             row.append("th")
+                .text("V")
+             const td = row.append("td")
+             td.append("span")
+               .attr("class", "colorcoded")
+               .attr("legend_key", entry_vote.key)
+               .text(node.vote)
+             td.append("text")
+               .text(" (" + numeral(node.vote_fraction).format("0%") + ")")
+         })
+
+    // SAMPLES
+    table.append("tr")
+         .call(function (row) {
+             row.append("th")
+                .text("S")
+             row.append("td")
+                .text(node.samples)
+         })
 }
 
 

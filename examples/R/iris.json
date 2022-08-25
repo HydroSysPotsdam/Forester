@@ -1,8 +1,8 @@
 {
   "meta": {
     "type": "classification",
-    "features": ["Sepal.Length", "Sepal.Width", "Petal.Length", "Petal.Width"],
-    "classes": ["setosa", "versicolor", "virginica"],
+    "features": ["Sepal.length", "Sepal.width", "Petal.length", "Petal.width"],
+    "classes": ["Setosa", "Versicolor", "Virginica"],
     "samples": 150
   },
   "tree": {
@@ -11,50 +11,41 @@
         "children": [],
         "type": "leaf",
         "samples": 50,
-        "data_id": -1,
-        "distribution": [50.0, 0.0, 0.0],
-        "vote": 1,
-        "depth": 1
+        "distribution": [50, 0, 0],
+        "vote": 0
       }, {
         "children": [
           {
             "children": [],
             "type": "leaf",
             "samples": 54,
-            "data_id": -1,
-            "distribution": [0.0, 49.0, 5.0],
-            "vote": 2,
-            "depth": 2
+            "distribution": [0, 49, 5],
+            "vote": 1
           }, {
             "children": [],
             "type": "leaf",
             "samples": 46,
-            "data_id": -1,
-            "distribution": [0.0, 1.0, 45.0],
-            "vote": 3,
-            "depth": 2
+            "distribution": [0, 1, 45],
+            "vote": 2
           }
         ],
         "type": "node",
         "samples": 100,
-        "data_id": -1,
-        "distribution": [0.0, 50.0, 50.0],
-        "vote": 2,
+        "distribution": [0, 50, 50],
+        "vote": 1,
         "split": {
-          "feature": "Petal.Width",
+          "feature": 3,
           "operator": "<",
           "location": 1.75
-        },
-        "depth": 1
+        }
       }
     ],
     "type": "root",
     "samples": 150,
-    "data_id": -1,
-    "distribution": [50.0, 50.0, 50.0],
-    "vote": 1,
+    "distribution": [50, 50, 50],
+    "vote": 0,
     "split": {
-      "feature": "Petal.Length",
+      "feature": 2,
       "operator": "<",
       "location": 2.45
     }

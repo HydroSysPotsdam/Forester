@@ -46,24 +46,40 @@ class LegendGroup {
         $(".group-content.sortable").sortable({
             placeholder: "entry-placeholder",
             connectWith: ".group-content.sortable",
-            update: function (event, ui) {
-                const ui_entry = $(ui.item)
-                const entry = Legend.byKey(ui_entry.attr("key"))
-
-                if (ui.sender) {
-                    // remove from group
-                    const ui_source = $(ui.sender)
-                    const ui_group  = ui_source.closest(".group")
-                    const group     = Legend.byGroupKey(ui_group.attr("key"))
-                    group.entries.splice(group.entries.indexOf(entry), 1)
-                } else {
-                    // add to group
-                    const ui_group = ui_entry.closest(".group")
+            // update: function (event, ui) {
+            //     const ui_entry = $(ui.item)
+            //     const entry = Legend.byKey(ui_entry.attr("key"))
+            //     if (ui.sender) {
+            //         // remove from group
+            //         const ui_source = $(ui.sender)
+            //         const ui_group = ui_source.closest(".group")
+            //         const group = Legend.byGroupKey(ui_group.attr("key"))
+            //         group.entries.splice(group.entries.indexOf(entry), 1)
+            //     } else {
+            //         // add to group
+            //         const ui_group = ui_entry.closest(".group")
+            //         const group = Legend.byGroupKey(ui_group.attr("key"))
+            //         group.entries.push(entry)
+            //         entry.group = group.key
+            //     }
+            // },
+            receive:
+                function (event, ui) {
+                    const ui_entry = $(ui.item)
+                    const ui_group = $(event.target).closest(".group")
+                    const entry = Legend.byKey(ui_entry.attr("key"))
                     const group = Legend.byGroupKey(ui_group.attr("key"))
                     group.entries.push(entry)
                     entry.group = group.key
+                },
+            remove:
+                function (event, ui) {
+                    const ui_entry = $(ui.item)
+                    const ui_group = $(event.target).closest(".group")
+                    const entry = Legend.byKey(ui_entry.attr("key"))
+                    const group = Legend.byGroupKey(ui_group.attr("key"))
+                    group.entries.splice(group.entries.indexOf(entry), 1)
                 }
-            }
         }).disableSelection()
 
         // update context menu
@@ -139,6 +155,8 @@ class LegendGroup {
 
         // update group label in ui
         ui_group_label.text(this.label + (this.collapsed ? " (" + this.entries.length + ")" : ""))
+
+        Legend.update()
     }
 
     rename() {
@@ -172,8 +190,7 @@ class LegendGroup {
 
         // retrieve first color in the group
         if (!this.color) {
-            let color = Legend.byKey(this.entries[0].key).color
-            this.color = color
+            this.color = "white"
         }
 
         // update data structure
@@ -237,16 +254,13 @@ class LegendEntry {
         let group = Legend.byGroupKey(this.group)
 
         // overwrite when mono is selected
-        if (Legend.anyMono()) {
-            return this.mono ? "red" : "white"
-        }
+        if (Legend.anyMono()) return this.mono ? "red" : "white"
+
+        // return white when group is hidden
+        if (group.collapsed) return "white"
 
         // group color overwrites entry color
         return group.linked ? group.color : this.color
-    }
-
-    getLabel () {
-
     }
 }
 
@@ -283,10 +297,22 @@ export let Legend = {
     entries: [],
     groups: [],
 
+    clear: function () {
+        this.entries = []
+        this.groups  = []
+
+        // remove dom elements
+        d3.select("#groups")
+          .selectAll("*")
+          .remove()
+    },
+
     generate: function () {
-        let n_classes = Tree.classNames().length
-        let n_features = Tree.featureNames().length
-        let colors = chroma.brewer.Set3
+        Legend.clear()
+
+        const n_classes  = Tree.classNames().length
+        const n_features = Tree.featureNames().length
+        let colors = Array.from(chroma.brewer.Set3)
 
         if (n_classes + n_features > colors.length) {
             // numer of colored classes
@@ -295,10 +321,10 @@ export let Legend = {
             let m_features = colors.length - m_classes
             // add class colors if necessary
             if (n_classes - m_classes > 0) {
-                colors.splice(m_classes, 0, Array(n_classes - m_classes).fill(undefined))
+                colors.splice(m_classes, 0, Array(n_classes - m_classes).fill("white"))
             }
             if (n_features - m_features > 0) {
-                colors = colors.concat(Array(n_features - m_features).fill(undefined))
+                colors = colors.concat(Array(n_features - m_features).fill("white"))
             }
         }
 

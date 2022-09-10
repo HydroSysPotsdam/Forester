@@ -8,6 +8,14 @@
 @import "Legend.css";
 @import "CCircleIconView.css";
 @import "Panzoom.css";
+@import "Settings.css";
+
+:root {
+    --forester_background: #f6f6f6;
+    --forester_background_hover: #ededed;
+    --forester_highlight: darkolivegreen;
+    --forester_border: 1px solid #cccccc;
+}
 
 html, body {
     margin: 0;
@@ -15,6 +23,30 @@ html, body {
     height: 100%;
     overflow-y: hidden;
     overflow-x: hidden;
+}
+
+.forester-ui-panel {
+    background: var(--forester_background);
+    border: var(--forester_border);
+    border-radius: 3px;
+}
+
+.forester-ui-button {
+    width: 25px;
+    height: 25px;
+    margin: 10px;
+    text-align: center;
+    -webkit-user-select: none;
+    user-select: none;
+    cursor: pointer;
+}
+
+.forester-ui-button::before {
+    line-height: 25px;
+}
+
+.forester-ui-button:hover {
+    color: var(--forester_highlight);
 }
 
 #tree {
@@ -75,13 +107,6 @@ html, body {
     overflow: scroll;
     font-size: 12px;
     text-align: justify;
-}
-
-#example_selector {
-    position: fixed;
-    left: 0%;
-    top: 0%;
-    margin: 10px;
 }
 
 label {

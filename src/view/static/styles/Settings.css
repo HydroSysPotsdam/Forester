@@ -1,0 +1,77 @@
+/*
+ * CC-0 2022.
+ * David Strahl, University of Potsdam
+ * Forester: Interactive human-in-the-loop web-based visualization of machine learning trees
+ */
+
+#settings-button {
+    position: fixed;
+    right: 0%;
+    bottom: 0%;
+}
+
+#settings {
+    position: fixed;
+    right: 0%;
+    top: 0%;
+    width: 300px;
+    height: 90%;
+
+    visibility: hidden;
+    transform: translate(100%, 0);
+    transition: ease-out;
+    transition-duration: 200ms;
+
+    padding: 2em;
+    margin: 10px;
+
+    overflow-x: clip;
+    overflow-y: scroll;
+
+    font-family: Verdana;
+}
+
+#settings h2 {
+    margin-top: 0px;
+    margin-bottom: 20px;
+}
+
+#settings h3 {
+    margin-top: 20px;
+    margin-bottom: 0px;
+    padding-bottom: 5px;
+    border-bottom: 1px solid black;
+}
+
+#settings label {
+    margin: 0;
+    font-size: 0.8em;
+}
+
+#settings .settings-group {
+    display: grid;
+    grid-template-columns: 50% 50%;
+    gap: 1em;
+    grid-auto-rows: 30px;
+    align-items: center;
+}
+
+#settings .settings-group h3 {
+    grid-column: 1/3;
+}
+
+#settings .ui-widget , .ui-menu-item-wrapper {
+    font-size: 0.8em;
+}
+
+#settings .ui-slider {
+    margin: 0px 5px;
+}
+
+#settings-save {
+    position: absolute;
+    margin: 10px auto;
+    left: 50%;
+    bottom: 0%;
+    transform: translate(-50%, 0);
+}

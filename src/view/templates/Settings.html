@@ -1,0 +1,57 @@
+<!--
+  ~ CC-0 2022. 
+  ~ David Strahl, University of Potsdam
+  ~ Forester: Interactive human-in-the-loop web-based visualization of machine learning trees
+  -->
+
+<!DOCTYPE html>
+
+<h2> <span class="fa-solid fa-gears"></span>&nbsp;Settings </h2>
+
+<div class="settings-group">
+    <label>Example Tree</label>
+    <select id="setting-example">
+        <option>Iris [R]</option>
+        <option>Iris [Matlab]</option>
+        <option selected="selected">Diabetes [R]</option>
+        <option>Fenny [Matlab]</option>
+    </select>
+</div>
+
+<div class="settings-group">
+    <h3>Colors</h3>
+
+    <label>Default Color Scale</label>
+    <select id = "setting-scale" type="select">
+        <option value="Set1">Brewer Set 1</option>
+        <option value="Set2">Brewer Set 2</option>
+        <option value="Set3" selected="true">Brewer Set 3</option>
+        <option value="Pastel1">Brewer Pastel 1</option>
+        <option value="Pastel2">Brewer Pastel 2</option>
+        <option value="Dark2">Brewer Dark</option>
+    </select>
+
+    <label>Colorblind Friendly</label>
+    <input id="setting-colorblind" type="checkbox">
+</div>
+
+<div class="settings-group">
+    <h3>Layout</h3>
+
+    <label>Direction</label>
+    <select id="setting-direction">
+        <option value="lr">Left-Right</option>
+        <option value="tb" selected="true">Top-Bottom</option>
+    </select>
+
+    <label>Vertical Spread</label>
+    <span id="setting-vspread" type="slider"></span>
+
+    <label>Horizontal Spread</label>
+    <span id="setting-hspread" type="slider"></span>
+</div>
+
+<div id="settings-save">
+    <span>Save and Update</span>
+</div>
+

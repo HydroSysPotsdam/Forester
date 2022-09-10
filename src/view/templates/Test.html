@@ -9,32 +9,25 @@
 <head>
     <meta charset="UTF-8">
     <title>Forester</title>
-    <style>
-        .panzoom-parent {
-            position: relative;
-        }
-        #box {
-            position: relative;
-            width: 400px;
-            height: 400px;
-            background-image: url("https://i.guim.co.uk/img/media/26392d05302e02f7bf4eb143bb84c8097d09144b/446_167_3683_2210/master/3683.jpg?width=1200&height=900&quality=85&auto=format&fit=crop&s=11e949fc5d06576bc8b80ec192896753");
-            background-size: cover;
-            border: 2px solid black;
-        }
-    </style>
+    <script src="https://kit.fontawesome.com/0fd1c4c2d2.js" crossorigin="anonymous"></script>
 </head>
 <body>
-    <div class="panzoom-parent">
-        <div id="box">
-        </div>
-    </div>
+    <!-- solid style -->
+    <i class="fa-solid fa-user"></i>
 
-    <script src="https://unpkg.com/@panzoom/panzoom@4.5.0/dist/panzoom.min.js"></script>
-    <script type="text/javascript">
-        const box = document.getElementById("box")
-        let pz = Panzoom(box, {minScale: 0.5, maxScale: 2})
-        box.parentElement.addEventListener('wheel', pz.zoomWithWheel)
-    </script>
+    <!-- regular style -->
+    <i class="fa-regular fa-user"></i>
 
+    <!-- light style -->
+    <i class="fa-light fa-user"></i>
+
+    <!-- duotone style -->
+    <i class="fa-duotone fa-user"></i>
+
+    <!-- all new thin style -->
+    <i class="fa-thin fa-user"></i>
+
+    <!--brand icon-->
+    <i class="fa-brands fa-github-square"></i>
 </body>
 </html>

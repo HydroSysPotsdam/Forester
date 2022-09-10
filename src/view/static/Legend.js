@@ -5,6 +5,7 @@
  */
 
 import {Tree} from "./Forester.js";
+import {Settings} from "./Settings.js";
 
 class LegendGroup {
 
@@ -34,10 +35,10 @@ class LegendGroup {
             .text(this.label)
         this._ui_header
             .append("span")
-            .attr("class", "fa fa-fw group-link")
+            .attr("class", "fa-solid fa-fw group-link")
         this._ui_header
             .append("span")
-            .attr("class", "fa fa-eye-slash group-toggle")
+            .attr("class", "fa-solid fa-eye-slash group-toggle")
             .on("click", callFromGroup("hide"))
         this._ui_container
             .attr("class", "group-content sortable")
@@ -312,7 +313,7 @@ export let Legend = {
 
         const n_classes  = Tree.classNames().length
         const n_features = Tree.featureNames().length
-        let colors = Array.from(chroma.brewer.Set3)
+        let colors = Array.from(chroma.brewer[Settings.color.scale])
 
         if (n_classes + n_features > colors.length) {
             // numer of colored classes

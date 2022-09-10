@@ -101,8 +101,6 @@ export class Panzoom {
           .on("keydown keyup", event => this.#disable.call(this, event))
 
         this.#updateElement()
-
-        console.log(this.options)
     }
 
     #inputDrag(event) {
@@ -211,7 +209,6 @@ export class Panzoom {
     }
 
     #disable (event) {
-        console.log(event)
         if (event.key === "Shift" && event.type === "keydown") {
             this.#disabled = true
         }

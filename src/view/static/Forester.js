@@ -1,6 +1,7 @@
 import * as Views from "./Views.js";
 import {Legend} from "./Legend.js";
 import {Panzoom} from "./Panzoom.js";
+import {Settings} from "./Settings.js";
 
 let LAYOUT = d3.tree()
                .size([650, 650])
@@ -20,14 +21,16 @@ export let Tree = {
 
     fromJson: function (path) {
         fetch(path).then(r => r.json()).then(json => {
-            this.initialize(json)
+            this.nodes = d3.hierarchy(json['tree'], d => d.children)
+            this.meta = json['meta']
+            // add initial data to nodes and clean up some fields
+            this.initializeNodes()
+            // prepare tree for rendering
+            this.initialize()
         })
     },
 
     clear() {
-        this.nodes = []
-        this.meta  = []
-
         // remove dom elements
         d3.select("#tree")
           .selectAll("*")
@@ -84,38 +87,38 @@ export let Tree = {
             .each(function (node) {
                 node.height = max_depth - node.depth
             })
-    },
-
-    initialize: function (json) {
-        Tree.clear()
-
-        this.nodes = d3.hierarchy(json['tree'], d => d.children)
-        this.meta = json['meta']
-
-        // add initial data to nodes and clean up some fields
-        this.initializeNodes()
 
         // add meta information
         this.meta.branches = this.nodes.descendants().map(node => node.branch)
         this.meta.branches = Math.max(...this.meta.branches) - Math.min(...this.meta.branches) + 1
-
-        window.Tree = Tree
-
-        Legend.generate()
-        this.layout("vertical")
-        this.draw()
     },
 
-    layout: function (direction, tightness) {
+    initialize: function () {
+        // clear tree and load new data if given
+        Tree.clear()
+
+        // generate the legend
+        Legend.generate()
+
+        // layout the nodes
+        this.layout()
+
+        // add the dom elements
+        this.draw()
+
+        window.Tree = Tree
+    },
+
+    layout: function () {
         // helper function
         const range = x => Math.max(...x) - Math.min(...x)
 
         let tree, width, height, xoffset, yoffset;
 
         // calculate layout
-        if (direction === "vertical" || direction == undefined) {
-            tree = d3.tree().nodeSize([100, 80])(this.nodes)
-            width = range(this.nodes.descendants().map(node => node.x)) + 100
+        if (Settings.layout.direction === "tb") {
+            tree = d3.tree().nodeSize([Settings.layout.vspread*100, Settings.layout.hspread*80])(this.nodes)
+            width  = range(this.nodes.descendants().map(node => node.x)) + 100
             height = range(this.nodes.descendants().map(node => node.y)) + 100
             // offset center the elements in the container and add padding
             xoffset = -Math.min(...this.nodes.descendants().map(node => node.x)) + 50
@@ -124,12 +127,12 @@ export let Tree = {
                 node.x = node.x + xoffset;
                 node.y = node.y + yoffset
             })
-        } else if (direction === "horizontal") {
-            tree = d3.tree().nodeSize([80, 100])(this.nodes)
+        } else if (Settings.layout.direction === "lr") {
+            tree = d3.tree().nodeSize([Settings.layout.vspread*80, Settings.layout.hspread*100])(this.nodes)
             this.nodes.descendants().forEach(node => {
                 [node.x, node.y] = [node.y, node.x]
             })
-            width = range(this.nodes.descendants().map(node => node.x)) + 100
+            width  = range(this.nodes.descendants().map(node => node.x)) + 100
             height = range(this.nodes.descendants().map(node => node.y)) + 100
             // offset center the elements in the container and add padding
             xoffset = 50
@@ -141,20 +144,20 @@ export let Tree = {
         }
 
         // page and legend for placing the container
-        let page   = document.body.getBoundingClientRect()
+        let page = document.body.getBoundingClientRect()
         let legend = document.getElementById("legend").getBoundingClientRect()
 
         // resize container
         d3.select("#tree")
           .style("width", width + "px")
           .style("height", height + "px")
-          .style("left", legend.left/2 + "px")
+          .style("left", legend.left / 2 + "px")
           .style("top", "50%")
           .style("transform", "translate(-50%, -50%)")
 
-         // add pan and zoom funcionality
+        // add pan and zoom funcionality
         Tree.panzoom = new Panzoom(document.getElementById("tree"), {
-            initialZoom: Math.min(1, legend.left/width, page.height/height)
+            initialZoom: Math.min(1, legend.left / width, page.height / height)
         })
     },
 
@@ -361,25 +364,4 @@ $('document').ready(function () {
               content.style("visibility", "hidden")
           }
       })
-
-    $("#example").selectmenu({
-        change: function (event, data) {
-            switch (data.item.index) {
-                case 0:
-                    Tree.fromJson("../../../examples/R/iris.json")
-                    return
-                case 1:
-                    Tree.fromJson("../../../examples/Matlab/iris.json")
-                    return
-                case 2:
-                    Tree.fromJson("../../../examples/R/diabetes.json")
-                    return
-                case 3:
-                    Tree.fromJson("../../../examples/Matlab/fanny.json")
-                    return
-            }
-        }
-    })
-
-    // introJs().setOptions(legend_intro).start()
 })

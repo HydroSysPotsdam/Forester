@@ -8,26 +8,75 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Forester</title>
-    <script src="https://kit.fontawesome.com/0fd1c4c2d2.js" crossorigin="anonymous"></script>
+    <title>Quicksettings</title>
+    <script src="https://cdn.jsdelivr.net/npm/quicksettings@latest/quicksettings.min.js"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        #panel {
+            font-family: "Verdana";
+        }
+
+        .qs_main {
+            padding: 5px 20px;
+        }
+
+        .qs_title_bar {
+            font-weight: bold;
+            font-size: 20px;
+            margin: 5px 0px 10px 0px;
+        }
+
+        .qs_container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            margin: 5px 0px;
+        }
+
+        .qs_group_title {
+            font-weight: bold;
+            margin: 10px 0px 5px 0px;
+            padding: 5px 0px;
+            border-bottom: solid 1px black;
+        }
+
+        .qs_label {
+            font-size: 10px;
+        }
+
+        .qs_label b {
+            font-weight: normal;
+        }
+    </style>
 </head>
 <body>
-    <!-- solid style -->
-    <i class="fa-solid fa-user"></i>
+    <div id="panel" style="background:lightgrey; width: 500px; height: 100%; position: absolute;"></div>
+    <script type="text/javascript">
+        console.log("Running script")
+        QuickSettings.useExtStyleSheet()
+        let settings = QuickSettings.create(0, 0, "Settings", document.getElementById("panel"))
 
-    <!-- regular style -->
-    <i class="fa-regular fa-user"></i>
+        settings.addGroupTitle = function (title) {
+            d3.select(".qs_content")
+              .append("div")
+              .attr("class", "qs_group_title")
+              .text(title)
+            return settings;
+        }
 
-    <!-- light style -->
-    <i class="fa-light fa-user"></i>
+        d3.select(".qs_title_bar")
+          .html("Forester's Settings")
 
-    <!-- duotone style -->
-    <i class="fa-duotone fa-user"></i>
+        // example tree
+        settings.addDropDown("Example Tree", ["Diabetes", "Iris [R]", "Iris [Matlab]", "Fanny"])
+                .addGroupTitle("Colors")
+                .addDropDown("Color Scale", ["Brewer Set 1", "Brewer Set 2", "Brewer Set 3", "Brewer Pastel 1", "Brewer Pastel 2", "Brewer Dark"])
+                .addGroupTitle("Layout")
+                .addDropDown("Direction", ["Left-Right", "Top-Bottom", "Radial"])
+                .addRange("Horizontal Spread", 0, 1, 0.5, 0.01)
+                .addRange("Vertical Spread", 0, 1, 0.5, 0.01)
+                .addGroupTitle("Paths")
+                .addDropDown("Path Style", ["Linear", "Curved", "Ragged"])
 
-    <!-- all new thin style -->
-    <i class="fa-thin fa-user"></i>
-
-    <!--brand icon-->
-    <i class="fa-brands fa-github-square"></i>
+    </script>
 </body>
 </html>

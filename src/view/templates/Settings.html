@@ -44,11 +44,18 @@
         <option value="tb" selected="true">Top-Bottom</option>
     </select>
 
+    <label>Path Style</label>
+    <select id="settings-direction" oninput="Settings.path.style.onChange()">
+        <option value="linear" selected="true">Linear</option>
+        <option value="curved">Curved</option>
+        <option value="ragged">Ragged</option>
+    </select>
+
     <label>Vertical Spread</label>
-    <span id="setting-vspread" type="slider"></span>
+    <div id="setting-vspread" type="slider"></div>
 
     <label>Horizontal Spread</label>
-    <span id="setting-hspread" type="slider"></span>
+    <div id="setting-hspread" type="slider"></div>
 </div>
 
 <div id="settings-save">

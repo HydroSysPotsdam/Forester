@@ -104,7 +104,6 @@ export class Panzoom {
     }
 
     #inputDrag(event) {
-
         // shift key disables panzoom so the user can select text
         if (this.#disabled) return
 
@@ -154,7 +153,7 @@ export class Panzoom {
     }
 
     #updateElement () {
-        d3.select("#tree")
+        d3.select(this.#elem)
           .style("transform", this.#initialTransform + "translate(" + this.#pan.x + "px, " + this.#pan.y + "px) " + "scale(" + this.#zoom + ")")
     }
 

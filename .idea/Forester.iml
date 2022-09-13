@@ -13,6 +13,7 @@
     <orderEntry type="library" name="voca" level="application" />
     <orderEntry type="library" name="numeral" level="application" />
     <orderEntry type="library" name="string.js" level="application" />
+    <orderEntry type="library" name="quicksettings" level="application" />
   </component>
   <component name="PackageRequirementsSettings">
     <option name="requirementsPath" value="" />

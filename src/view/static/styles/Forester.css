@@ -54,6 +54,14 @@ html, body {
     /*background: palegoldenrod;*/
 }
 
+.tree {
+    position: relative;
+    width: auto;
+    height: auto;
+    transform: translate(-50%, -50%);
+    transform-origin: center;
+}
+
 #links {
     width: inherit;
     height: inherit;
@@ -62,11 +70,23 @@ html, body {
 .node {
     position: absolute;
     transform: translate(-50%, -50%);
+    transform-origin: center;
+}
+
+.links {
+    width: inherit;
+    height: inherit;
 }
 
 .link {
     fill: none;
     stroke: black;
+    transform-origin: center;
+    transform-box: content-box;
+}
+
+.link .colorcoded {
+    stroke: var(--highlight-color);
 }
 
 #hint {

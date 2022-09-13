@@ -356,7 +356,8 @@ export let Legend = {
     },
 
     byLabel: function (label) {
-        return Legend.entries.find(e => (e.label.toUpperCase() === label.toUpperCase()))
+        const entry = Legend.entries.find(e => (e.label.toUpperCase() === label.toUpperCase()))
+        return (entry ? entry : {key: undefined, label: "undefined", color: "white", origin:"undefined", group:"undefined", mono:false})
     },
 
     byKey: function (key) {

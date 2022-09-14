@@ -22,9 +22,15 @@ export class Panzoom {
 
     // the element for which panzoom is added
     #elem
+    // transform wrapper
+    #elem_transform
+    // the panzoom wrapper
+    #elem_parent
+
     // an initial css transformation that was already on the
     // element and should not be discarded  (rotation, skew, ...)
-    #initialTransform
+    // #initialTransform
+    #oldTransform
 
     // whether panzoom is disabled
     #disabled = false
@@ -75,25 +81,40 @@ export class Panzoom {
         }
 
         // initial values for some fields
-        this.#elem  = elem
-        this.#initialTransform = d3.select(elem).style("transform")
+        // this.#initialTransform = d3.select(elem).style("transform")
         this.#zoom = this.options.initialZoom
 
-        // add listeners and class to element
+        // make this element panzoom ready
+        this.#elem  = elem
         d3.select(elem)
-          .on("wheel", event => this.#inputZoom.call(this, event))
-        // add the panzoom class
           .classed("panzoom", true)
 
-        // add the parent container and insert the element
-        d3.select(elem.parentElement)
-          .insert("div", ".panzoom")
-          .attr("class", "panzoom-parent")
-          .node().appendChild(this.#elem)
+        // add the parent container, transform wrapper and insert the element
+        this.#elem_parent =
+            d3.select(elem.parentElement)
+              .insert("div", ".panzoom")
+              .attr("class", "panzoom-parent")
+              .node()
+
+        // add transformation wrapper
+        this.#elem_transform =
+            d3.select(this.#elem_parent)
+              .append("div")
+              .attr("class", "panzoom-transform")
+              .node()
+
+        // move the element to the transformation wrapper
+        d3.select(this.#elem_transform)
+          .node()
+          .appendChild(this.#elem)
+
+        // add listeners and class to element
+        d3.select(this.#elem_transform)
+          .on("wheel", event => this.#inputZoom.call(this, event))
+          .on("mousemove mouseup mousedown mouseleave contextmenu", event => this.#inputDrag.call(this, event))
 
         // add listeners to the parent container
-        d3.select(elem.parentElement)
-          .on("mousemove mouseup mousedown mouseleave contextmenu", event => this.#inputDrag.call(this, event))
+        d3.select(this.#elem_parent)
           .on("dblclick", event => this.reset.call(this))
 
         // key listeners only work on the document
@@ -108,7 +129,7 @@ export class Panzoom {
         if (this.#disabled) return
 
         // position of event relative to center of element
-        let bbox = this.#elem.getBoundingClientRect()
+        let bbox = this.#elem_transform.getBoundingClientRect()
         this.#dragFocal = {
             x: (event.pageX - bbox.left)/(bbox.width /2) - 1,
             y: (event.pageY - bbox.top) /(bbox.height/2) - 1
@@ -123,7 +144,7 @@ export class Panzoom {
 
             // style the dragged element
             // TODO: using the body here fixed the cursor while dragging but this is probably not best practice
-            d3.select(document.body).classed("dragging", true)
+            d3.select(this.#elem_parent).classed("dragging", true)
         }
         if (event.type === "mousemove" && this.#drag) {
             // do not count this event, when the specified time has not elapsed since the last movement
@@ -142,7 +163,7 @@ export class Panzoom {
             this.#drag = false
 
             // style the dragged element
-            d3.select(document.body).classed("dragging", false)
+            d3.select(this.#elem_parent).classed("dragging", false)
         }
     }
 
@@ -153,8 +174,8 @@ export class Panzoom {
     }
 
     #updateElement () {
-        d3.select(this.#elem)
-          .style("transform", this.#initialTransform + "translate(" + this.#pan.x + "px, " + this.#pan.y + "px) " + "scale(" + this.#zoom + ")")
+        d3.select(this.#elem_transform)
+          .style("transform", "translate(" + this.#pan.x + "px, " + this.#pan.y + "px) " + "scale(" + this.#zoom + ")")
     }
 
     pan (dx = 0, dy = 0) {
@@ -184,7 +205,7 @@ export class Panzoom {
     }
 
     smoothPan(dx, dy, ds = 0) {
-        d3.select(this.#elem)
+        d3.select(this.#elem_transform)
           .style("transition", "transform " + this.options.transitionDuration + "ms " + this.options.transitionEasing)
 
         // do the panning an zooming
@@ -192,7 +213,7 @@ export class Panzoom {
         if (ds != 0) this.zoom(ds)
 
         // reset to no transition after panzoom
-        setTimeout(() => d3.select(this.#elem).style("transition", "none"), this.options.transitionDuration)
+        setTimeout(() => d3.select(this.#elem_transform).style("transition", "none"), this.options.transitionDuration)
     }
 
     zoomIn () {

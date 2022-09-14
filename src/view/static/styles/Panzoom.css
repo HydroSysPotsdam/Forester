@@ -22,6 +22,12 @@
     touch-action: none;
 }
 
+.panzoom-transform {
+    width: fit-content;
+    height: fit-content;
+    touch-action: none;
+}
+
 .panzoom {
     transform-origin: 50% 50%;
     touch-action: none;

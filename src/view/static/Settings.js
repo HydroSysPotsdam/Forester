@@ -22,8 +22,6 @@ export let Settings = {
 
     // Add all the settings here
     initialize: function (settings) {
-        console.log("Adding settings")
-
         // update the header
         settings.updateHeader("<span class=\"fa-solid fa-gears\"></span> Forester's Settings")
 

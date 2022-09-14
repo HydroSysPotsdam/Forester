@@ -46,6 +46,7 @@ export class TreeInstance {
         node.id = "Node-" + uuid.v4()
         node.collapsed = false
         node.view = node.children ? Views.TextView : Views.CCircleIconView
+        node.elements = {}
 
         // copy values of data into node
         for (const key of ["distribution", "samples", "split", "type", "vote"]) {
@@ -110,6 +111,7 @@ export class TreeInstance {
                 .style("left", "50%")
                 .style("top", "50%")
                 .style("visibility", "true")
+                .each(function (node) {node.elements.node = d3.select(this).node()})
         }
 
         // add the links on the first call
@@ -124,6 +126,7 @@ export class TreeInstance {
                 .attr('class', 'link')
                 .attr('from', node => node.parent.id)
                 .attr('to', node => node.id)
+                .each(function (node) {node.elements.link = d3.select(this).node()})
         }
 
         // do (or update) the layout
@@ -157,6 +160,11 @@ export class TreeInstance {
             const node = d3.select(this).datum()
             const view = node.view.name
 
+            if (event.shiftKey) {
+                Tree.toggleNode(node)
+                return;
+            }
+
             if (view === "TextView") {
                 node.view = Views.CCircleIconView
             }
@@ -175,12 +183,17 @@ export class TreeInstance {
     #drawLinks(link) {
         this.#clearLinks()
 
+
         let direction = Settings.layout.direction
         let curve     = Settings.path.style
         let flow      = Settings.path.flow
+        // if (curve === "linear") curve = d3.curveLinear
+        // if (curve === "curved") curve = direction === "top-bottom" ? d3.curveBumpY : d3.curveBumpX
+        // if (curve === "ragged") curve = direction === "top-bottom" ? d3.curveStepAfter : d3.curveStepBefore
+
         if (curve === "linear") curve = d3.curveLinear
-        if (curve === "curved") curve = direction === "top-bottom" ? d3.curveBumpY : d3.curveBumpX
-        if (curve === "ragged") curve = direction === "top-bottom" ? d3.curveStepAfter : d3.curveStepBefore
+        if (curve === "curved") curve = d3.curveBumpY
+        if (curve === "ragged") curve = d3.curveStepAfter
 
         if (!flow) {
             this.#ui_links
@@ -228,41 +241,32 @@ export class TreeInstance {
         // helper function
         const range = x => Math.max(...x) - Math.min(...x)
 
-        let tree, width, height, xoffset, yoffset;
-
         // load layout and path settings
         let direction = Settings.layout.direction
         let lspace    = Settings.layout.lspace
         let bspace    = Settings.layout.bspace
 
-        // calculate layout
-        if (direction === "top-bottom") {
-            tree = d3.tree().nodeSize([Settings.layout.lspace * 100, Settings.layout.bspace * 80])(this.nodes)
-            width = range(this.nodes.descendants().map(node => node.x))
-            height = range(this.nodes.descendants().map(node => node.y))
-            // offset center the elements in the container and add padding
-            xoffset = -Math.min(...this.nodes.descendants().map(node => node.x))
-            yoffset = 0
-            this.nodes.descendants().forEach(node => {
-                node.x = node.x + xoffset;
-                node.y = node.y + yoffset
-            })
-        } else if (direction === "left-right") {
-            tree = d3.tree().nodeSize([Settings.layout.lspace * 80, Settings.layout.bspace * 100])(this.nodes)
-            this.nodes.descendants().forEach(node => {
-                [node.x, node.y] = [node.y, node.x]
-            })
-            width = range(this.nodes.descendants().map(node => node.x))
-            height = range(this.nodes.descendants().map(node => node.y))
-            // offset center the elements in the container and add padding
-            xoffset = 0
-            yoffset = -Math.min(...this.nodes.descendants().map(node => node.y))
-            this.nodes.descendants().forEach(node => {
-                node.x = node.x + xoffset;
-                node.y = node.y + yoffset
-            })
-        }
+        let tree, width, height, xmin, ymin;
+        // calculate the tree layout
+        tree    = d3.tree().nodeSize([bspace * 100, lspace * 80])(this.nodes)
+        // find range of x and y coordinates
+        width   = range(this.nodes.descendants().map(node => node.x))
+        height  = range(this.nodes.descendants().map(node => node.y))
+        // move x and y coordinates, so that they are positive
+        xmin = -Math.min(...this.nodes.descendants().map(node => node.x))
+        ymin = 0
+        this.nodes.descendants().forEach(node => {
+            node.x = node.x + xmin;
+            node.y = node.y + ymin
+            // save the original position again for the collapsing of nodes
+            node.ox = node.x
+            node.oy = node.y
+        })
 
+        // update direction parameter
+        this.#ui_elem.classed("layout-left-right", direction === "left-right")
+
+        // TODO: can you solve this with scale?
         // page and legend for placing the container
         let page = document.body.getBoundingClientRect()
         let legend = document.getElementById("legend").getBoundingClientRect()
@@ -271,15 +275,23 @@ export class TreeInstance {
         d3.select("#" + this.id)
           .style("width", width + "px")
           .style("height", height + "px")
-          .style("left", legend.left / 2 + "px")
-          .style("top", "50%")
-          .style("transform", "translate(-50%, -50%)")
+          // .style("left", legend.left / 2 + "px")
+          // .style("top", "50%")
 
         // updating the positions of the nodes
         this.#ui_nodes
-            // .transition(Settings.transition.layout ? 400 : 0)
             .style("left", node => node.x + "px")
             .style("top",  node => node.y + "px")
+    }
+
+    toggleNode(node, animate = true) {
+        if (node.collapsed) {
+            node.collapsed = false;
+            this.#showNode(node, animate)
+        } else {
+            node.collapsed = true;
+            this.#hideNode(node, animate)
+        }
     }
 
     /**
@@ -287,8 +299,25 @@ export class TreeInstance {
      * @param id Identifier of the node's HTML element
      * @param animate If a transition should be shown
      */
-    #hideNode(id, animate = false) {
+    #hideNode(origin, animate = true) {
 
+        let childrenNodes = origin.descendants().slice(1).map(node => node.elements.node)
+        let childrenLinks = origin.descendants().slice(1).map(node => node.elements.link)
+
+        // add indicator for hidden nodes
+        d3.select(origin.elements.node)
+          .append("span")
+          .attr("class", "hide-indicator fa-solid fa-ellipsis")
+
+        d3.selectAll(childrenLinks)
+          .transition()
+          .style("opacity", 0)
+          .on("end", function () {d3.select(this).style("visibility", "hidden")})
+
+        d3.selectAll(childrenNodes)
+          .transition()
+          .style("opacity", 0)
+          .on("end", function (node) {d3.select(this).style("visibility", "hidden"), node.collapsed = true})
     }
 
     /**
@@ -296,7 +325,34 @@ export class TreeInstance {
      * @param id Identifier of the node's HTML element
      * @param animate If a transition should be shown
      */
-    #showNode(id, animate = false) {
+    #showNode(origin, animate = true) {
+
+        let childrenNodes = origin.descendants().slice(1).map(node => node.elements.node)
+        let childrenLinks = origin.descendants().slice(1).map(node => node.elements.link)
+
+        // remove indicator for hidden nodes
+        d3.select(origin.elements.node)
+          .select(".hide-indicator")
+          .remove()
+
+        // remove all the indicators for the hidden children nodes too
+        d3.selectAll(childrenNodes)
+          .selectAll(".hide-indicator")
+          .remove()
+
+        d3.selectAll(childrenLinks)
+        // animate the opacity
+          .style("visibility", "visible")
+          .style("opacity", 0)
+          .transition()
+          .style("opacity", 1)
+
+        d3.selectAll(childrenNodes)
+        // animate the opacity
+          .transition()
+          .style("visibility", "visible")
+          .style("opacity", 1)
+          .on("end", node => node.collapsed = false)
 
     }
 
@@ -334,267 +390,6 @@ Forester.loadTree = function (path) {
 }
 
 Forester.loadTree("../../../examples/R/diabetes.json")
-
-// export let Tree = {
-//
-//     fromJson: function (path) {
-//         fetch(path).then(r => r.json()).then(json => {
-//             this.nodes = d3.hierarchy(json['tree'], d => d.children)
-//             this.meta = json['meta']
-//             // add initial data to nodes and clean up some fields
-//             this.initializeNodes()
-//             // prepare tree for rendering
-//             this.initialize()
-//         })
-//     },
-//
-//     clear() {
-//         // remove dom elements
-//         d3.select("#tree")
-//           .selectAll("*")
-//           .remove()
-//     },
-//
-//     initializeNodes: function () {
-//         let id = 0
-//         let max_depth = 0
-//         this.nodes
-//             .each(function (node) {
-//                 // initial values
-//                 node.id = id
-//                 node.collapsed = false
-//                 id++
-//
-//                 // branch and depth values for root
-//                 if (node.id == 0) {
-//                     node.branch = 0
-//                     node.depth = 0
-//                 }
-//
-//                 // add branch value and count children
-//                 if (node.children) {
-//                     node.children[0].branch = node.branch - 1
-//                     node.children[1].branch = node.branch + 1
-//
-//                     node.children_total = node.descendants().length - 1
-//                 }
-//
-//                 // add depth value
-//                 if (node.parent) {
-//                     node.depth = node.parent.depth + 1
-//                     max_depth = Math.max(max_depth, node.depth)
-//                 }
-//
-//                 // copy values of data into node
-//                 for (const key of ["distribution", "samples", "split", "type", "vote"]) {
-//                     node[key] = node.data[key]
-//                 }
-//
-//                 // add easy accessors for the class info
-//                 node.vote_index = node.vote
-//                 node.vote = Tree.meta.classes[node.vote_index]
-//                 node.vote_fraction = node.distribution[node.vote_index] / node.distribution.reduce((a, b) => a + b)
-//                 node.vote_samples = node.distribution[node.vote_index]
-//
-//                 // add easy accessors for the feature info
-//                 if (node.split) {
-//                     node.split.feature_index = node.split.feature
-//                     node.split.feature = Tree.meta.features[node.split.feature_index]
-//                 }
-//             })
-//             .each(function (node) {
-//                 node.height = max_depth - node.depth
-//             })
-//
-//         // add meta information
-//         this.meta.branches = this.nodes.descendants().map(node => node.branch)
-//         this.meta.branches = Math.max(...this.meta.branches) - Math.min(...this.meta.branches) + 1
-//     },
-//
-//     initialize: function () {
-//         // clear tree and load new data if given
-//         Tree.clear()
-//
-//         // generate the legend
-//         Legend.generate()
-//
-//
-//         // layout the nodes
-//         this.layout()
-//
-//         // add the dom elements
-//         this.draw()
-//
-//         // window.Tree = Tree
-//     },
-//
-//     layout: function () {
-//         // helper function
-//         const range = x => Math.max(...x) - Math.min(...x)
-//
-//         let tree, width, height, xoffset, yoffset;
-//
-//         // calculate layout
-//         if (Settings.layout.direction === "tb") {
-//             tree = d3.tree().nodeSize([Settings.layout.vspread * 100, Settings.layout.hspread * 80])(this.nodes)
-//             width = range(this.nodes.descendants().map(node => node.x)) + 100
-//             height = range(this.nodes.descendants().map(node => node.y)) + 100
-//             // offset center the elements in the container and add padding
-//             xoffset = -Math.min(...this.nodes.descendants().map(node => node.x)) + 50
-//             yoffset = 50
-//             this.nodes.descendants().forEach(node => {
-//                 node.x = node.x + xoffset;
-//                 node.y = node.y + yoffset
-//             })
-//         } else if (Settings.layout.direction === "lr") {
-//             tree = d3.tree().nodeSize([Settings.layout.vspread * 80, Settings.layout.hspread * 100])(this.nodes)
-//             this.nodes.descendants().forEach(node => {
-//                 [node.x, node.y] = [node.y, node.x]
-//             })
-//             width = range(this.nodes.descendants().map(node => node.x)) + 100
-//             height = range(this.nodes.descendants().map(node => node.y)) + 100
-//             // offset center the elements in the container and add padding
-//             xoffset = 50
-//             yoffset = -Math.min(...this.nodes.descendants().map(node => node.y)) + 50
-//             this.nodes.descendants().forEach(node => {
-//                 node.x = node.x + xoffset;
-//                 node.y = node.y + yoffset
-//             })
-//         }
-//
-//         // page and legend for placing the container
-//         let page = document.body.getBoundingClientRect()
-//         let legend = document.getElementById("legend").getBoundingClientRect()
-//
-//         // resize container
-//         d3.select("#tree")
-//           .style("width", width + "px")
-//           .style("height", height + "px")
-//           .style("left", legend.left / 2 + "px")
-//           .style("top", "50%")
-//           .style("transform", "translate(-50%, -50%)")
-//
-//         // add pan and zoom funcionality
-//         Tree.panzoom = new Panzoom(document.getElementById("tree"), {
-//             initialZoom: Math.min(1, legend.left / width, page.height / height)
-//         })
-//     },
-//
-//     draw: function () {
-//         // clear the canvas
-//         d3.select("#tree")
-//           .selectAll("*")
-//           .remove()
-//
-//         // grab data for easy access
-//         // changes in data are not mapped to the tree structure
-//         let data = this.nodes.descendants()
-//
-//         // prepare links between nodes
-//         d3.select("#tree")
-//           .append("svg")
-//           .attr("id", "links")
-//           .selectAll('path')
-//           .data(data.slice(1))
-//           .enter()
-//           .append('path')
-//           .attr('class', 'link')
-//           .attr('d', LAYOUT.path)
-//
-//         // prepare views
-//         d3.select("#tree")
-//           .selectAll('div')
-//           .data(data, d => d.id)
-//           .enter()
-//           .append('div')
-//           .attr('id', d => 'node' + d.id)
-//           .attr('class', (d, i) => 'node ' + (i == 0 ? 'root' : (d.children ? 'internal' : 'leaf')))
-//           .style("left", d => d.x + "px")
-//           .style("top", d => d.y + "px")
-//           .style("opacity", 1)
-//           .style("visibility", "true")
-//           .each(function (d) {
-//               let selection = d3.select(this)
-//               let node = selection.datum()
-//               // Views.TextView.illustrate(selection, selection.datum(), Tree.meta)
-//               if (node.type == "leaf") {
-//                   Views.CCircleIconView.illustrate(selection, selection.datum(), Tree.meta)
-//               } else {
-//                   Views.TextView.illustrate(selection, selection.datum(), Tree.meta)
-//               }
-//           })
-//         // .on("click", function (e, node) {
-//         //     // collapse descendants
-//         //     let descendants = node.descendants().slice(1)
-//         //     let collapsed = descendants.every(desc => desc.collapsed)
-//         //     if (!node.collapsed) {
-//         //         descendants.map(d => d.collapsed = !collapsed)
-//         //     }
-//         //     Tree.update(node)
-//         // })
-//
-//         // initial animation
-//         //this.update(null)
-//
-//         Legend.update()
-//     },
-//
-//     update: function (node) {
-//         // find originating node if update comes from event
-//         let duration = node ? 200 + 20 * node.descendants().length : 200
-//
-//         // grab data to simplify
-//         // changes in data are not mapped to the original data
-//         let data = this.nodes.descendants()
-//
-//         // overwrite positions for collapsed nodes
-//         // data.map(function (node) {
-//         //     if (node.collapsed) {
-//         //         let first_visible = node.ancestors()
-//         //                              .filter(d => !d.collapsed)[0]
-//         //         node.x = first_visible.x
-//         //         node.y = first_visible.y
-//         //     }
-//         // })
-//
-//
-//         d3.selectAll('.link')
-//           .data(data.slice(1), d => d.id)
-//           .join(enter => enter,
-//               function (update) {
-//                   return update.transition()
-//                                .duration(duration)
-//                                .style("opacity", d => d.collapsed ? 0 : 1)
-//               })
-//
-//         // translation animation for nodes
-//         d3.selectAll('.node')
-//           .data(data, d => d.id)
-//           .join(enter => enter,
-//               function (update) {
-//                   return update.transition()
-//                                .duration(duration)
-//                                .attr("visibility", "visible")
-//                                .style("left", d => d.x + "px")
-//                                .style("top", d => d.y + "px")
-//                                .style("opacity", d => d.collapsed ? 0 : 1)
-//                                .on("end", function () {
-//                                    d3.select(this)
-//                                      .attr("visibility", d => d.collapsed ? "hidden" : "visible")
-//                                })
-//               })
-//     },
-//
-//     classNames: function () {
-//         let names = Tree.meta.classes
-//         return names.map(n => S(n).trim().capitalize().s)
-//     },
-//
-//     featureNames: function () {
-//         let names = Tree.meta.features
-//         return names.map(n => S(n).trim().capitalize().s)
-//     },
-// }
 
 // $('document').ready(function () {
 //     // Tree.fromJson("../../../examples/R/diabetes.json")

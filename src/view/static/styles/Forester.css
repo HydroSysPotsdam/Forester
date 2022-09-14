@@ -15,6 +15,7 @@
     --forester_background_hover: #ededed;
     --forester_highlight: darkolivegreen;
     --forester_border: 1px solid #cccccc;
+    --forester_transition_duration: 200ms;
 }
 
 html, body {
@@ -49,28 +50,56 @@ html, body {
     color: var(--forester_highlight);
 }
 
-#tree {
-    position: relative;
-    /*background: palegoldenrod;*/
-}
-
+/*
+    TREE CONTAINER
+*/
 .tree {
     position: relative;
     width: auto;
     height: auto;
-    transform: translate(-50%, -50%);
+
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+
+    cursor: default;
+
+    transition: transform var(--forester_transition_duration);
+}
+
+.tree.layout-left-right {
     transform-origin: center;
+    transform: rotate(-90deg)
 }
 
-#links {
-    width: inherit;
-    height: inherit;
-}
-
+/*
+    NODES
+*/
 .node {
     position: absolute;
     transform: translate(-50%, -50%);
+}
+
+.layout-left-right > .node {
     transform-origin: center;
+    transform-box: content-box;
+    transform: translate(-50%, -50%) rotate(90deg)
+}
+
+.node > .hide-indicator {
+    position: absolute;
+    left: 50%;
+    top: 100%;
+    transform: translate(-50%, 0%);
+}
+
+/* LINKS */
+#links {
+    width: inherit;
+    height: inherit;
 }
 
 .links {

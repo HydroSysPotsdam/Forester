@@ -9,73 +9,161 @@
 <head>
     <meta charset="UTF-8">
     <title>Quicksettings</title>
-    <script src="https://cdn.jsdelivr.net/npm/quicksettings@latest/quicksettings.min.js"></script>
     <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chroma-js/2.4.2/chroma.min.js"></script>
     <style>
-        #panel {
-            font-family: "Verdana";
+        path {
+            fill: none;
+            stroke: black;
         }
 
-        .qs_main {
-            padding: 5px 20px;
+        svg {
+            width: 500px;
+            height: 500px;
         }
 
-        .qs_title_bar {
-            font-weight: bold;
-            font-size: 20px;
-            margin: 5px 0px 10px 0px;
-        }
-
-        .qs_container {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            margin: 5px 0px;
-        }
-
-        .qs_group_title {
-            font-weight: bold;
-            margin: 10px 0px 5px 0px;
-            padding: 5px 0px;
-            border-bottom: solid 1px black;
-        }
-
-        .qs_label {
-            font-size: 10px;
-        }
-
-        .qs_label b {
-            font-weight: normal;
+        line {
+            stroke: green;
         }
     </style>
 </head>
 <body>
-    <div id="panel" style="background:lightgrey; width: 500px; height: 100%; position: absolute;"></div>
+    <svg></svg>
     <script type="text/javascript">
-        console.log("Running script")
-        QuickSettings.useExtStyleSheet()
-        let settings = QuickSettings.create(0, 0, "Settings", document.getElementById("panel"))
 
-        settings.addGroupTitle = function (title) {
-            d3.select(".qs_content")
-              .append("div")
-              .attr("class", "qs_group_title")
-              .text(title)
-            return settings;
+        let curve = d3.select("svg")
+                      .append("path")
+                      .attr("d", d3.line().curve(d3.curveBumpX)([[20, 20], [480, 480]]))
+
+        let dl = 10
+        let N  = Math.floor(curve.node().getTotalLength()/dl)
+        let lw = 50;
+        let points   = [...Array(N + 1).keys()].map(d => curve.node().getPointAtLength(d/N*curve.node().getTotalLength()))
+
+        // calculate normal for all points
+        for (let i = 0; i < points.length; i++) {
+            let dx, dy;
+
+            if (i == 0) {
+                // first point
+                dx = points[i + 1].x - points[i].x
+                dy = points[i + 1].y - points[i].y
+            } else if (i == points.length - 1) {
+                // last point
+                dx = points[i].x - points[i - 1].x
+                dy = points[i].y - points[i - 1].y
+            } else {
+                // middle points
+                dx = (points[i + 1].x - points[i - 1].x) / 2
+                dy = (points[i + 1].y - points[i - 1].y) / 2
+            }
+
+            // normalize normal
+            points[i].dx = dx/(dx**2 + dy**2)**0.5
+            points[i].dy = dy/(dx**2 + dy**2)**0.5
         }
 
-        d3.select(".qs_title_bar")
-          .html("Forester's Settings")
+        // let l  = 0;
+        // let L  = curve.node().getTotalLength()
+        // let dl = L/20;
+        //
+        // let points = [];
+        //
+        // let diff = function(p1, p2) {return ((p1.x - p2.x)**2 + (p1.x - p2.x)**2)**0.5}
+        //
+        // while (l < L) {
+        //     // sample point and two close points for derivatives
+        //     let point = curve.node().getPointAtLength(l)
+        //     let left  = curve.node().getPointAtLength(Math.max(0, l - 0.01*L))
+        //     let right = curve.node().getPointAtLength(Math.min(l + 0.01*L, L))
+        //
+        //     // first derivative
+        //     let dx = (right.x - left.x)/2
+        //     let dy = (right.y - left.y)/2
+        //     point.dx = dx/(dx**2 + dy**2)**0.5
+        //     point.dy = dy/(dx**2 + dy**2)**0.5
+        //
+        //     // curvature
+        //     let A = 0.5*Math.abs(left.x*(point.y - right.y) + point.x*(right.y - left.y) + right.x*(left.y - point.y))
+        //     point.c = 4*A/(diff(left, point)*diff(point, right)*diff(right, left))
+        //     point.c = point.c ? -point.c : 0
+        //
+        //     d3.select("svg")
+        //       .append("g")
+        //       .selectAll("circle")
+        //       .data([left, point, right])
+        //       .enter()
+        //       .append("circle")
+        //       .attr("cx", p => p.x)
+        //       .attr("cy", p => p.y)
+        //       .attr("r", 2)
+        //       .style("fill", "orange")
+        //
+        //     let step = Math.max(0.1, Math.exp(100*point.c))
+        //     l += step*dl;
+        //     console.log(step)
+        //
+        //     d3.select("svg")
+        //       .append("text")
+        //       .attr("x", point.x)
+        //       .attr("y", point.y)
+        //       .text(p => step.toFixed(4))
+        //
+        //     points.push(point)
+        //
+        // }
 
-        // example tree
-        settings.addDropDown("Example Tree", ["Diabetes", "Iris [R]", "Iris [Matlab]", "Fanny"])
-                .addGroupTitle("Colors")
-                .addDropDown("Color Scale", ["Brewer Set 1", "Brewer Set 2", "Brewer Set 3", "Brewer Pastel 1", "Brewer Pastel 2", "Brewer Dark"])
-                .addGroupTitle("Layout")
-                .addDropDown("Direction", ["Left-Right", "Top-Bottom", "Radial"])
-                .addRange("Horizontal Spread", 0, 1, 0.5, 0.01)
-                .addRange("Vertical Spread", 0, 1, 0.5, 0.01)
-                .addGroupTitle("Paths")
-                .addDropDown("Path Style", ["Linear", "Curved", "Ragged"])
+        console.log(points)
+
+        // find the points of the equidistant curves
+        let steps  = [0, 0.4, 0.7, 0.85, 1]
+        let curves = steps.map(step => points.map(
+            function (p) {
+                return {
+                    x: p.x + (lw/2)*(1 - 2*step)*p.dy,
+                    y: p.y + (lw/2)*(2*step - 1)*p.dx
+                }
+            }
+        ))
+
+        // prepare the areas between them
+        let areas = curves.slice(0, -1).map((c, i) => [...Array.from(c), ...Array.from(curves[i + 1]).reverse()])
+
+        console.log(curves)
+        console.log(areas)
+
+        d3.select("svg")
+          .append("g")
+          .selectAll("path")
+          .data(areas)
+          .enter()
+          .append("path")
+          .attr("d", c => d3.line().curve(d3.curveLinearClosed)(c.map(p => [p.x, p.y])))
+          .style("fill", (c, i) => chroma.random())
+          .style("stroke", "none")
+
+        // d3.select("svg")
+        //   .append("g")
+        //   .selectAll("circle")
+        //   .data(points)
+        //   .enter()
+        //   .append("circle")
+        //   .attr("cx", p => p.x)
+        //   .attr("cy", p => p.y)
+        //   .attr("r", 2)
+        //
+        // d3.select("svg")
+        //   .append("g")
+        //   .selectAll("line")
+        //   .data(points)
+        //   .enter()
+        //   .append("line")
+        //   .attr("x1", p => p.x)
+        //   .attr("y1", p => p.y)
+        //   .attr("x2", p => p.x + lw/2*p.dy)
+        //   .attr("y2", p => p.y - lw/2*p.dx)
+        //   .style("stroke", "red")
+
 
     </script>
 </body>

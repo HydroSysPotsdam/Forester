@@ -1,0 +1,70 @@
+/*
+ * CC-0 2022.
+ * David Strahl, University of Potsdam
+ * Forester: Interactive human-in-the-loop web-based visualization of machine learning trees
+ */
+
+/* ###### Basic View ####### */
+
+.BasicView {
+    width: 14px;
+    height: 15px;
+    fill: black;
+}
+
+.BasicView  polygon {
+    stroke-width: 1px;
+    stroke: white;
+}
+
+.BasicView > circle.colorcoded {
+    fill: var(--highlight-color);
+    stroke-width: 1px;
+    stroke: black;
+}
+
+/* ###### Pie Chart View ####### */
+
+.CCircleIconView .colorcoded {
+    --highlight-color: white;
+    fill: var(--highlight-color);
+}
+
+.CCircleIconView path {
+    stroke: black;
+    stroke-width:1px;
+}
+
+div.TextView {
+    display: block;
+    padding: 1px;
+    background-color: #ffffffee;
+    font-size: x-small;
+    line-height: 0.9;
+    white-space: nowrap;
+}
+
+/* ###### Text View ####### */
+
+.TextView th {
+    text-align: right;
+}
+
+.TextView td:first-child {
+    text-align: center;
+}
+
+.TextView td {
+    text-align: left;
+}
+
+.TextView tr {
+    align-content: center;
+}
+
+.TextView .colorcoded {
+    --highlight-color: white;
+    --contrast-color: black;
+    background-color: var(--highlight-color);
+    color: var(--contrast-color)
+}

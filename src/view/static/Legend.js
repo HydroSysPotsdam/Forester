@@ -349,7 +349,7 @@ export let Legend = {
                 const colorcoded = d3.select(this)
                 const color_key = colorcoded.attr("legend_key")
                 const entry = Legend.byKey(color_key)
-                const color = entry.getColor()
+                const color = entry ? entry.getColor() : "gray"
                 colorcoded.style("--highlight-color", color)
                 colorcoded.style("--contrast-color", chroma(color).luminance() > 0.5 ? "black" : "white")
             })

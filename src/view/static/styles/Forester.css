@@ -4,9 +4,8 @@
  * Forester: Interactive human-in-the-loop web-based visualization of machine learning trees
  */
 
-@import "TextView.css";
+@import "Views.css";
 @import "Legend.css";
-@import "CCircleIconView.css";
 @import "Panzoom.css";
 @import "Settings.css";
 
@@ -81,6 +80,19 @@ html, body {
 .node {
     position: absolute;
     transform: translate(-50%, -50%);
+    width: fit-content;
+    height: fit-content;
+    min-width: 50px;
+    min-height: 50px;
+}
+
+.node > .view {
+    position: absolute;
+    width: fit-content;
+    height: fit-content;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
 }
 
 .layout-left-right > .node {
@@ -105,6 +117,7 @@ html, body {
 .links {
     width: inherit;
     height: inherit;
+    overflow: visible;
 }
 
 .link {
@@ -114,8 +127,35 @@ html, body {
     transform-box: content-box;
 }
 
-.link .colorcoded {
-    stroke: var(--highlight-color);
+.link > .colorcoded.flow {
+    stroke: none;
+    fill: var(--highlight-color);
+}
+
+/*
+    NODE MENU
+*/
+.view-menu-item {
+    position: absolute;
+    padding: 5px;
+}
+
+.view-browse-left {
+    right: 100%;
+    top: 50%;
+    transform: translate(0, -50%);
+}
+
+.view-browse-right {
+    left: 100%;
+    top: 50%;
+    transform: translate(0, -50%);
+}
+
+.view-collapse {
+    left: 50%;
+    top: 100%;
+    transform: translate(-50%, 0%);
 }
 
 #hint {

@@ -34,7 +34,13 @@ export class TreeInstance {
             .classed("tree", true)
             .attr("id", this.id)
 
+        // add pan and zoom funcionality
+        this.panzoom = new Panzoom(document.getElementById(this.id))
+
+        // clean up the data for each node and add some initial fields
         this.nodes.each(node => this.#initializeNode(node))
+        // generate all the flow-relevant fields
+        this.#initializeFlow()
     }
 
     /**
@@ -45,7 +51,7 @@ export class TreeInstance {
         // initial values
         node.id = "Node-" + uuid.v4()
         node.collapsed = false
-        node.view = node.children ? Views.TextView : Views.CCircleIconView
+        node.view = (node.data.type === "leaf") ? Views.CCircleIconView : Views.TextView
         node.elements = {}
 
         // copy values of data into node
@@ -64,6 +70,37 @@ export class TreeInstance {
             node.split.feature_index = node.split.feature
             node.split.feature = this.meta.features[node.split.feature_index]
         }
+    }
+
+    #initializeFlow() {
+        let flow_shown_classes = 2
+        let flow_path_samples  = 19
+
+        // CALCULATE the scaled node index
+        // grab all the samples and scale
+        let samples = this.nodes.descendants().map(node => node.samples)
+        // bin samples and count
+        let bins   = d3.bin().thresholds(flow_path_samples)(samples)
+        let counts = bins.map(bin => bin.length)
+        // cumulative count function
+        let sum = 0
+        let ccf = counts.map(count => sum += count)
+        // for each note, find the bin index and invert the normalized ccf
+        this.nodes.descendants().forEach(
+            function (node) {
+                let index = bins.map(bin => bin.indexOf(node.samples) >= 0).indexOf(true)
+                node.flow = {}
+                node.flow.samples_scaled = (ccf[index] - ccf[0])/(ccf.slice(-1)[0] - ccf[0])
+
+                let distribution_sorted = [...node.distribution].sort((a, b) => a < b)
+                let distribution_flow   = distribution_sorted.slice(0, flow_shown_classes)
+                let distribution_other  = distribution_sorted.slice(flow_shown_classes)
+                if (distribution_other.length == 0) {
+                    node.flow.distribution = distribution_flow
+                } else {
+                    node.flow.distribution = [...distribution_flow, distribution_other.reduce((a, b) => a + b)]
+                }
+            })
     }
 
     /**
@@ -153,7 +190,7 @@ export class TreeInstance {
         this.#clearNode(node)
 
         // add the illustration
-        node.view.illustrate(ui_node, node, this.meta)
+        node.view.illustrate(ui_node.append("div").attr("class", "view"), node, this.meta)
 
         // TODO: better solution for changing the illustration
         ui_node.on("click", function (event) {
@@ -161,20 +198,18 @@ export class TreeInstance {
             const view = node.view.name
 
             if (event.shiftKey) {
+                // change node view
+                let all_views = Object.values(Views).filter(v => typeof v === "object")
+                node.view = all_views[(all_views.indexOf(node.view) + 1) % all_views.length]
+                Tree.draw()
+            } else {
+                // togle node
                 Tree.toggleNode(node)
                 return;
             }
-
-            if (view === "TextView") {
-                node.view = Views.CCircleIconView
-            }
-
-            if (view === "CCircleIconView") {
-                node.view = Views.TextView
-            }
-
-            Tree.draw()
         })
+
+        ui_node.on("mouseenter mouseleave", this.#onToggleNodeMenu)
     }
 
     /**
@@ -183,51 +218,101 @@ export class TreeInstance {
     #drawLinks(link) {
         this.#clearLinks()
 
-
         let direction = Settings.layout.direction
         let curve     = Settings.path.style
         let flow      = Settings.path.flow
-        // if (curve === "linear") curve = d3.curveLinear
-        // if (curve === "curved") curve = direction === "top-bottom" ? d3.curveBumpY : d3.curveBumpX
-        // if (curve === "ragged") curve = direction === "top-bottom" ? d3.curveStepAfter : d3.curveStepBefore
 
         if (curve === "linear") curve = d3.curveLinear
         if (curve === "curved") curve = d3.curveBumpY
         if (curve === "ragged") curve = d3.curveStepAfter
 
-        if (!flow) {
-            this.#ui_links
-                .append("path")
-                .attr("d", node => d3.link(curve)({source: [node.parent.x, node.parent.y], target: [node.x, node.y]}))
-        } else {
-           this.#ui_links
-               .each(function (node) {
-                   let n = 2
-                   let class_values = [...node.distribution].sort((a, b) => a < b).slice(0, n)
-                   let class_names  = class_values.map(cv => Tree.classNames()[node.distribution.indexOf(cv)])
-                   console.log(class_values, class_names)
+        let stroke_max_width = 10;
+        let flow_sample_dist = 10;
 
-                   let offset = 0
-                   for (let i = 0; i < node.distribution.length; i++) {
-                       let class_name = Tree.classNames()[i]
-                       if (class_names.indexOf(class_name) >= 0) {
-                           let samples = node.distribution[i]
-                           let doffset = samples/class_values.reduce((a, b) => a + b)
-                           console.log(class_name, samples, doffset)
-                           d3.select(this)
-                             .append("path")
-                             .classed("colorcoded", true)
-                             .attr("legend_key", Legend.byLabel(class_name).key)
-                             .attr("d", node => d3.link(curve)({
-                                 source: [node.parent.x - 10 + 20*offset, node.parent.y],
-                                 target: [node.x - 10 + 20*offset, node.y]
-                             }))
-                             .style("stroke-width", 10*doffset)
+        let paths = this
+            .#ui_links
+            .append("path")
+            .attr("d", node => d3.link(curve)({source: [node.parent.x, node.parent.y], target: [node.x, node.y]}))
 
-                           offset += doffset
-                       }
-                   }
-               })
+        switch (flow) {
+            case "none":
+                // do nothing
+                break;
+            case "linear":
+                paths.attr("style", node => "stroke-width:" + ((stroke_max_width - 1)*node.samples/Tree.meta.samples + 1) + "px")
+                break;
+            case "auto":
+                paths.attr("style", node => "stroke-width:" + ((stroke_max_width - 1)*node.flow.samples_scaled + 1) + "px")
+                break;
+            case "colorcoded":
+                paths.each(function (node) {
+                    let curve = d3.select(node.elements.link).select("path").node()
+
+                    // sample points along curve
+                    let L = curve.getTotalLength()
+                    let N = Math.floor(L/flow_sample_dist)
+                    let points = [...Array(N + 1).keys()].map(n => curve.getPointAtLength(n/N*L))
+
+                    // calculate normal of each point
+                    for (let i = 0; i < points.length; i++) {
+                        let dx, dy;
+
+                        if (i == 0) {
+                            // first point
+                            dx = points[i + 1].x - points[i].x
+                            dy = points[i + 1].y - points[i].y
+                        } else if (i == points.length - 1) {
+                            // last point
+                            dx = points[i].x - points[i - 1].x
+                            dy = points[i].y - points[i - 1].y
+                        } else {
+                            // middle points
+                            dx = (points[i + 1].x - points[i - 1].x) / 2
+                            dy = (points[i + 1].y - points[i - 1].y) / 2
+                        }
+
+                        // normalize
+                        points[i].dx = dx / (dx ** 2 + dy ** 2) ** 0.5
+                        points[i].dy = dy / (dx ** 2 + dy ** 2) ** 0.5
+                    }
+
+                    // find the points of the equidistant curves
+                    let sum = 0;
+                    let steps = [0, ...node.flow.distribution.map((s => sum += s/node.samples))]
+                    let curves = steps.map(step => points.map(
+                        function (p) {
+                            return {
+                                x: p.x + ((stroke_max_width - 1)*node.flow.samples_scaled + 1)*(2*step - 1)*p.dy,
+                                y: p.y + ((stroke_max_width - 1)*node.flow.samples_scaled + 1)*(1 - 2*step)*p.dx
+                            }
+                        }
+                    ))
+
+                    // prepare the areas between them
+                    let areas = curves.slice(0, -1).map((c, i) => [...Array.from(c), ...Array.from(curves[i + 1]).reverse()])
+
+                    // remove old link
+                    d3.select(node.elements.link)
+                      .selectAll("path")
+                      .remove()
+
+                    // add colorcoded flow
+                    d3.select(node.elements.link)
+                      .selectAll("path")
+                      .data(areas)
+                      .enter()
+                      .append("path")
+                      .classed("colorcoded", true)
+                      .classed("flow", true)
+                      .attr("d", c => d3.line().curve(d3.curveLinearClosed)(c.map(p => [p.x, p.y])))
+                      .attr("legend_key", function (c, i) {
+                          let class_index = node.distribution.indexOf(node.flow.distribution[i])
+                          let class_name  = Tree.classNames()[class_index]
+                          return (class_index >= 0 ? Legend.byLabel(class_name).key : "")
+                      })
+                })
+
+                break;
         }
     }
 
@@ -356,6 +441,32 @@ export class TreeInstance {
 
     }
 
+    #onToggleNodeMenu(event) {
+        return;
+
+        let ui_node = d3.select(this)
+
+
+        if (event.type === "mouseenter") {
+            console.log("Showing node menu")
+            // browse nodes left
+            ui_node.append("span")
+                   .attr("class", "view-menu-item view-browse-left fa-solid fa-angle-left")
+
+            // browse nodes right
+            ui_node.append("span")
+                   .attr("class", "view-menu-item view-browse-right fa-solid fa-angle-right")
+
+            // hide
+            ui_node.append("span")
+                   .attr("class", "view-menu-item view-collapse fa-solid fa-eye-slash fa-sm")
+        } else {
+            console.log("Hiding node menu")
+            ui_node.selectAll(".view-menu-item")
+                   .remove()
+        }
+    }
+
     classNames() {
         let names = this.meta.classes
         return names.map(n => S(n).trim().capitalize().s)
@@ -377,15 +488,12 @@ Forester.loadTree = function (path) {
         .then(fgts => {
             Tree = new TreeInstance(fgts, "#tree")
             window.Tree = Tree
+            window.Views = Views
 
             Legend.generate()
 
             Tree.draw()
 
-            // add pan and zoom funcionality
-            Tree.panzoom = new Panzoom(document.getElementById(Tree.id), {
-                initialZoom: 1
-            })
         })
 }
 

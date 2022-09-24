@@ -17,7 +17,8 @@ export let Settings = {
         bspace: 1
     },
     path: {
-        style: "linear"
+        style: "linear",
+        flow: "none",
     },
 
     // Add all the settings here
@@ -67,9 +68,12 @@ export let Settings = {
                         if (selection.index == 1) Settings.path.style ="curved"
                         if (selection.index == 2) Settings.path.style ="ragged"
                     })
-                .addBoolean("Show Flow", false,
-                    function (value) {
-                        Settings.path.flow = value
+                .addDropDown("Indicate Flow", ["None", "Thickness [Linear]", "Thickness [Autocontrast]", "Colorcoded"],
+                    function (selection) {
+                        if (selection.index == 0) Settings.path.flow = "none"
+                        if (selection.index == 1) Settings.path.flow = "linear"
+                        if (selection.index == 2) Settings.path.flow = "auto"
+                        if (selection.index == 3) Settings.path.flow = "colorcoded"
                     })
     },
 

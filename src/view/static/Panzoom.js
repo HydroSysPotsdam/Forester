@@ -45,9 +45,6 @@ export class Panzoom {
 
     // current pan values relative to the element's original position
     #pan = {x: 0, y: 0}
-    // for smoothing the motion
-    #dx = 0
-    #dy = 0
 
     // current zoom level relative to the element's initial size
     #zoom = 1
@@ -175,7 +172,7 @@ export class Panzoom {
 
     #updateElement () {
         d3.select(this.#elem_transform)
-          .style("transform", "translate(" + this.#pan.x + "px, " + this.#pan.y + "px) " + "scale(" + this.#zoom + ")")
+          .style("transform", "translate(-50%, -50%) translate(" + this.#pan.x + "px, " + this.#pan.y + "px) " + "scale(" + this.#zoom + ")")
     }
 
     pan (dx = 0, dy = 0) {

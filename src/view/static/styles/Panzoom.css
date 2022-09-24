@@ -23,6 +23,9 @@
 }
 
 .panzoom-transform {
+    position: relative;
+    left: 50%;
+    top: 50%;
     width: fit-content;
     height: fit-content;
     touch-action: none;

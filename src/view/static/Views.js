@@ -52,6 +52,29 @@ export class View {
     }
 }
 
+export let BasicView = new View("BasicView")
+
+BasicView.illustrate = function (selection, node, meta) {
+
+    if (node.type === "leaf") {
+        selection.append("svg")
+                 .attr("class", "BasicView")
+                 .append("circle")
+                 .attr("class", "colorcoded")
+                 .attr("r", 5)
+                 .attr("cx", "50%")
+                 .attr("cy", "50%")
+                 .attr("legend_key", Legend.byLabel(node.vote).key)
+    } else {
+        selection = selection.append("svg")
+                 .attr("class", "BasicView")
+        selection.append("polygon")
+                 .attr("points", "2,2 12,2 2,12")
+        selection.append("polygon")
+                 .attr("points", "12,12 12,2 2,12")
+    }
+}
+
 /**
  * Simple node for classification trees that illustrates the class
  * distribution as a pie chart. Classes are color coded, the total
@@ -130,7 +153,7 @@ TextView.illustrate = function (selection, node, meta) {
              row.append("th")
                 .text("S")
              row.append("td")
-                .text(node.samples)
+                .text(numeral(node.samples).format("0.00a"))
          })
 }
 

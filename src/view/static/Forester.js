@@ -1,7 +1,7 @@
 import * as Views from "./Views.js";
 import {Legend} from "./Legend.js";
 import {Panzoom} from "./Panzoom.js";
-import {Settings} from "./Settings.js";
+import {GlobalSettings} from "./Settings.js";
 
 export let Tree
 
@@ -27,7 +27,7 @@ export class TreeInstance {
         this.id = "Tree-" + uuid.v4()
         this.meta = fgts.meta
         this.nodes = d3.hierarchy(fgts.tree)
-        this.lins  = this.nodes.descendants().slice(1)
+        this.links  = this.nodes.descendants().slice(1)
 
         // prepare the container
         this.#ui_elem
@@ -41,6 +41,9 @@ export class TreeInstance {
         this.nodes.each(node => this.#initializeNode(node))
         // generate all the flow-relevant fields
         this.#initializeFlow()
+
+        // add the listeners for the settings
+        GlobalSettings.addChangeListeners(() => this.draw.call(this), "layout.direction", "layout.lspace", "layout.bspace", "path.style", "path.flow")
     }
 
     /**
@@ -218,9 +221,9 @@ export class TreeInstance {
     #drawLinks(link) {
         this.#clearLinks()
 
-        let direction = Settings.layout.direction
-        let curve     = Settings.path.style
-        let flow      = Settings.path.flow
+        let direction = GlobalSettings.get("layout.direction")
+        let curve     = GlobalSettings.get("path.style")
+        let flow      = GlobalSettings.get("path.flow")
 
         if (curve === "linear") curve = d3.curveLinear
         if (curve === "curved") curve = d3.curveBumpY
@@ -327,9 +330,9 @@ export class TreeInstance {
         const range = x => Math.max(...x) - Math.min(...x)
 
         // load layout and path settings
-        let direction = Settings.layout.direction
-        let lspace    = Settings.layout.lspace
-        let bspace    = Settings.layout.bspace
+        let direction = GlobalSettings.get("layout.direction")
+        let lspace    = GlobalSettings.get("layout.lspace")
+        let bspace    = GlobalSettings.get("layout.bspace")
 
         let tree, width, height, xmin, ymin;
         // calculate the tree layout
@@ -481,6 +484,7 @@ export class TreeInstance {
 
 export let Forester = {}
 window.Forester = Forester
+window.a = 10;
 
 Forester.loadTree = function (path) {
     return fetch(path)
@@ -493,11 +497,11 @@ Forester.loadTree = function (path) {
             Legend.generate()
 
             Tree.draw()
-
         })
 }
 
 Forester.loadTree("../../../examples/R/diabetes.json")
+GlobalSettings.addChangeListener(Forester.loadTree, "example")
 
 // $('document').ready(function () {
 //     // Tree.fromJson("../../../examples/R/diabetes.json")

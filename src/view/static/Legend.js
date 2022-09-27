@@ -5,7 +5,7 @@
  */
 
 import {Tree} from "./Forester.js";
-import {Settings} from "./Settings.js";
+import {GlobalSettings} from "./Settings.js";
 
 class LegendGroup {
 
@@ -313,7 +313,7 @@ export let Legend = {
 
         const n_classes  = Tree.classNames().length
         const n_features = Tree.featureNames().length
-        let colors = Array.from(chroma.brewer[Settings.color.scale])
+        let colors = Array.from(GlobalSettings.get("color.scale"))
 
         if (n_classes + n_features > colors.length) {
             // numer of colored classes

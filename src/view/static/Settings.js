@@ -4,316 +4,200 @@
  * Forester: Interactive human-in-the-loop web-based visualization of machine learning trees
  */
 
-import {Tree} from "./Forester.js";
+class Settings {
 
-export let Settings = {
+    // latest settings
+    #settings
+    // old settings (before user change)
+    #settingsO
+    // default settings (for resetting the settings)
+    #settingsD
 
-    color: {
-        scale: "Set3"
-    },
-    layout: {
-        direction: "top-bottom",
-        lspace: 1,
-        bspace: 1
-    },
-    path: {
-        style: "linear",
-        flow: "none",
-    },
+    // each setting has listeners that are called when it changes
+    #changeCallback
 
-    // Add all the settings here
-    initialize: function (settings) {
-        // update the header
-        settings.updateHeader("<span class=\"fa-solid fa-gears\"></span> Forester's Settings")
+    // title of the settings page
+    #title
 
-        // example tree
-        settings.addDropDown("Example Tree", ["Diabetes", "Iris [R]", "Iris [Matlab]", "Fanny"],
-                    function (selection) {
+    // the quicksettings.js object that is used to add the settings
+    #QS
+    #element
+    #open = false
+    #changed = false
 
-                    })
-
-        // colors
-        settings.addSubheader("Colors")
-                .addDropDown("Color Set", ["Brewer Set 1", "Brewer Set 2", "Brewer Set 3", "Brewer Pastel 1", "Brewer Pastel 2", "Brewer Dark"],
-                    function (selection) {
-                        if (selection.index == 0) Settings.color.scale ="Set1"
-                        if (selection.index == 1) Settings.color.scale ="Set2"
-                        if (selection.index == 2) Settings.color.scale ="Set3"
-                        if (selection.index == 3) Settings.color.scale ="Pastel1"
-                        if (selection.index == 4) Settings.color.scale ="Pastel2"
-                        if (selection.index == 5) Settings.color.scale ="Dark2"
-                    })
-
-        // layout
-        settings.addSubheader("Layout")
-                .addDropDown("Direction", ["Top-Bottom", "Left-Right"],
-                    function (selection) {
-                        if (selection.index == 0) Settings.layout.direction ="top-bottom"
-                        if (selection.index == 1) Settings.layout.direction ="left-right"
-                    })
-                .addRange("Level Spread", Math.log(0.5), Math.log(2), Math.log(Settings.layout.bspace), 0.05,
-                    function (value) {
-                        Settings.layout.lspace = Math.exp(value)
-                    })
-                .addRange("Branch Spread", Math.log(0.5), Math.log(2), Math.log(Settings.layout.lspace), 0.05,
-                    function (value) {
-                        Settings.layout.bspace = Math.exp(value)
-                    })
-
-        // paths
-        settings.addSubheader("Paths")
-                .addDropDown("Path Style", ["Linear", "Curved", "Ragged"],
-                    function (selection) {
-                        if (selection.index == 0) Settings.path.style ="linear"
-                        if (selection.index == 1) Settings.path.style ="curved"
-                        if (selection.index == 2) Settings.path.style ="ragged"
-                    })
-                .addDropDown("Indicate Flow", ["None", "Thickness [Linear]", "Thickness [Autocontrast]", "Colorcoded"],
-                    function (selection) {
-                        if (selection.index == 0) Settings.path.flow = "none"
-                        if (selection.index == 1) Settings.path.flow = "linear"
-                        if (selection.index == 2) Settings.path.flow = "auto"
-                        if (selection.index == 3) Settings.path.flow = "colorcoded"
-                    })
-    },
-
-    toggle: function (forceHide = false) {
-        let settings = d3.select("#settings")
-        if (settings.style("visibility") === "hidden" && !forceHide) {
-            settings
-                .style("visibility", "visible")
-                .style("transform", "translate(0, 0)")
-            this.onOpen()
-        } else {
-            settings
-                .style("transform", "translate(100%, 0)")
-                .style("visibility", "hidden")
-            this.onClose()
-        }
-    },
-
-    onOpen: function () {
-        console.log("Opening settings")
-    },
-
-    onClose: function () {
-         console.log("Closing settings")
-    },
-
-    onChange: function () {
-        console.log("Changed settings")
-        Tree.draw()
-    },
-
-    onSave: function () {
-        console.log("Settings saved")
-
-        Settings.toggle(true)
-    }
-}
-
-$("#settings").ready(function () {
-
-        // listener for Esc key
-        $(document)
-            .keypress((event) => {if (event.key === "Escape") Settings.toggle(false)})
+    constructor(elementID, title = "Settings") {
+        this.#element = document.getElementById(elementID)
+        this.#settings = new Map();
+        this.#changeCallback = new Map();
 
         // don't use the default style sheet
         QuickSettings.useExtStyleSheet()
 
         // create the QS panel on the #settings div
-        let QS = QuickSettings.create(0, 0, null, document.getElementById("settings"))
+        this.#QS = QuickSettings.create(0, 0, null, this.#element)
 
         // QS panel should not be collapsed
-        QS.setCollapsible(false)
+        this.#QS.setCollapsible(false)
 
-        // add global change listener
-        QS.setGlobalChangeHandler(Settings.onChange)
+        // add global change handler
+        this.#QS.setGlobalChangeHandler(() => this.#onChange.call(this))
 
-        // helper to add subheader
-        QS.addSubheader = function (title) {
-            d3.select(".qs_content")
-              .append("div")
-              .attr("class", "qs_subheader")
-              .text(title)
-            return QS;
+        // add save button
+        d3.select(this.#element)
+          .append("button")
+          .attr("class", "settings-save")
+          .text("Save")
+          .on("click", () => this.toggle(false))
+    }
+
+    addHeader (header) {
+        d3.select(".qs_title_bar").html(header)
+        return this
+    }
+
+    addSubheader(header) {
+        d3.select(".qs_content").append("div").attr("class", "qs_subheader").html(header)
+        return this;
+    }
+
+    addDropdown (key, value, title, values = [value], labels = values.map(o => o.toString())) {
+        // check if values and labels share same length
+        if (!Array.isArray(values) || !Array.isArray(labels) || values.length != labels.length)
+            throw "Illegal argument: values and labels need to be arrays with same length"
+
+        // add the entry to the settings map
+        this.set(key, value)
+
+        // add the drop-down with quicksettings.js
+        this.#QS.addDropDown(title, labels, (selection) => this.set(key, values[selection.index]))
+
+        return this
+    }
+
+    addSlider (key, value, title, min = 0, max = value, scaleFunction = (v) => v) {
+        if (isNaN(value) || isNaN(min) || isNaN(max))
+            throw "Illegal argument: value, min and max need to be numbers"
+        if ((min >= value) || (value >= max))
+            throw "Illegal argument: min <= value <= max not fulfilled"
+
+        // add the entry to the settings map
+        this.set(key, scaleFunction(value))
+
+        // add the slider with quicksettings.js
+        this.#QS.addRange(title, min, max, value, (max - min)/50, (value) => this.set(key, scaleFunction(value)))
+
+        return this
+    }
+
+    addCheckbox (key, value, title) {
+        if (typeof value !== "boolean")
+            throw "Illegal argument: value needs to be a boolean"
+
+        // add the entry to the settings map
+        this.set(key, value)
+
+        // add the entry to the settings map
+        this.#QS.addBoolean(title, value, (value) => this.set(key, value))
+
+        return this
+    }
+
+    set(key, value) {
+        this.#settings.set(key, value)
+        let listener = this.#changeCallback.get(key)
+        // when value is updated, let all change listeners know
+        if (listener && listener.length > 0) listener.forEach(l => l(value))
+        return this
+    }
+
+    get (key) {
+        return this.#settings.get(key)
+    }
+
+    entries () {
+        return this.#settings.entries()
+    }
+
+    addChangeListener(callback, key, index = -1) {
+        if (typeof callback != "function") throw "Illegal argument: callback needs to be a function"
+
+        let listener = this.#changeCallback.get(key)
+        if (!listener) {
+            // add a new array, when the first listener is added
+            listener = [callback]
+            this.#changeCallback.set(key, listener)
+        } else {
+            // append new listeners, when there is already one
+            listener.splice(index, 0, callback)
+            this.#changeCallback.set(key, listener)
         }
 
-        // helper to update the header
-        QS.updateHeader = function (html) {
-            d3.select(".qs_title_bar")
-              .html(html)
-            return QS
+        return this
+    }
+
+    addChangeListeners(callback, ...keys) {
+        for (const key of keys) {
+            this.addChangeListener(callback, key)
         }
+    }
 
-        // call the initialize function above
-        Settings.initialize(QS)
-})
+    toggle (discard = true) {
+        let settings = d3.select(this.#element)
+        if (!this.#open) {
+            settings
+                .style("visibility", "visible")
+                .style("transform", "translate(0, 0)")
+            this.#onOpen()
+        } else {
+            settings
+                .style("transform", "translate(100%, 0)")
+                .style("visibility", "hidden")
+            this.#onClose(discard)
+        }
+    }
 
-$("#settings-save").click(Settings.onSave)
+    #onOpen () {
+        this.#open = true;
+        this.#changed = false;
+        this.#settingsO = new Map(this.#settings)
+    }
 
-// export let Settings = {
-//     color: {
-//         scale: "Set3",
-//         colorblind: false
-//     },
-//     layout: {
-//         direction: "tb",
-//         vspread: 1,
-//         hspread: 1
-//     },
-//
-//     groups: [
-//         {
-//
-//         },
-//         {
-//             name: "Colors",
-//             scale: {
-//                 name: "Color Scale",
-//                 type: "selection",
-//                 value: chroma.brewer.Set3,
-//                 default: "Brewer Set 3",
-//                 options: ["Brewer Set 1", "Brewer Set 2", "Brewer Set 3", "Brewer Pastel 1", "Brewer Pastel 2", "Brewer Dark"],
-//                 onChange: function (value) {
-//
-//                 }
-//             }
-//
-//         },
-//         {
-//             name: "Layout",
-//         },
-//         {
-//             name: "Links",
-//             style: {
-//                 name: "Path Style",
-//                 type: "selection",
-//                 value: d3.curveLinear,
-//                 default: "Linear",
-//                 options: ["Linear", "Curve", "Ragged"],
-//                 onChange: function (value) {
-//                     switch (value) {
-//                         case "Linear": this.value = d3.curveLinear
-//                         case "Curve":  this.value = d3.curveBumpY
-//                         case "Ragged": this.value = d3.curveStep
-//                     }
-//                 }
-//             }
-//         }
-//     ],
-//
-//     loadSettings: function () {
-//         Settings.groups.forEach(Settings.add().group)
-//         console.log(Settings.get())
-//     },
-//
-//     get(key) {
-//         return Settings.groups.map(Object.values)
-//     },
-//
-//     add: function () {
-//             return {
-//                 group: function (group) {
-//                     // add the group container
-//                     let group_ui = d3
-//                         .select("#settings")
-//                         .append("div")
-//                         .attr("class", "settings-group")
-//
-//                     // add a header if given
-//                     if (group.name) {
-//                         group_ui.append("h3")
-//                                 .text(group.name)
-//                     }
-//
-//                     // add all the entries
-//                     for (let key in group) {
-//                         if (key !== "name") {
-//                             let entry = group[key]
-//                             let type = entry.type
-//
-//                             console.log("Adding entry ", entry)
-//
-//                             // check for malformed entries
-//                             if (!entry.name && !entry.type) throw entry + "does not have a name or type."
-//
-//                             // add the label for the entry
-//                             group_ui
-//                                 .append("text")
-//                                 .attr("class", "label")
-//                                 .text(entry.name)
-//
-//                             // add the option
-//                             Settings.add()[type].call(group_ui.node(), entry)
-//                         }
-//                     }
-//                 },
-//
-//                 selection: function (selection) {
-//                     d3.select(this)
-//                       .append("select")
-//                       .on("change", function (event) {selection.value = selection.default, selection.onChange.call(selection, event.target.value)})
-//                       .selectAll("option")
-//                       .data(selection.options)
-//                       .enter()
-//                       .append("option")
-//                       .attr("selected", d => d === selection.default)
-//                       .text(d => d.toString())
-//                 },
-//                 checkbox: function (options) {
-//
-//                 },
-//                 slider: function (options) {
-//
-//                 }
-//         }
-//     }
-// }
-//
-// let OldSettings = JSON.parse(JSON.stringify(Settings))
-//
-// // Settings Panel
-//
-//
-// function updateExampleTree (index) {
-//     console.log("Switching example tree ", index)
-//     switch (index) {
-//         case 0:
-//             TreeInstance.fromJson("../../../examples/R/iris.json")
-//             return
-//         case 1:
-//             TreeInstance.fromJson("../../../examples/Matlab/iris.json")
-//             return
-//         case 2:
-//             TreeInstance.fromJson("../../../examples/R/diabetes.json")
-//             return
-//         case 3:
-//             TreeInstance.fromJson("../../../examples/Matlab/fanny.json")
-//             return
-//     }
-// }
-//
-// function previewSettings () {
-//     Settings.color.scale       = $("#setting-scale").find(":selected").attr("value")
-//     Settings.color.colorblind  = $("#setting-colorblind").is(":checked")
-//     Settings.layout.direction  = $("#setting-direction").val().toLowerCase()
-//     Settings.layout.vspread    = $("#setting-vspread").slider("value")
-//     Settings.layout.hspread    = $("#setting-hspread").slider("value")
-// ^
-//     // re-draw the tree
-//     Tree.draw()
-// }
-//
-// function updateSettings (keep = true) {
-//     if (keep) {
-//         // keep the new settings and update the old settings
-//         OldSettings = JSON.parse(JSON.stringify(Settings))
-//     } else {
-//         // discard the new settings
-//         Settings = JSON.parse(JSON.stringify(OldSettings))
-//     }
-//
-//     // re-draw tree
-//     Tree.draw()
-// }
+    #onChange () {
+        this.#changed = true
+    }
+
+    #onClose (discard = true) {
+        this.#open = false;
+        // reset the settings when the panel is closed without saving
+        if (discard && this.#changed) {
+            for (const [key, value] of this.#settingsO) {
+                if (this.#settings.get(key) !== value) this.set(key, value)
+            }
+        }
+    }
+
+    #onSave () {
+        this.#onClose(false)
+    }
+}
+
+export let GlobalSettings = new Settings("settings");
+window.GlobalSettings = GlobalSettings
+
+GlobalSettings.addHeader("Global Settings")
+GlobalSettings.addDropdown("example", "../../../examples/R/diabetes.json", "Example Tree", ["../../../examples/R/diabetes.json", "../../../examples/R/iris.json", "../../../examples/Matlab/iris.json", "../../../examples/Matlab/fanny.json"], ["Diabetes", "Iris [R]", "Iris [Matlab]", "Fanny"])
+
+GlobalSettings.addSubheader("Color")
+GlobalSettings.addDropdown("color.scale", chroma.brewer.Set3, "Color Scale", [chroma.brewer.Set1, chroma.brewer.Set2, chroma.brewer.Set3], ["Brewer Set 1", "Brewer Set 2", "Brewer Set 3"])
+
+GlobalSettings.addSubheader("Layout")
+GlobalSettings.addDropdown("layout.direction", "top-bottom", "Direction", ["top-bottom", "left-right"], ["Vertical", "Horizontal"])
+GlobalSettings.addSlider("layout.lspace", Math.log(1), "Level Space",  Math.log(0.5), Math.log(2), Math.exp)
+GlobalSettings.addSlider("layout.bspace", Math.log(1), "Branch Space", Math.log(0.5), Math.log(2), Math.exp)
+
+GlobalSettings.addSubheader("Path")
+GlobalSettings.addDropdown("path.style", "linear", "Path Style", ["linear", "curved", "ragged"], ["Linear", "Curved", "Ragged"])
+GlobalSettings.addDropdown("path.flow",  "none", "Indicate Flow", ["none", "linear", "auto", "colorcoded"], ["None", "Thickness [Linear]", "Thickness [Autocontrast]", "Colorcoded"])
+
+// listener for Esc key
+$(document).keypress((event) => {if (event.key === "Escape") GlobalSettings.toggle()})

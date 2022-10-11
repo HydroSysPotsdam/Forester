@@ -9,12 +9,13 @@
 .BasicView {
     width: 14px;
     height: 15px;
-    fill: black;
 }
 
-.BasicView  polygon {
+.BasicView  polygon.colorcoded {
     stroke-width: 1px;
-    stroke: white;
+    stroke-linejoin: round;
+    stroke: var(--contrast-color);
+    fill: var(--highlight-color);
 }
 
 .BasicView > circle.colorcoded {

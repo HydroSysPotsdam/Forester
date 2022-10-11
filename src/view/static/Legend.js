@@ -7,6 +7,46 @@
 import {Tree} from "./Forester.js";
 import {GlobalSettings} from "./Settings.js";
 
+$("#legend").ready(function () {
+
+    console.log("Legend ready")
+
+    // clear everything
+    // d3.select("#legend")
+    //   .selectAll("*")
+    //   .remove()
+
+    // add the group container
+    // d3.select("#legend")
+    //   .append("div")
+    //   .attr("id", "groups")
+
+    // add the new group button
+    d3.select("#legend")
+      .append("button")
+      .attr("class", "ui-widget-header ui-corner-all")
+      .attr("id", "group-new")
+      .text("Add Group")
+      .on("click", function () {
+          let new_group_label = prompt("Enter the group name:", "")
+
+          // add new group when label is valid
+          if (new_group_label != null & new_group_label !== "") {
+              let group = new LegendGroup(new_group_label)
+          }
+      })
+
+    // make groups panel sortable
+    $("#groups").sortable({
+        handle: ".group-header",
+        cancel: ".group-toggle",
+        placeholder: "group-placeholder",
+    });
+
+    // update colors
+    Legend.update()
+})
+
 class LegendGroup {
 
     constructor(label) {
@@ -23,6 +63,8 @@ class LegendGroup {
         this._ui_group = d3.select("#groups").append("div")
         this._ui_header = this._ui_group.append("div")
         this._ui_container = this._ui_group.append("div")
+
+        console.log("Adding group " + this.label)
 
         this._ui_group
             .attr("class", "group sortable ui-widget ui-widget-content ui-helper-clearfix ui-corner-all")
@@ -47,23 +89,6 @@ class LegendGroup {
         $(".group-content.sortable").sortable({
             placeholder: "entry-placeholder",
             connectWith: ".group-content.sortable",
-            // update: function (event, ui) {
-            //     const ui_entry = $(ui.item)
-            //     const entry = Legend.byKey(ui_entry.attr("key"))
-            //     if (ui.sender) {
-            //         // remove from group
-            //         const ui_source = $(ui.sender)
-            //         const ui_group = ui_source.closest(".group")
-            //         const group = Legend.byGroupKey(ui_group.attr("key"))
-            //         group.entries.splice(group.entries.indexOf(entry), 1)
-            //     } else {
-            //         // add to group
-            //         const ui_group = ui_entry.closest(".group")
-            //         const group = Legend.byGroupKey(ui_group.attr("key"))
-            //         group.entries.push(entry)
-            //         entry.group = group.key
-            //     }
-            // },
             receive:
                 function (event, ui) {
                     const ui_entry = $(ui.item)
@@ -83,16 +108,16 @@ class LegendGroup {
                 }
         }).disableSelection()
 
-        // update context menu
-        $("#groups").contextMenu({
-            selector: ".group-header",
-            className: "group-context-menu",
-            items: {
-                "linked": {name: "Link/unlink entries", icon: "fa-link", callback: callFromGroup("link")},
-                "rename": {name: "Rename", icon: "fa-edit", callback: callFromGroup("rename")},
-                "delete": {name: "Delete", icon: "fa-trash", callback: callFromGroup("delete")}
-            }
-        })
+        // // update context menu
+        // $("#groups").contextMenu({
+        //     selector: ".group-header",
+        //     className: "group-context-menu",
+        //     items: {
+        //         "linked": {name: "Link/unlink entries", icon: "fa-link", callback: callFromGroup("link")},
+        //         "rename": {name: "Rename", icon: "fa-edit", callback: callFromGroup("rename")},
+        //         "delete": {name: "Delete", icon: "fa-trash", callback: callFromGroup("delete")}
+        //     }
+        // })
     }
 
     addEntries(entries) {
@@ -410,28 +435,3 @@ let LegendColorPicker = {
     },
     hide: Legend.update
 }
-
-// set up the user interface for the legend
-$(function () {
-    // make groups panel sortable
-    $("#groups").sortable({
-        handle: ".group-header",
-        cancel: ".group-toggle",
-        placeholder: "group-placeholder",
-    });
-
-    // add 'new group' button
-    $("#group-new")
-        .addClass("ui-widget-header ui-corner-all")
-        .click(function () {
-            let new_group_label = prompt("Enter the group name:", "")
-
-            // add new group when label is valid
-            if (new_group_label != null & new_group_label !== "") {
-                let group = new LegendGroup(new_group_label)
-            }
-        })
-
-    // update colors
-    Legend.update()
-})

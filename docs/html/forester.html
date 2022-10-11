@@ -3,13 +3,15 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-<link rel="author" title="About these documents" href="about.html" /><link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="About" href="about.html" /><link rel="prev" title="Parser" href="parser.html" />
+<link rel="author" title="About these documents" href="about.html" /><link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" />
 
     <meta name="generator" content="sphinx-5.0.1, furo 2022.06.04.1"/>
         <title>Forester.js - Forester 0.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=40978830699223671f4072448e654b5958f38b89" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinxcontrib-images/LightBox2/lightbox2/dist/css/lightbox.css" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
+    <link rel="stylesheet" type="text/css" href="_static/css/workflows.css" />
     
     
 
@@ -154,12 +156,10 @@
   <input type="hidden" name="area" value="default">
 </form>
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
-  <ul class="current">
-<li class="toctree-l1 current has-children"><a class="reference internal" href="modules.html">Documentation</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="parser.html">Parser</a></li>
-<li class="toctree-l2 current has-children current-page"><a class="current reference internal" href="#">Forester.js</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
-</ul>
-</li>
+  <ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="workflows.html">Workflows</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="_workflows/legend.html">Working with the Legend</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_workflows/views.html">The Node View System</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="about.html">About</a></li>
@@ -202,66 +202,8 @@
 </div>
 <section id="node-illustrations">
 <h2>Node Illustrations<a class="headerlink" href="#node-illustrations" title="Permalink to this heading"></a></h2>
-<dl class="js class">
-<dt class="sig sig-object js" id="View">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="n"><span class="pre">View</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#View" title="Permalink to this definition"></a></dt>
-<dd><p>Views are code snippets that are used to illustrate nodes in the decision tree.
-They contain functions to determine whether an illustration can be used with one node,
-and to generate the illustration.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>As of today, the illustration is generated once for each node and there is no d3 typical vectorization.</p>
-</div>
-<dl class="js attribute">
-<dt class="sig sig-object js" id="View.View">
-<span class="sig-prename descclassname"><span class="n"><span class="pre">View</span></span><span class="p"><span class="pre">.</span></span></span><span class="sig-name descname"><span class="n"><span class="pre">View</span></span></span><a class="headerlink" href="#View.View" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="js function">
-<dt class="sig sig-object js" id="View.applicable">
-<span class="sig-prename descclassname"><span class="n"><span class="pre">View</span></span><span class="p"><span class="pre">.</span></span></span><span class="sig-name descname"><span class="n"><span class="pre">applicable</span></span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">meta</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#View.applicable" title="Permalink to this definition"></a></dt>
-<dd><p>Returns whether a view can be used to illustrate a given node by checking properties of the node.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Arguments</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>node</strong> – The node to be checked</p></li>
-<li><p><strong>meta</strong> – The metadata that is linked to the node for easy access</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>boolean</strong> – - Whether the node illustration can be used</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="js function">
-<dt class="sig sig-object js" id="View.illustrate">
-<span class="sig-prename descclassname"><span class="n"><span class="pre">View</span></span><span class="p"><span class="pre">.</span></span></span><span class="sig-name descname"><span class="n"><span class="pre">illustrate</span></span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">selection</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">meta</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#View.illustrate" title="Permalink to this definition"></a></dt>
-<dd><p>Generates the illustration for a given node and canvas key.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Arguments</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>selection</strong> – The d3 selection to which all graphic elements should be added</p></li>
-<li><p><strong>node</strong> – The node that should be added</p></li>
-<li><p><strong>meta</strong> – The metadata that is linked to the node for easy access</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
 <section id="class-distribution">
 <h3>Class Distribution<a class="headerlink" href="#class-distribution" title="Permalink to this heading"></a></h3>
-<dl class="js attribute">
-<dt class="sig sig-object js" id="CCircleIconView">
-<span class="sig-name descname"><span class="n"><span class="pre">CCircleIconView</span></span></span><a class="headerlink" href="#CCircleIconView" title="Permalink to this definition"></a></dt>
-<dd><p><strong>type:</strong> View</p>
-<p>Simple node for classification trees that illustrates the class
-distribution as a pie chart. Classes are color coded, the total
-number of samples determines the size of the circle.</p>
-</dd></dl>
-
 </section>
 </section>
 </section>
@@ -271,26 +213,8 @@ number of samples determines the size of the circle.</p>
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="about.html">
-              <div class="page-info">
-                <div class="context">
-                  <span>Next</span>
-                </div>
-                <div class="title">About</div>
-              </div>
-              <svg><use href="#svg-arrow-right"></use></svg>
-            </a>
-          <a class="prev-page" href="parser.html">
-              <svg><use href="#svg-arrow-right"></use></svg>
-              <div class="page-info">
-                <div class="context">
-                  <span>Previous</span>
-                </div>
-                
-                <div class="title">Parser</div>
-                
-              </div>
-            </a>
+          
+          
         </div>
         <div class="bottom-of-page">
           <div class="left-details">
@@ -345,5 +269,7 @@ number of samples determines the size of the circle.</p>
     <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="_static/doctools.js"></script>
     <script src="_static/scripts/furo.js"></script>
+    <script src="_static/sphinxcontrib-images/LightBox2/lightbox2/dist/js/lightbox-plus-jquery.min.js"></script>
+    <script src="_static/sphinxcontrib-images/LightBox2/lightbox2-customize/jquery-noconflict.js"></script>
     </body>
 </html>

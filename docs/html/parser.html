@@ -3,13 +3,15 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-<link rel="author" title="About these documents" href="about.html" /><link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Forester.js" href="forester.html" /><link rel="prev" title="Documentation" href="modules.html" />
+<link rel="author" title="About these documents" href="about.html" /><link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" />
 
     <meta name="generator" content="sphinx-5.0.1, furo 2022.06.04.1"/>
         <title>Parser - Forester 0.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=40978830699223671f4072448e654b5958f38b89" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinxcontrib-images/LightBox2/lightbox2/dist/css/lightbox.css" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
+    <link rel="stylesheet" type="text/css" href="_static/css/workflows.css" />
     
     
 
@@ -154,12 +156,10 @@
   <input type="hidden" name="area" value="default">
 </form>
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
-  <ul class="current">
-<li class="toctree-l1 current has-children"><a class="reference internal" href="modules.html">Documentation</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
-<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">Parser</a></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="forester.html">Forester.js</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
-</ul>
-</li>
+  <ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="workflows.html">Workflows</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="_workflows/legend.html">Working with the Legend</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_workflows/views.html">The Node View System</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="about.html">About</a></li>
@@ -236,14 +236,14 @@ Matlab and loading the resulting .json string (file).</p>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
-<div class="highlight-python notranslate" id="iris-dataset-from-r-s-rpart"><div class="highlight"><pre><span></span>    <span class="n">r</span> <span class="o">=</span> <span class="n">parse</span><span class="p">(</span><span class="s2">&quot;../example/iris.RData&quot;</span><span class="p">)</span>
-    <span class="n">file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;../example/iris.json&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span>
+<div class="highlight-python notranslate" id="iris-dataset-from-r-s-rpart"><div class="highlight"><pre><span></span>    <span class="n">r</span> <span class="o">=</span> <span class="n">parse</span><span class="p">(</span><span class="s2">&quot;../../examples/R/iris.RData&quot;</span><span class="p">)</span>
+    <span class="n">file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;../../examples/R/iris.json&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span>
     <span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">r</span><span class="p">))</span>
     <span class="n">file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 </pre></div>
 </div>
-<div class="highlight-python notranslate" id="diabetes-dataset-from-r-s-rpart"><div class="highlight"><pre><span></span>    <span class="n">r</span> <span class="o">=</span> <span class="n">parse</span><span class="p">(</span><span class="s2">&quot;../example/diabetes.RData&quot;</span><span class="p">)</span>
-    <span class="n">file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;../example/diabetes.json&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span>
+<div class="highlight-python notranslate" id="diabetes-dataset-from-r-s-rpart"><div class="highlight"><pre><span></span>    <span class="n">r</span> <span class="o">=</span> <span class="n">parse</span><span class="p">(</span><span class="s2">&quot;../../examples/R/diabetes.RData&quot;</span><span class="p">)</span>
+    <span class="n">file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;../../example/R/diabetes.json&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span>
     <span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">r</span><span class="p">))</span>
     <span class="n">file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 </pre></div>
@@ -272,26 +272,8 @@ the user may need to set the origin algorithm using the <code class="docutils li
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="forester.html">
-              <div class="page-info">
-                <div class="context">
-                  <span>Next</span>
-                </div>
-                <div class="title">Forester.js</div>
-              </div>
-              <svg><use href="#svg-arrow-right"></use></svg>
-            </a>
-          <a class="prev-page" href="modules.html">
-              <svg><use href="#svg-arrow-right"></use></svg>
-              <div class="page-info">
-                <div class="context">
-                  <span>Previous</span>
-                </div>
-                
-                <div class="title">Documentation</div>
-                
-              </div>
-            </a>
+          
+          
         </div>
         <div class="bottom-of-page">
           <div class="left-details">
@@ -343,5 +325,7 @@ the user may need to set the origin algorithm using the <code class="docutils li
     <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="_static/doctools.js"></script>
     <script src="_static/scripts/furo.js"></script>
+    <script src="_static/sphinxcontrib-images/LightBox2/lightbox2/dist/js/lightbox-plus-jquery.min.js"></script>
+    <script src="_static/sphinxcontrib-images/LightBox2/lightbox2-customize/jquery-noconflict.js"></script>
     </body>
 </html>

@@ -185,7 +185,6 @@ export let GlobalSettings = new Settings("settings");
 window.GlobalSettings = GlobalSettings
 
 GlobalSettings.addHeader("Global Settings")
-GlobalSettings.addDropdown("example", "../../../examples/R/diabetes.json", "Example Tree", ["../../../examples/R/diabetes.json", "../../../examples/R/iris.json", "../../../examples/Matlab/iris.json", "../../../examples/Matlab/fanny.json"], ["Diabetes", "Iris [R]", "Iris [Matlab]", "Fanny"])
 
 GlobalSettings.addSubheader("Color")
 GlobalSettings.addDropdown("color.scale", chroma.brewer.Set3, "Color Scale", [chroma.brewer.Set1, chroma.brewer.Set2, chroma.brewer.Set3], ["Brewer Set 1", "Brewer Set 2", "Brewer Set 3"])

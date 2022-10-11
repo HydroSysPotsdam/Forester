@@ -70,8 +70,12 @@ BasicView.illustrate = function (selection, node, meta) {
                  .attr("class", "BasicView")
         selection.append("polygon")
                  .attr("points", "2,2 12,2 2,12")
+                 .attr("class", "colorcoded")
+                 .attr("legend_key", Legend.byLabel(node.split.feature).key)
         selection.append("polygon")
                  .attr("points", "12,12 12,2 2,12")
+                 .attr("class", "colorcoded")
+                 .attr("legend_key", Legend.byLabel(node.split.feature).key)
     }
 }
 

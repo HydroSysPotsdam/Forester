@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Forester API</title>
+</head>
+<body>
+    <h3>Available API functions for Forester</h3>
+    {% for endpoint in endpoints %}
+        <ul>
+            <li>
+                <a href="{{ endpoint.url }}">{{ endpoint.end }}</a>
+                {% if endpoint.doc != '' %}
+                    <p>{{ endpoint.doc }}</p>
+                {% endif %}
+            </li>
+        </ul>
+
+    {% endfor %}
+</body>
+</html>

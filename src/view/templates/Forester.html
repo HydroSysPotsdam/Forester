@@ -1,0 +1,29 @@
+<!--
+  ~ CC-0 2022. 
+  ~ David Strahl, University of Potsdam
+  ~ Forester: Interactive human-in-the-loop web-based visualization of machine learning trees
+  -->
+
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <title>{% block title %} {% endblock %} - Forester</title>
+
+    {% block javascript %}{% endblock %}
+</head>
+<body>
+    <nav>
+        <h1>Forester</h1>
+        <ul>
+          <li><a href="{{ url_for('projects') }}">Project Dashboard</a>
+          <li><a href="https://hydrosyspotsdam.github.io/Forester/">Documentation</a>
+        </ul>
+    </nav>
+
+    {% block content %} {% endblock %}
+
+</body>
+</html>

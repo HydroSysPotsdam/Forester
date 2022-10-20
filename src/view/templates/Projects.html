@@ -1,0 +1,55 @@
+<!--
+  ~ CC-0 2022. 
+  ~ David Strahl, University of Potsdam
+  ~ Forester: Interactive human-in-the-loop web-based visualization of machine learning trees
+  -->
+
+{% extends "Forester.html" %}
+
+{% block title %} Projects {% endblock %}
+
+{% block javascript %}
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sugar/2.0.6/sugar.min.js"></script>
+
+    <script type="text/javascript">
+
+        listProjects = async function () {
+            console.log("Requesting project file metadata...")
+            const url = window.location.origin + {{ url_for("get_projects")|tojson }}
+            const projects = await fetch(url).then(rsp => rsp.json())
+
+            d3.select("#project-dashboard")
+              .selectAll("div")
+              .data(projects)
+              .enter()
+              .append("div")
+              .each(function (project) {
+                  console.log(project)
+
+                  d3.select(this)
+                    .append("h3")
+                    .append("a")
+                    .attr("href", window.location.origin + "/" + project.name.replace(" ", "_"))
+                    .text(project.name)
+
+                  const meta = d3.select(this).append("div")
+                  meta.append("p")
+                      .text(project.author)
+                  meta.append("p")
+                      .text((new Sugar.Date).format("%Y-%m-%d"))
+              })
+        }
+
+        window.onload = function () {
+            listProjects()
+        }
+
+    </script>
+{% endblock %}
+
+{% block content %}
+    <div id="project-dashboard">
+        <h1>Available Projects</h1>
+    </div>
+{% endblock %}

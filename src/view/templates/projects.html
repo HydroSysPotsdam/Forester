@@ -4,9 +4,13 @@
   ~ Forester: Interactive human-in-the-loop web-based visualization of machine learning trees
   -->
 
-{% extends "Forester.html" %}
+{% extends "base_template.html" %}
 
-{% block title %} Projects {% endblock %}
+{% block title %} Project Dashboard {% endblock %}
+
+{% block style %}
+    <link rel="stylesheet" href="../static/styles/ProjectDashboard.css"></link>
+{% endblock %}
 
 {% block javascript %}
     <script src="https://d3js.org/d3.v7.min.js"></script>
@@ -14,42 +18,66 @@
 
     <script type="text/javascript">
 
-        listProjects = async function () {
-            console.log("Requesting project file metadata...")
-            const url = window.location.origin + {{ url_for("get_projects")|tojson }}
-            const projects = await fetch(url).then(rsp => rsp.json())
+        createProjectDashboard = function (projects) {
 
-            d3.select("#project-dashboard")
+            /*
+            projects = projects.concat(Array(10).fill({
+                "name": "Placeholder",
+                "author": "David",
+                "size": 10032,
+                "modified": "2022-03-01"
+            }))
+             */
+
+            d3.select(".forester-projects-list")
               .selectAll("div")
               .data(projects)
               .enter()
               .append("div")
+              .attr("class", "forester-projects-entry")
               .each(function (project) {
-                  console.log(project)
+                  d3.select(this)
+                    .append("img")
+                    .attr("src", d => "https://picsum.photos/250/200" + "?" + Math.random())
+                    .attr("id", Math.random())
 
                   d3.select(this)
-                    .append("h3")
-                    .append("a")
-                    .attr("href", window.location.origin + "/" + project.name.replace(" ", "_"))
+                    .append("span")
+                    .attr("class", "forester-projects-entry-title")
                     .text(project.name)
 
-                  const meta = d3.select(this).append("div")
-                  meta.append("p")
-                      .text(project.author)
-                  meta.append("p")
-                      .text((new Sugar.Date).format("%Y-%m-%d"))
+                  d3.select(this)
+                    .append("text")
+                    .attr("class", "forester-projects-entry-info")
+                    .html(project.author + "<br>" + (new Sugar.Date(project.modified)).format("%d.%m.%y") + " | " + (new Sugar.Number(project.size)).bytes(1))
               })
+            .on("click", function (event, project) {
+                window.location = window.origin + "/editor/" + project.uuid
+            })
         }
 
         window.onload = function () {
-            listProjects()
+            fetch(window.origin + "/api/projects")
+                .then(response => response.json())
+                .then(projects => createProjectDashboard(projects))
         }
 
     </script>
 {% endblock %}
 
 {% block content %}
-    <div id="project-dashboard">
-        <h1>Available Projects</h1>
+
+    <div class="forester-projects-dashboard">
+        <div class="forester-projects-text">
+            <h1>Project Dashboard</h1>
+            <p>First of all, welcome to Forester!</p>
+            <p>We have created some example projects for you so you can explore Foresters functionality. You open the editor by clicking on each tile. Note, that <b>examples will not be saved</b>, and you would need to duplicate the project to make some changes.</p>
+            <p>You can create a new project by uploading either a tree from R or Matlab or by including another users Forester project. Do this by clicking the plus icon at the bottom of the list.</p>
+            <p>Have fun creating beautiful illustrations of decision trees!</p>
+        </div>
+        <div class="forester-projects-listwrapper">
+            <div class="forester-projects-list"></div>
+            <span class="fa-solid fa-plus-circle fa-3x"></span>
+        </div>
     </div>
 {% endblock %}

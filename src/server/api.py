@@ -31,15 +31,16 @@ def projects():
     return jsonify(database.projects.all())
 
 
-@API.route("/project/<id>")
-def project(id):
-    queried_project = database.get_project_by_id(id)
+@API.route("/project/<uuid>")
+def project(uuid):
+    queried_project = database.get_project_by_id(uuid)
     if queried_project is not None:
         path_to_load = os.path.join(queried_project['path'], "tree.json")
         if os.path.exists(path_to_load):
             file = open(path_to_load)
             return jsonify(json.load(file))
     abort(404)
+
 
 
 

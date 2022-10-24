@@ -1,22 +1,41 @@
 <!--
-  ~ CC-0 2022. 
+  ~ CC-0 2022.
   ~ David Strahl, University of Potsdam
   ~ Forester: Interactive human-in-the-loop web-based visualization of machine learning trees
   -->
 
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-    <title>{% block title %} {% endblock %} - Forester</title>
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <title>{% block title %}{% endblock %}{% if self.title() %} - {% endif %}Forester</title>
 
+    {#  base stylesheet for all templates  #}
+    <link rel="stylesheet" href="../static/styles/Forester.css"/>
+
+    {#  font-awesome is already loaded here, to use the github icon  #}
+    <script src="https://kit.fontawesome.com/0fd1c4c2d2.js" crossorigin="anonymous" async></script>
+
+    {# block to load scripts in other templates #}
     {% block javascript %}{% endblock %}
+
+    {# block to load style scripts #}
+    {% block style %}{% endblock %}
+
 </head>
 <body>
+    {#  navigation bar / header #}
+    <nav class="forester-header">
+        <img class="forester-logo" src="../static/img/logo.svg"/>
+        <a class="forester-header-link hover-underline-animation" href="https://hydrosyspotsdam.github.io/Forester/">Documentation</a>
+        <a class="forester-header-link hover-underline-animation" href="https://github.com/HydroSysPotsdam/Forester"><span class="fa fa-github"></span> GitHub</a>
+        <a class="forester-header-link hover-underline-animation" href="https://www.uni-potsdam.de/de/umwelt/forschung/hysys">About Us</a>
+        {% block navbar %}{% endblock %}
+    </nav>
 
-    {% block content %} {% endblock %}
-
+    <div class="forester-content">
+        {# content block for other templates to extend #}
+        {% block content %}{% endblock %}
+    </div>
 </body>
-</html>

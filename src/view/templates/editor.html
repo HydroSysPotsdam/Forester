@@ -1,10 +1,10 @@
-{% extends "Forester.html" %}
+{% extends "base_template.html" %}
 
 {% block title %} Editor {% endblock %}
 
 {% block javascript %}
     <!-- Forester Style -->
-    <link rel="stylesheet" href="../static/styles/Forester.css"/>
+    <link rel="stylesheet" href="../static/styles/Editor.css"/>
     <!-- D3 -->
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <!-- JQuery -->
@@ -30,6 +30,8 @@
     <script src="../static/lib/quicksettings.js"></script>
      <!-- Font Awesome -->
     <script src="https://kit.fontawesome.com/0fd1c4c2d2.js" crossorigin="anonymous"></script>
+    <!-- To create the preview pictures -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dom-to-image/2.6.0/dom-to-image.min.js" crossorigin="anonymous"></script>
 {% endblock %}
 
 {% block content %}
@@ -53,8 +55,10 @@
     <div id="settings" class="forester-ui-panel"></div>
 
     <script type="text/javascript">
-        onScriptReady = function () {
-            Forester.loadTree({{ project_data_url|safe }})
+        onScriptReady = async function () {
+            let tree = await fetch("{{ url_for('api.project', uuid=uuid, _external=True)}}").then(resp => resp.json())
+            console.log(tree)
+            Forester.loadTree(tree)
         }
     </script>
     <!-- Our code -->

@@ -6,59 +6,96 @@
 
 <!DOCTYPE html>
 
-<h2> <span class="fa-solid fa-gears"></span>&nbsp;Settings </h2>
+<style>
+    #settings {
+        position: absolute;
 
-<div class="settings-group">
-    <label>Example Tree</label>
-    <select id="setting-example">
-        <option>Iris [R]</option>
-        <option>Iris [Matlab]</option>
-        <option selected="selected">Diabetes [R]</option>
-        <option>Fenny [Matlab]</option>
-    </select>
-</div>
+        width: 300px;
+        height: 500px;
 
-<div class="settings-group">
-    <h3>Colors</h3>
+        /*transform: translate(-50%, -50%);*/
+    }
 
-    <label>Default Color Scale</label>
-    <select id = "setting-scale" type="select">
-        <option value="Set1">Brewer Set 1</option>
-        <option value="Set2">Brewer Set 2</option>
-        <option value="Set3" selected="true">Brewer Set 3</option>
-        <option value="Pastel1">Brewer Pastel 1</option>
-        <option value="Pastel2">Brewer Pastel 2</option>
-        <option value="Dark2">Brewer Dark</option>
-    </select>
+    .settings-panel {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
 
-    <label>Colorblind Friendly</label>
-    <input id="setting-colorblind" type="checkbox">
-</div>
+        height: 100%;
 
-<div class="settings-group">
-    <h3>Layout</h3>
+        background: lightgray;
+        border-radius: 5px;
+    }
 
-    <label>Direction</label>
-    <select id="setting-direction">
-        <option value="lr">Left-Right</option>
-        <option value="tb" selected="true">Top-Bottom</option>
-    </select>
+    .settings-panel > * {
+        padding: 10px;
+    }
 
-    <label>Path Style</label>
-    <select id="settings-direction" oninput="Settings.path.style.onChange()">
-        <option value="linear" selected="true">Linear</option>
-        <option value="curved">Curved</option>
-        <option value="ragged">Ragged</option>
-    </select>
+    .settings-content > * {
+        padding: 5px;
+    }
 
-    <label>Vertical Spread</label>
-    <div id="setting-vspread" type="slider"></div>
+    .settings-header {
+    }
 
-    <label>Horizontal Spread</label>
-    <div id="setting-hspread" type="slider"></div>
-</div>
+    .settings-content {
+        flex-grow: 1;
+    }
 
-<div id="settings-save">
-    <span>Save and Update</span>
+    .settings-footer {
+        display: inline-flex;
+        flex-direction: row;
+        justify-content: center;
+    }
+
+    .settings-subheader {
+        border-bottom: solid 1px black;
+        margin: 5px 0px 5px 0px;
+    }
+
+    .settings-entry {
+        display: flex;
+        flex-direction: row;
+        align-items: stretch;
+    }
+
+    .settings-entry-label {
+        flex-grow: 2;
+    }
+
+    .settings-entry-content {
+        flex-grow: 1;
+    }
+</style>
+
+<div id="settings">
+    <div class="settings-panel">
+        <div class="settings-header">
+            <h3>Test Settings</h3>
+        </div>
+        <div class="settings-content">
+            <div class="settings-subheader">This is a subheader</div>
+            <div class="settings-entry">
+                <div class="settings-entry-label">Label 1</div>
+                <button>Content 1</button>
+            </div>
+            <div class="settings-entry">
+                <div class="settings-entry-label">Label 2</div>
+                <button>Content 2</button>
+            </div>
+            <div class="settings-subheader">This is another subheader</div>
+            <div class="settings-entry">
+                <div class="settings-entry-label">Label 3</div>
+                <button>Content 3</button>
+            </div>
+            <div class="settings-entry">
+                <div class="settings-entry-label">Label 4</div>
+                <button>Content 4</button>
+            </div>
+        </div>
+        <div class="settings-footer">
+            <button class="settings-save">Save</button>
+        </div>
+    </div>
 </div>
 

@@ -7,7 +7,7 @@ import json
 import database
 from flask import Blueprint, render_template, abort, current_app, url_for, jsonify
 
-API = Blueprint("api", __name__, url_prefix="/api", template_folder="./templates", static_folder="./static")
+API = Blueprint("api", __name__, url_prefix="/api", template_folder="./api_templates", static_folder="./api_static")
 
 
 @API.route("/")

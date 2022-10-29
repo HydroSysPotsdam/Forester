@@ -88,7 +88,7 @@ BasicView.illustrate = function (selection, node, meta) {
 export let CCircleIconView = new View("CCircleIconView")
 
 CCircleIconView.illustrate = function (selection, node, meta) {
-    let d = 2 * this.settings().r
+    let d = 50
     let colors = Legend.classColors
     let g = selection.append("svg")
                      .attr("class", "CCircleIconView")

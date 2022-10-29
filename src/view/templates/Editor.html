@@ -1,0 +1,62 @@
+{% extends "Forester.html" %}
+
+{% block title %} Editor {% endblock %}
+
+{% block javascript %}
+    <!-- Forester Style -->
+    <link rel="stylesheet" href="../static/styles/Forester.css"/>
+    <!-- D3 -->
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <!-- JQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.js"></script>
+    <script src="https://code.jquery.com/ui/1.13.1/jquery-ui.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-contextmenu/2.7.1/jquery.contextMenu.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-contextmenu/2.7.1/jquery.ui.position.js"></script>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.1/themes/base/jquery-ui.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-contextmenu/2.7.1/jquery.contextMenu.min.css">
+    <!-- Color Stuff -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chroma-js/2.4.2/chroma.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/spectrum-colorpicker2/dist/spectrum.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/spectrum-colorpicker2/dist/spectrum.min.css">
+    <!-- Intro -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/intro.js/6.0.0/intro.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intro.js/6.0.0/introjs.min.css">
+    <!-- Convenience-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/string.js/0.2.1/string.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/numeral.js/2.0.6/numeral.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/uuid/8.3.2/uuid.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore.js"></script>
+    <script src="../static/lib/validator.js"></script>
+    <script src="../static/lib/quicksettings.js"></script>
+     <!-- Font Awesome -->
+    <script src="https://kit.fontawesome.com/0fd1c4c2d2.js" crossorigin="anonymous"></script>
+{% endblock %}
+
+{% block content %}
+    <div id="tree"></div>
+
+    <!-- User Interface -->
+    <div id="legend">
+        <div id="groups"></div>
+<!--        <button id="group-new">New group</button>-->
+    </div>
+
+    <div id="hint" open="false">
+        <span class="fa fa-info"></span>
+        <div class="hint-content" style="visibility: hidden">
+            <span class="hint-title">Hints</span>
+            <div class="hint-text">Try hovering over different elements of Forester to learn about their usage.</div>
+        </div>
+    </div>
+
+    <div id="settings-button"></div>
+    <div id="settings" class="forester-ui-panel"></div>
+
+    <script type="text/javascript">
+        onScriptReady = function () {
+            Forester.loadTree({{ project_data_url|safe }})
+        }
+    </script>
+    <!-- Our code -->
+    <script type="module" src="../static/Forester.js" onload="onScriptReady()"></script>
+{% endblock %}

@@ -4,58 +4,26 @@
   ~ Forester: Interactive human-in-the-loop web-based visualization of machine learning trees
   -->
 
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Forester</title>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <title>{% block title %} {% endblock %} - Forester</title>
 
-  <script src="https://kit.fontawesome.com/0fd1c4c2d2.js" crossorigin="anonymous"></script>
-
-  <style>
-    @import url('https://fonts.googleapis.com/css?family=Nunito&display=swap');
-    @import url('https://fonts.googleapis.com/css?family=Coiny&display=swap');
-
-    * {
-      font-family: Nunito;
-    }
-
-    .forester-header {
-      display:flex;
-      align-items: center;
-      justify-content: flex-start;
-    }
-
-    .forester-header-link {
-      display: inline-block;
-      margin-right: 1cm;
-      transition: ease 0.2s;
-      text-decoration: none;
-      color: inherit;
-    }
-
-    .forester-header-link:hover {
-      transform: scale(1.1);
-    }
-
-    .forester-logo {
-      height: 80px;
-      margin-left: 1em;
-      margin-right: auto;
-    }
-
-
-  </style>
-
+    {% block javascript %}{% endblock %}
 </head>
 <body>
+    <nav>
+        <h1>Forester</h1>
+        <ul>
+          <li><a href="{{ url_for('projects') }}">Project Dashboard</a>
+          <li><a href="https://hydrosyspotsdam.github.io/Forester/">Documentation</a>
+        </ul>
+    </nav>
 
-  <div class="forester-header">
-      <img class="forester-logo" src="../static/logo.svg"/>
-      <a class="forester-header-link" href="https://hydrosyspotsdam.github.io/Forester/">Documentation</a>
-      <a class="forester-header-link" href="https://github.com/HydroSysPotsdam/Forester"><span class="fa fa-github"></span> GitHub</a>
-      <a class="forester-header-link" href="https://www.uni-potsdam.de/de/umwelt/forschung/hysys">About Us</a>
-  </div>
+    {% block content %} {% endblock %}
 
 </body>
 </html>

@@ -481,27 +481,19 @@ export class TreeInstance {
     }
 }
 
-
 export let Forester = {}
 window.Forester = Forester
 window.a = 10;
 
-Forester.loadTree = function (path) {
-    return fetch(path)
-        .then(json => json.json())
-        .then(fgts => {
-            Tree = new TreeInstance(fgts, "#tree")
-            window.Tree = Tree
-            window.Views = Views
+Forester.loadTree = function (fgts) {
+    Tree = new TreeInstance(fgts, "#tree")
+    window.Tree = Tree
+    window.Views = Views
 
-            Legend.generate()
+    Legend.generate()
 
-            Tree.draw()
-        })
+    Tree.draw()
 }
-
-Forester.loadTree("../../../examples/R/diabetes.json")
-GlobalSettings.addChangeListener(Forester.loadTree, "example")
 
 $('document').ready(function () {
 

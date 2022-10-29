@@ -2,21 +2,25 @@
 #  David Strahl, University of Potsdam
 #  Forester: Interactive human-in-the-loop web-based visualization of machine learning trees
 
-from flask import Flask
-from flask import render_template
-from flask_restful import Api
+
+from flask import Flask, render_template, abort, redirect, url_for, jsonify
+from api import API
 
 
-app = Flask(__name__, root_path="../view")
-api = Api(app)
+def create_app(config=None):
+    app = Flask(__name__, instance_relative_config=True,
+                template_folder="../view/templates",  # templates are found in folder view
+                static_folder="../view/static")  # static files are found in folder view
 
+    app.register_blueprint(API)
 
-@app.route("/")
-def index():
-    return render_template("Tree.html")
+    @app.route("/")
+    def welcome():
+        return "Hello World!"
 
-#@app.rout("/load")
+    return app;
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app = create_app()
+    Flask.run(app, port=8000, debug=True)

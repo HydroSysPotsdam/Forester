@@ -2,8 +2,10 @@
 #  David Strahl, University of Potsdam
 #  Forester: Interactive human-in-the-loop web-based visualization of machine learning trees
 
-from flask import Blueprint, render_template, abort, current_app, url_for
-from werkzeug.routing import Rule
+import os
+import json
+import database
+from flask import Blueprint, render_template, abort, current_app, url_for, jsonify
 
 API = Blueprint("api", __name__, url_prefix="/api", template_folder="./templates", static_folder="./static")
 
@@ -26,44 +28,18 @@ def api():
 @API.route("/projects")
 def projects():
     """ Returns a list containing all the available projects with their respective metadata. """
-    return ""
+    return jsonify(database.projects.all())
 
 
-@API.route("/new")
-def project_new():
-    """ Opens a new project """
-    return ""
-
-
-@API.route("/signup")
-def user_signup():
-    """ Allows a user to sign up """
-    return ""
-
-
-@API.route("/signin")
-def user_signin():
-    """ Allows a user to sign in """
-    return ""
-
-
-@API.route("/upload/existing")
-def upload_existing():
-    """ Uploads an existing project from a file """
-    return ""
-
-
-@API.route("/upload/output")
-def upload_output():
-    """ Uploads and parses the output file of Matlab/R/... for a new project """
-    return ""
-
-
-@API.route("/upload/data")
-def upload_data():
-    """ Uploads the training data for a project """
-    return ""
-
+@API.route("/project/<id>")
+def project(id):
+    queried_project = database.get_project_by_id(id)
+    if queried_project is not None:
+        path_to_load = os.path.join(queried_project['path'], "tree.json")
+        if os.path.exists(path_to_load):
+            file = open(path_to_load)
+            return jsonify(json.load(file))
+    abort(404)
 
 
 

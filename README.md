@@ -1,4 +1,4 @@
-# Forester
+# Editor
 Interactive human-in-the-loop web-based visualization of machine learning trees
 
 ## Required Libraries

@@ -6,7 +6,7 @@
 <link rel="author" title="About these documents" href="about.html" /><link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" />
 
     <meta name="generator" content="sphinx-5.0.1, furo 2022.06.04.1"/>
-        <title>Parser - Forester 0.0 documentation</title>
+        <title>Parser - Editor 0.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=40978830699223671f4072448e654b5958f38b89" />
     <link rel="stylesheet" type="text/css" href="_static/sphinxcontrib-images/LightBox2/lightbox2/dist/css/lightbox.css" />
@@ -125,7 +125,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">Forester 0.0 documentation</div></a>
+      <a href="index.html"><div class="brand">Editor 0.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -148,7 +148,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
   
-  <span class="sidebar-brand-text">Forester 0.0 documentation</span>
+  <span class="sidebar-brand-text">Editor 0.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
@@ -199,11 +199,11 @@
           <section id="module-parser">
 <span id="parser"></span><h1>Parser<a class="headerlink" href="#module-parser" title="Permalink to this heading"></a></h1>
 <section id="conversion-from-matlab-r-python-to-forester">
-<h2>Conversion from Matlab, R, Python to Forester<a class="headerlink" href="#conversion-from-matlab-r-python-to-forester" title="Permalink to this heading"></a></h2>
+<h2>Conversion from Matlab, R, Python to Editor<a class="headerlink" href="#conversion-from-matlab-r-python-to-forester" title="Permalink to this heading"></a></h2>
 <p>Module that implements conversion functionality for common R, Matlab and Python function that
 train classification or regression trees. From the output of these functions, a common
 representation is extracted and given in <cite>.json</cite> format. This file can than be loaded in
-Forester</p>
+Editor</p>
 <div class="line-block">
 <div class="line">As of today, the following functions are supported:</div>
 <div class="line">- Matlab’s <code class="docutils literal notranslate"><span class="pre">fitctree</span></code></div>
@@ -217,7 +217,7 @@ of R studio</strong> and needs to have the Python module <strong>rpy2 installed<
 <dl class="py function">
 <dt class="sig sig-object py" id="parser.parse">
 <span class="sig-prename descclassname"><span class="pre">parser.</span></span><span class="sig-name descname"><span class="pre">parse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#parser.parse" title="Permalink to this definition"></a></dt>
-<dd><p>Converts some output formats from Matlab and R into the Forester generalized format.</p>
+<dd><p>Converts some output formats from Matlab and R into the Editor generalized format.</p>
 <p>Output from Matlab can be parsed by first running the function <code class="docutils literal notranslate"><span class="pre">jsonencode</span></code> within
 Matlab and loading the resulting .json string (file).</p>
 <p>Output from R can be loaded by loading the .RData file that can be exported from R studio.</p>
@@ -229,7 +229,7 @@ Matlab and loading the resulting .json string (file).</p>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>The generalized Forester tree structure as a .json string</p>
+<dd class="field-even"><p>The generalized Editor tree structure as a .json string</p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>str</p>
@@ -307,7 +307,7 @@ the user may need to set the origin algorithm using the <code class="docutils li
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">Parser</a><ul>
-<li><a class="reference internal" href="#conversion-from-matlab-r-python-to-forester">Conversion from Matlab, R, Python to Forester</a></li>
+<li><a class="reference internal" href="#conversion-from-matlab-r-python-to-forester">Conversion from Matlab, R, Python to Editor</a></li>
 </ul>
 </li>
 </ul>

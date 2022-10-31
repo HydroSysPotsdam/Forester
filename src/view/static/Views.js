@@ -17,7 +17,7 @@ fetch("../static/settings.json")
     .then(r => r.json())
     .then(r => SETTINGS = r)
 
-import {Tree} from "./Forester.js"
+import {Tree} from "./Editor.js"
 import {Legend} from "./Legend.js";
 
 export class View {

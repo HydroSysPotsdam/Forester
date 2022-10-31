@@ -3,64 +3,76 @@
 {% block title %} Editor {% endblock %}
 
 {% block javascript %}
-    <!-- Forester Style -->
-    <link rel="stylesheet" href="../static/styles/Editor.css"/>
     <!-- D3 -->
-    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://d3js.org/d3.v7.min.js" async></script>
     <!-- JQuery -->
-    <script src="https://code.jquery.com/jquery-3.6.0.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.1.min.js" crossorigin="anonymous" asycn></script>
+    <!-- Color Stuff -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chroma-js/2.4.2/chroma.min.js" async></script>
+    <script src="https://cdn.jsdelivr.net/npm/spectrum-colorpicker2/dist/spectrum.min.js" async></script>
+    <!-- Intro -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/intro.js/6.0.0/intro.min.js" async></script>
+    <!-- Convenience-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/string.js/0.2.1/string.min.js" async></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/numeral.js/2.0.6/numeral.min.js" async></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/uuid/8.3.2/uuid.min.js" async></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore.js" async></script>
+    <script src="../static/lib/validator.js" async></script>
+    <script src="../static/lib/quicksettings.js" async></script>
+
+    <!-- JQuery extensions -->
     <script src="https://code.jquery.com/ui/1.13.1/jquery-ui.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-contextmenu/2.7.1/jquery.contextMenu.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-contextmenu/2.7.1/jquery.ui.position.js"></script>
+
+{% endblock %}
+
+{% block style %}
+    <link rel="stylesheet" href="../static/styles/Editor.css"/>
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.1/themes/base/jquery-ui.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-contextmenu/2.7.1/jquery.contextMenu.min.css">
-    <!-- Color Stuff -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/chroma-js/2.4.2/chroma.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/spectrum-colorpicker2/dist/spectrum.min.js"></script>
-    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/spectrum-colorpicker2/dist/spectrum.min.css">
-    <!-- Intro -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/intro.js/6.0.0/intro.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/spectrum-colorpicker2/dist/spectrum.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intro.js/6.0.0/introjs.min.css">
-    <!-- Convenience-->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/string.js/0.2.1/string.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/numeral.js/2.0.6/numeral.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/uuid/8.3.2/uuid.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore.js"></script>
-    <script src="../static/lib/validator.js"></script>
-    <script src="../static/lib/quicksettings.js"></script>
-     <!-- Font Awesome -->
-    <script src="https://kit.fontawesome.com/0fd1c4c2d2.js" crossorigin="anonymous"></script>
-    <!-- To create the preview pictures -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/dom-to-image/2.6.0/dom-to-image.min.js" crossorigin="anonymous"></script>
 {% endblock %}
 
 {% block content %}
-    <div id="tree"></div>
-
-    <!-- User Interface -->
-    <div id="legend">
-        <div id="groups"></div>
-<!--        <button id="group-new">New group</button>-->
+    <div class="forester-editor-loading">
+        <img src="https://media.tenor.com/On7kvXhzml4AAAAj/loading-gif.gif" style="width:50px;height:50px;margin:1em;">
+        <text>Loading your project...</text>
     </div>
+    <script type="module">
+        import * as Editor from "../static/Editor.js";
 
-    <div id="hint" open="false">
-        <span class="fa fa-info"></span>
-        <div class="hint-content" style="visibility: hidden">
-            <span class="hint-title">Hints</span>
-            <div class="hint-text">Try hovering over different elements of Forester to learn about their usage.</div>
-        </div>
-    </div>
-
-    <div id="settings-button"></div>
-    <div id="settings" class="forester-ui-panel"></div>
-
-    <script type="text/javascript">
-        onScriptReady = async function () {
-            let tree = await fetch("{{ url_for('api.project', uuid=uuid, _external=True)}}").then(resp => resp.json())
-            console.log(tree)
-            Forester.loadTree(tree)
-        }
+        /**
+         * Short wrapper function for loading the data from the server and starting the editor when the document
+         * finished loading. The loading screen is automatically removed.
+         */
+        $(document).ready(async function () {
+            let url  = "{{ url_for('api.project', uuid=uuid, _external=True)}}"
+            let data = await fetch(url).then(resp => resp.json())
+            await Editor.openWithTree(data).then(function () {
+                document.querySelector(".forester-editor").setAttribute("visibility", "visible")
+                document.querySelector(".forester-editor-loading").remove()
+            })
+        })
     </script>
-    <!-- Our code -->
-    <script type="module" src="../static/Forester.js" onload="onScriptReady()"></script>
+
+{#    <div id="tree"></div>#}
+{##}
+{#    <!-- User Interface -->#}
+{#    <div id="legend">#}
+{#        <div id="groups"></div>#}
+{#<!--        <button id="group-new">New group</button>-->#}
+{#    </div>#}
+{##}
+{#    <div id="hint" open="false">#}
+{#        <span class="fa fa-info"></span>#}
+{#        <div class="hint-content" style="visibility: hidden">#}
+{#            <span class="hint-title">Hints</span>#}
+{#            <div class="hint-text">Try hovering over different elements of Editor to learn about their usage.</div>#}
+{#        </div>#}
+{#    </div>#}
+{##}
+{#    <div id="settings-button"></div>#}
+{#    <div id="settings" class="forester-ui-panel"></div>#}
 {% endblock %}

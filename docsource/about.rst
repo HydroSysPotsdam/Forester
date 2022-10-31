@@ -1,7 +1,7 @@
 About
 =====
 
-*Forester* is an interactive human-in-the-loop web-based vizualization tool for machine learning trees brought to you 
+*Editor* is an interactive human-in-the-loop web-based vizualization tool for machine learning trees brought to you
 by the Department of Hydrological Systems at the University of Postdam. 
 
 Contact Us

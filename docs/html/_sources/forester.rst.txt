@@ -1,4 +1,4 @@
-Forester.js
+Editor.js
 ===========
 
 .. toctree::

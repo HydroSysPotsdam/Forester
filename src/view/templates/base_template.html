@@ -1,7 +1,7 @@
 <!--
   ~ CC-0 2022.
   ~ David Strahl, University of Potsdam
-  ~ Forester: Interactive human-in-the-loop web-based visualization of machine learning trees
+  ~ Editor: Interactive human-in-the-loop web-based visualization of machine learning trees
   -->
 
 <!DOCTYPE html>
@@ -9,7 +9,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-    <title>{% block title %}{% endblock %}{% if self.title() %} - {% endif %}Forester</title>
+    <title>{% block title %}{% endblock %}{% if self.title() %} - {% endif %}Editor</title>
 
     {#  base stylesheet for all templates  #}
     <link rel="stylesheet" href="../static/styles/Forester.css"/>
@@ -27,7 +27,9 @@
 <body>
     {#  navigation bar / header #}
     <nav class="forester-header">
-        <img class="forester-logo" src="../static/img/logo.svg"/>
+        <a href="{{ url_for("welcome") }}">
+            <img class="forester-logo" src="../static/img/logo.svg"/>
+        </a>
         <a class="forester-header-link hover-underline-animation" href="https://hydrosyspotsdam.github.io/Forester/">Documentation</a>
         <a class="forester-header-link hover-underline-animation" href="https://github.com/HydroSysPotsdam/Forester"><span class="fa fa-github"></span> GitHub</a>
         <a class="forester-header-link hover-underline-animation" href="https://www.uni-potsdam.de/de/umwelt/forschung/hysys">About Us</a>

@@ -16,7 +16,7 @@ def create_app(config=None):
 
     @app.route("/")
     def welcome():
-        return render_template("base_template.html")
+        return redirect(url_for('projects'))
 
     @app.route("/projects")
     def projects():

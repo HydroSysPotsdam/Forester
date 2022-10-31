@@ -1,6 +1,6 @@
 #  CC-0 2022.
 #  David Strahl, University of Potsdam
-#  Forester: Interactive human-in-the-loop web-based visualization of machine learning trees
+#  Editor: Interactive human-in-the-loop web-based visualization of machine learning trees
 
 import click
 from dataclasses import dataclass, field
@@ -9,7 +9,7 @@ from dataclasses import dataclass, field
 @click.option("--project", type=str, help = "The project that should be loaded.")
 def forester(project: str) -> None:
     """
-    Forester generates beautiful interactive visualizations of decision trees.
+    Editor generates beautiful interactive visualizations of decision trees.
     This command is used to start the local server and open the web-based editor.\f
 
     Parameters
@@ -19,16 +19,16 @@ def forester(project: str) -> None:
     """
 
     if project is not None:
-        click.echo(f"Forester will directly open project {project}")
+        click.echo(f"Editor will directly open project {project}")
     else:
-        click.echo("Forester will display the project selection prompt")
+        click.echo("Editor will display the project selection prompt")
 
 
 @forester.command()
-@click.option("--directory", type=click.Path(), help="The directory in which Forester saves it's files.")
+@click.option("--directory", type=click.Path(), help="The directory in which Editor saves it's files.")
 def setup(directory):
     """
-    Used for setting up Forester.
+    Used for setting up Editor.
     With this command, you can for example set the home directory or purge the project database.\f
 
     Parameters
@@ -38,7 +38,7 @@ def setup(directory):
     """
     if directory is None:
         directory = "./instance"
-        click.echo(f"Forester will initialize in default folder {directory}")
+        click.echo(f"Editor will initialize in default folder {directory}")
 
 
 if __name__ == "__main__":

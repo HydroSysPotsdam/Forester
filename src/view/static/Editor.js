@@ -1,9 +1,19 @@
-// import {TreeInstance} from "./Tree.js";
+import {TreeInstance} from "./Tree.js";
+import * as Views from "./Views.js";
 
-export function openWithTree () {
+export let Tree = {}
+
+export function openFromData (data) {
     return new Promise((resolve, reject) => {
-        console.log("Starting timeout")
-        setTimeout(() => {console.log("Timeout finished"); resolve()}, 1000)
+        console.log("Loading editor")
+        Tree = new TreeInstance(data, "#tree")
+        window.Tree = Tree
+        window.Views = Views
+
+        Legend.generate()
+
+        Tree.draw()
+        resolve()
     })
 }
 

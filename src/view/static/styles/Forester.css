@@ -4,201 +4,83 @@
  * Forester: Interactive human-in-the-loop web-based visualization of machine learning trees
  */
 
-@import "Views.css";
-@import "Legend.css";
-@import "Panzoom.css";
-@import "Settings.css";
+/*@import url('https://fonts.googleapis.com/css?family=Nunito&display=swap');*/
+/*@import url('https://fonts.googleapis.com/css?family=Coiny&display=swap');*/
 
 :root {
     --forester_background: #f6f6f6;
     --forester_background_hover: #ededed;
-    --forester_highlight: darkolivegreen;
     --forester_border: 1px solid #cccccc;
+    --forester_highlight: #83a24b;
     --forester_transition_duration: 200ms;
 }
 
 html, body {
-    margin: 0;
-    width: 100%;
-    height: 100%;
-    overflow-y: hidden;
-    overflow-x: hidden;
+  font-family: "Helvetica";
+  margin: 0;
+  width: 100%;
+  height: 100%;
+
+  display: flex;
+  flex-direction: column;
+
+  overflow: hidden;
 }
 
-.forester-ui-panel {
-    background: var(--forester_background);
-    border: var(--forester_border);
-    border-radius: 3px;
+.forester-header {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 1em;
 }
 
-.forester-ui-button {
-    width: 25px;
-    height: 25px;
-    margin: 10px;
-    text-align: center;
-    -webkit-user-select: none;
-    user-select: none;
-    cursor: pointer;
+.forester-header > :first-child {
+  flex: 1;
 }
 
-.forester-ui-button::before {
-    line-height: 25px;
+.forester-content {
+  width: 100%;
+  flex: 1 1;
 }
 
-.forester-ui-button:hover {
-    color: var(--forester_highlight);
+.forester-header-link {
+  display: inline-block;
+  margin-right: 1cm;
+  text-decoration: none;
+  color: inherit;
 }
 
-/*
-    TREE CONTAINER
-*/
-.tree {
-    position: relative;
-    width: auto;
-    height: auto;
-
-    -webkit-touch-callout: none;
-    -webkit-user-select: none;
-    -khtml-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
-
-    cursor: default;
-
-    transition: transform var(--forester_transition_duration);
+.forester-header-link:hover {
+  transform: scale(1);
 }
 
-.tree.layout-left-right {
-    transform-origin: center;
-    transform: rotate(-90deg)
+.hover-underline-animation:after {
+  content: '';
+  position: absolute;
+  width: 100%;
+  transform: scaleX(0);
+  height: 2px;
+  bottom: -5px;
+  left: 0;
+  background-color: var(--forester_highlight);
+  transition: transform 0.25s ease-out;
 }
 
-/*
-    NODES
-*/
-.node {
-    position: absolute;
-    transform: translate(-50%, -50%);
-    width: fit-content;
-    height: fit-content;
-    min-width: 50px;
-    min-height: 50px;
+.hover-underline-animation:hover:after {
+  transform: scaleX(1);
 }
 
-.node > .view {
-    position: absolute;
-    width: fit-content;
-    height: fit-content;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-}
+.forester-logo {
+  height: 60px;
+  margin-left: 1em;
+  margin-right: auto;
 
-.layout-left-right > .node {
-    transform-origin: center;
-    transform-box: content-box;
-    transform: translate(-50%, -50%) rotate(90deg)
-}
-
-.node > .hide-indicator {
-    position: absolute;
-    left: 50%;
-    top: 100%;
-    transform: translate(-50%, 0%);
-}
-
-/* LINKS */
-#links {
-    width: inherit;
-    height: inherit;
-}
-
-.links {
-    width: inherit;
-    height: inherit;
-    overflow: visible;
-}
-
-.link {
-    fill: none;
-    stroke: black;
-    transform-origin: center;
-    transform-box: content-box;
-}
-
-.link > .colorcoded.flow {
-    stroke: none;
-    fill: var(--highlight-color);
-}
-
-/*
-    NODE MENU
-*/
-.view-menu-item {
-    position: absolute;
-    padding: 5px;
-}
-
-.view-browse-left {
-    right: 100%;
-    top: 50%;
-    transform: translate(0, -50%);
-}
-
-.view-browse-right {
-    left: 100%;
-    top: 50%;
-    transform: translate(0, -50%);
-}
-
-.view-collapse {
-    left: 50%;
-    top: 100%;
-    transform: translate(-50%, 0%);
-}
-
-#hint {
-    position: fixed;
-    width: 25px;
-    height: 25px;
-    margin: 10px;
-    bottom: 0%;
-    left: 0%;
-    background: #ddddddee;
-    border: solid 1px rgb(221, 221, 221);
-    border-radius: 3px;
-    font-family: Verdana;
-    overflow: hidden;
-}
-
-#hint .fa-info {
-    position: absolute;
-    width: 25px;
-    height: 25px;
-    text-align: center;
-    line-height: 25px;
-    bottom: 0%;
-}
-
-#hint .hint-title {
-    position: absolute;
-    margin: 10px;
-    line-height: 25px;
-    font-weight: bold;
-}
-
-#hint .hint-text {
-    position: absolute;
-    top: 15%;
-    margin: 10px;
-    height: 75%;
-    overflow: scroll;
-    font-size: 12px;
-    text-align: justify;
-}
-
-label {
-    display: block;
-    margin: 0 0 5px 5px;
+  /* no drag and drop */
+  /*user-drag: none;*/
+  /*-webkit-user-drag: none;*/
+  /*user-select: none;*/
+  /*-moz-user-select: none;*/
+  /*-webkit-user-select: none;*/
+  /*-ms-user-select: none;*/
+  /*pointer-events: none;*/
 }

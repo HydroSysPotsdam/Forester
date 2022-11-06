@@ -32,7 +32,7 @@ export class TreeInstance {
         this.id = "Tree-" + uuid.v4()
         this.meta = fgts.meta
         this.nodes = d3.hierarchy(fgts.tree)
-        this.links  = this.nodes.descendants().slice(1)
+        this.links = this.nodes.descendants().slice(1)
 
         // prepare the container
         this.#ui_elem
@@ -82,13 +82,13 @@ export class TreeInstance {
 
     #initializeFlow() {
         let flow_shown_classes = 2
-        let flow_path_samples  = 19
+        let flow_path_samples = 19
 
         // CALCULATE the scaled node index
         // grab all the samples and scale
         let samples = this.nodes.descendants().map(node => node.samples)
         // bin samples and count
-        let bins   = d3.bin().thresholds(flow_path_samples)(samples)
+        let bins = d3.bin().thresholds(flow_path_samples)(samples)
         let counts = bins.map(bin => bin.length)
         // cumulative count function
         let sum = 0
@@ -98,11 +98,11 @@ export class TreeInstance {
             function (node) {
                 let index = bins.map(bin => bin.indexOf(node.samples) >= 0).indexOf(true)
                 node.flow = {}
-                node.flow.samples_scaled = (ccf[index] - ccf[0])/(ccf.slice(-1)[0] - ccf[0])
+                node.flow.samples_scaled = (ccf[index] - ccf[0]) / (ccf.slice(-1)[0] - ccf[0])
 
                 let distribution_sorted = [...node.distribution].sort((a, b) => a < b)
-                let distribution_flow   = distribution_sorted.slice(0, flow_shown_classes)
-                let distribution_other  = distribution_sorted.slice(flow_shown_classes)
+                let distribution_flow = distribution_sorted.slice(0, flow_shown_classes)
+                let distribution_other = distribution_sorted.slice(flow_shown_classes)
                 if (distribution_other.length == 0) {
                     node.flow.distribution = distribution_flow
                 } else {
@@ -147,31 +147,35 @@ export class TreeInstance {
         // add the nodes on the first call
         if (this.#ui_elem.selectAll(".node").empty()) {
             this.#ui_nodes = this.#ui_elem
-                .selectAll("div")
-                .data(this.nodes.descendants())
-                .enter()
-                .append("div")
-                .attr("id", node => node.id)
-                .attr('class', node => 'node ' + (!node.parent ? 'root' : (node.children ? 'internal' : 'leaf')))
-                .style("left", "50%")
-                .style("top", "50%")
-                .style("visibility", "true")
-                .each(function (node) {node.elements.node = d3.select(this).node()})
+                                 .selectAll("div")
+                                 .data(this.nodes.descendants())
+                                 .enter()
+                                 .append("div")
+                                 .attr("id", node => node.id)
+                                 .attr('class', node => 'node ' + (!node.parent ? 'root' : (node.children ? 'internal' : 'leaf')))
+                                 .style("left", "50%")
+                                 .style("top", "50%")
+                                 .style("visibility", "true")
+                                 .each(function (node) {
+                                     node.elements.node = d3.select(this).node()
+                                 })
         }
 
         // add the links on the first call
         if (this.#ui_elem.select(".links").empty()) {
             this.#ui_links = this.#ui_elem
-                .insert("svg", ":first-child")
-                .attr("class", "links")
-                .selectAll("path")
-                .data(this.nodes.descendants().slice(1))
-                .enter()
-                .append('g')
-                .attr('class', 'link')
-                .attr('from', node => node.parent.id)
-                .attr('to', node => node.id)
-                .each(function (node) {node.elements.link = d3.select(this).node()})
+                                 .insert("svg", ":first-child")
+                                 .attr("class", "links")
+                                 .selectAll("path")
+                                 .data(this.nodes.descendants().slice(1))
+                                 .enter()
+                                 .append('g')
+                                 .attr('class', 'link')
+                                 .attr('from', node => node.parent.id)
+                                 .attr('to', node => node.id)
+                                 .each(function (node) {
+                                     node.elements.link = d3.select(this).node()
+                                 })
         }
 
         // do (or update) the layout
@@ -227,8 +231,8 @@ export class TreeInstance {
         this.#clearLinks()
 
         let direction = GlobalSettings.get("layout.direction")
-        let curve     = GlobalSettings.get("path.style")
-        let flow      = GlobalSettings.get("path.flow")
+        let curve = GlobalSettings.get("path.style")
+        let flow = GlobalSettings.get("path.flow")
 
         if (curve === "linear") curve = d3.curveLinear
         if (curve === "curved") curve = d3.curveBumpY
@@ -247,10 +251,10 @@ export class TreeInstance {
                 // do nothing
                 break;
             case "linear":
-                paths.attr("style", node => "stroke-width:" + ((stroke_max_width - 1)*node.samples/Tree.meta.samples + 1) + "px")
+                paths.attr("style", node => "stroke-width:" + ((stroke_max_width - 1) * node.samples / Tree.meta.samples + 1) + "px")
                 break;
             case "auto":
-                paths.attr("style", node => "stroke-width:" + ((stroke_max_width - 1)*node.flow.samples_scaled + 1) + "px")
+                paths.attr("style", node => "stroke-width:" + ((stroke_max_width - 1) * node.flow.samples_scaled + 1) + "px")
                 break;
             case "colorcoded":
                 paths.each(function (node) {
@@ -258,8 +262,8 @@ export class TreeInstance {
 
                     // sample points along curve
                     let L = curve.getTotalLength()
-                    let N = Math.floor(L/flow_sample_dist)
-                    let points = [...Array(N + 1).keys()].map(n => curve.getPointAtLength(n/N*L))
+                    let N = Math.floor(L / flow_sample_dist)
+                    let points = [...Array(N + 1).keys()].map(n => curve.getPointAtLength(n / N * L))
 
                     // calculate normal of each point
                     for (let i = 0; i < points.length; i++) {
@@ -286,18 +290,19 @@ export class TreeInstance {
 
                     // find the points of the equidistant curves
                     let sum = 0;
-                    let steps = [0, ...node.flow.distribution.map((s => sum += s/node.samples))]
+                    let steps = [0, ...node.flow.distribution.map((s => sum += s / node.samples))]
                     let curves = steps.map(step => points.map(
                         function (p) {
                             return {
-                                x: p.x + ((stroke_max_width - 1)*node.flow.samples_scaled + 1)*(2*step - 1)*p.dy,
-                                y: p.y + ((stroke_max_width - 1)*node.flow.samples_scaled + 1)*(1 - 2*step)*p.dx
+                                x: p.x + ((stroke_max_width - 1) * node.flow.samples_scaled + 1) * (2 * step - 1) * p.dy,
+                                y: p.y + ((stroke_max_width - 1) * node.flow.samples_scaled + 1) * (1 - 2 * step) * p.dx
                             }
                         }
                     ))
 
                     // prepare the areas between them
-                    let areas = curves.slice(0, -1).map((c, i) => [...Array.from(c), ...Array.from(curves[i + 1]).reverse()])
+                    let areas = curves.slice(0, -1)
+                                      .map((c, i) => [...Array.from(c), ...Array.from(curves[i + 1]).reverse()])
 
                     // remove old link
                     d3.select(node.elements.link)
@@ -315,7 +320,7 @@ export class TreeInstance {
                       .attr("d", c => d3.line().curve(d3.curveLinearClosed)(c.map(p => [p.x, p.y])))
                       .attr("legend_key", function (c, i) {
                           let class_index = node.distribution.indexOf(node.flow.distribution[i])
-                          let class_name  = Tree.classNames()[class_index]
+                          let class_name = Tree.classNames()[class_index]
                           return (class_index >= 0 ? Legend.byLabel(class_name).key : "")
                       })
                 })
@@ -336,15 +341,15 @@ export class TreeInstance {
 
         // load layout and path settings
         let direction = GlobalSettings.get("layout.direction")
-        let lspace    = GlobalSettings.get("layout.lspace")
-        let bspace    = GlobalSettings.get("layout.bspace")
+        let lspace = GlobalSettings.get("layout.lspace")
+        let bspace = GlobalSettings.get("layout.bspace")
 
         let tree, width, height, xmin, ymin;
         // calculate the tree layout
-        tree    = d3.tree().nodeSize([bspace * 100, lspace * 80])(this.nodes)
+        tree = d3.tree().nodeSize([bspace * 100, lspace * 80])(this.nodes)
         // find range of x and y coordinates
-        width   = range(this.nodes.descendants().map(node => node.x))
-        height  = range(this.nodes.descendants().map(node => node.y))
+        width = range(this.nodes.descendants().map(node => node.x))
+        height = range(this.nodes.descendants().map(node => node.y))
         // move x and y coordinates, so that they are positive
         xmin = -Math.min(...this.nodes.descendants().map(node => node.x))
         ymin = 0
@@ -368,13 +373,13 @@ export class TreeInstance {
         d3.select("#" + this.id)
           .style("width", width + "px")
           .style("height", height + "px")
-          // .style("left", legend.left / 2 + "px")
-          // .style("top", "50%")
+        // .style("left", legend.left / 2 + "px")
+        // .style("top", "50%")
 
         // updating the positions of the nodes
         this.#ui_nodes
             .style("left", node => node.x + "px")
-            .style("top",  node => node.y + "px")
+            .style("top", node => node.y + "px")
     }
 
     toggleNode(node, animate = true) {
@@ -405,12 +410,16 @@ export class TreeInstance {
         d3.selectAll(childrenLinks)
           .transition()
           .style("opacity", 0)
-          .on("end", function () {d3.select(this).style("visibility", "hidden")})
+          .on("end", function () {
+              d3.select(this).style("visibility", "hidden")
+          })
 
         d3.selectAll(childrenNodes)
           .transition()
           .style("opacity", 0)
-          .on("end", function (node) {d3.select(this).style("visibility", "hidden"), node.collapsed = true})
+          .on("end", function (node) {
+              d3.select(this).style("visibility", "hidden"), node.collapsed = true
+          })
     }
 
     /**
@@ -434,14 +443,14 @@ export class TreeInstance {
           .remove()
 
         d3.selectAll(childrenLinks)
-        // animate the opacity
+            // animate the opacity
           .style("visibility", "visible")
           .style("opacity", 0)
           .transition()
           .style("opacity", 1)
 
         d3.selectAll(childrenNodes)
-        // animate the opacity
+            // animate the opacity
           .transition()
           .style("visibility", "visible")
           .style("opacity", 1)
@@ -483,5 +492,34 @@ export class TreeInstance {
     featureNames() {
         let names = this.meta.features
         return names.map(n => S(n).trim().capitalize().s)
+    }
+
+    async createThumbnail() {
+        console.log("Creating thumbnail")
+
+        d3.selectAll(".thumbnail-preview")
+                  .remove()
+
+        let node = document.getElementById(Tree.id)
+        console.log(node.scrollHeight, node.scrollWidth)
+        console.log(node.clientHeight, node.clientWidth)
+        let scale = Math.min(node.clientHeight/(node.scrollHeight + 20), node.clientWidth/(node.scrollWidth + 20))
+        console.log(scale)
+
+        let settings = {
+            style: {scale: scale},
+            canvasWidth: 300,
+            canvasHeight: 300*(node.scrollHeight/node.scrollWidth),
+            skipAutoScale: true}
+
+        htmlToImage.toPng(node, settings)
+                   .then(function (dataUrl) {
+                       d3.select(document.body)
+                         .append("img")
+                         .attr("src", dataUrl)
+                         .attr("class", "thumbnail-preview")
+                         .style("position", "absolute")
+                   })
+
     }
 }

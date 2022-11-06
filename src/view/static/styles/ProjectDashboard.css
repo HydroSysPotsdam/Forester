@@ -53,7 +53,7 @@
 
 .forester-projects-entry {
     width: 200px;
-    aspect-ratio: 4/5;
+    height: 300px;
 
     /* Solid background tile */
     background: lightgray;
@@ -62,11 +62,14 @@
     /* Column layout for each tile, image will take up the remaining space */
     display: flex;
     flex-direction: column;
-    justify-content: space-evenly;
-    align-items: flex-start;
+    justify-content: flex-start;
+    align-items: stretch;
 
     /* Transition for hovering over tile */
     transition: ease 150ms;
+
+    /* So that elements can be overlayen */
+    position: relative;
 }
 
 .forester-projects-entry:hover {
@@ -87,14 +90,40 @@
     padding: 0px 0px 10px 10px;
 }
 
-.forester-projects-entry img {
+.forester-projects-entry-img {
     /* The image takes up all available space in the tile */
-    width: 100%;
-    flex-grow: 1;
-    border-radius: 4px;
+    height: 0;
+    flex: 1;
+    object-fit: contain;
+
+    border-radius: 4px 4px 0 0;
+    background: #ffffffcc;
+    padding: 5px;
 }
 
-.forester-projects-dashboard .fa-solid {
+.forester-projects-entry-example {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    width: 50px;
+    height: 50px;
+}
+
+.forester-projects-entry-delete {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    color: orangered;
+    visibility: hidden;
+    transition: ease 200ms;
+}
+
+.forester-projects-entry:hover .forester-projects-entry-delete {
+    visibility: visible;
+    color: orangered !important;
+}
+
+.forester-projects-button-new {
     /* New Project button should have some distance to the project list */
     margin-top: 1em;
     transition: ease 50ms;

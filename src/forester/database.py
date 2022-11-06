@@ -36,6 +36,7 @@ class Project:
 
 
 def purge():
+    logger.warning("Database purged")
     try:
         shutil.rmtree(config['projects_directory_path'])
         os.remove(os.path.join(PACKAGE_PATH, "instance", "database.json"))
@@ -130,8 +131,9 @@ def load_examples(examples_folder="../../examples", reload=False):
                     create_project(name, path,
                                    size=os.path.getsize(path),
                                    created=datetime.fromtimestamp(os.path.getctime(path)).isoformat(),
-                                   modified=datetime.fromtimestamp(os.path.getmtime(path)).isoformat())
-                    logger.warning(os.path.getsize(path))
+                                   modified=datetime.fromtimestamp(os.path.getmtime(path)).isoformat(),
+                                   example=True,
+                                   author="Forester Team")
                     new_examples += 1
 
     logger.info(f"{new_examples if new_examples > 0 else 'no'} new examples added")

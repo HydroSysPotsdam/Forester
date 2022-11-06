@@ -22,7 +22,8 @@ def create_app():
     app.register_blueprint(API)
 
     # open the database
-    database.open_database(app, reload=True)
+    database.purge()
+    database.open_database(app)
 
     @app.route("/")
     def welcome():

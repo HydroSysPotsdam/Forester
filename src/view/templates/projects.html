@@ -38,8 +38,17 @@
               .each(function (project) {
                   d3.select(this)
                     .append("img")
-                    .attr("src", d => "https://picsum.photos/250/200" + "?" + Math.random())
-                    .attr("id", Math.random())
+                    .attr("class", "forester-projects-entry-img")
+                    {#.attr("src", d => "https://picsum.photos/250/200" + "?" + Math.random())#}
+                    {#.attr("id", Math.random())#}
+                    .attr("src", "../../static/img/" + project.name + ".png")
+
+                  if (project.example) {
+                      d3.select(this)
+                        .append("img")
+                        .attr("class", "forester-projects-entry-example")
+                        .attr("src", "../../static/img/example.png")
+                  }
 
                   d3.select(this)
                     .append("span")
@@ -50,10 +59,29 @@
                     .append("text")
                     .attr("class", "forester-projects-entry-info")
                     .html(project.author + "<br>" + (new Sugar.Date(project.modified)).format("%d.%m.%y") + " | " + (new Sugar.Number(project.size)).bytes(1))
+
+                  d3.select(this)
+                      .append("i")
+                      .attr("class", "fa-solid fa-trash forester-projects-entry-delete")
+                      .on("mouseover", function () {
+                          d3.select(this)
+                            .style("transform", "scale(1.1) rotate(" + 10*Math.sign(Math.random() - 0.5) + "deg)")
+                      })
+                      .on("mouseout", function () {
+                          d3.select(this)
+                            .style("transform", "none")
+                      })
+                      .on("click", function (event) {
+                          event.stopPropagation()
+                          let shouldDelete = confirm("Are you sure you want to delete the project \"" + project.name + "\"?")
+                          if (shouldDelete) {
+                              console.log("Will delete project!")
+                          }
+                      })
               })
-            .on("click", function (event, project) {
-                window.location = window.origin + "/editor/" + project.uuid
-            })
+              .on("click", function (event, project) {
+                  window.location = window.origin + "/editor/" + project.uuid
+              })
         }
 
         window.onload = function () {
@@ -71,13 +99,16 @@
         <div class="forester-projects-text">
             <h1>Project Dashboard</h1>
             <p>First of all, welcome to Editor!</p>
-            <p>We have created some example projects for you so you can explore Foresters functionality. You open the editor by clicking on each tile. Note, that <b>examples will not be saved</b>, and you would need to duplicate the project to make some changes.</p>
-            <p>You can create a new project by uploading either a tree from R or Matlab or by including another users Editor project. Do this by clicking the plus icon at the bottom of the list.</p>
+            <p>We have created some example projects for you so you can explore Foresters functionality. You open the
+                editor by clicking on each tile. Note, that <b>examples will not be saved</b>, and you would need to
+                duplicate the project to make some changes.</p>
+            <p>You can create a new project by uploading either a tree from R or Matlab or by including another users
+                Editor project. Do this by clicking the plus icon at the bottom of the list.</p>
             <p>Have fun creating beautiful illustrations of decision trees!</p>
         </div>
         <div class="forester-projects-listwrapper">
             <div class="forester-projects-list"></div>
-            <span class="fa-solid fa-plus-circle fa-3x"></span>
+            <span class="forester-projects-button-new fa-solid fa-plus-circle fa-3x"></span>
         </div>
     </div>
 {% endblock %}

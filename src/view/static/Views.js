@@ -43,13 +43,32 @@ export class View {
      * @param node - The node that should be added
      * @param meta - The metadata that is linked to the node for easy access
      */
-    illustrate(selection, node, meta) {
+    async illustrate(selection, node, meta) {
         throw Error("View does not implement function \'illustrate\'")
     }
 
     settings() {
         return SETTINGS[this.name]
     }
+}
+
+export let AsyncView = new View("AsyncView")
+
+AsyncView.illustrate = async function (selection, node, meta) {
+    let samplesFraction    = await node.query("samplesFraction")
+    let vote = await node.query("vote")
+
+    setTimeout(function () {
+        selection.append("svg")
+                 .attr("class", "AsyncView")
+                 .append("circle")
+                 .attr("class", "colorcoded")
+                 .attr("r", samplesFraction*50)
+                 .attr("cx", "50%")
+                 .attr("cy", "50%")
+                 .attr("legend_key", Legend.byLabel(vote).key)
+    }, Math.random() * 1000)
+
 }
 
 export let BasicView = new View("BasicView")

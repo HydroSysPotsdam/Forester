@@ -9,6 +9,7 @@ import {GlobalSettings} from "./Settings.js";
 import * as Views from "./Views.js";
 import {Legend} from "./Legend.js";
 import {Tree} from "./Editor.js";
+import {FNode} from "./Node.js";
 
 export class TreeInstance {
 
@@ -31,7 +32,7 @@ export class TreeInstance {
         this.#ui_elem = d3.select(elem)
         this.id = "Tree-" + uuid.v4()
         this.meta = fgts.meta
-        this.nodes = d3.hierarchy(fgts.tree)
+        this.nodes = new FNode(d3.hierarchy(fgts.tree), fgts.meta)
         this.links = this.nodes.descendants().slice(1)
 
         // prepare the container
@@ -59,7 +60,7 @@ export class TreeInstance {
         // initial values
         node.id = "Node-" + uuid.v4()
         node.collapsed = false
-        node.view = [Views.BasicView, Views.TextView, Views.CCircleIconView][Math.floor(3 * Math.random())]//(node.data.type === "leaf") ? Views.CCircleIconView : Views.TextView
+        node.view = Views.BasicView //[Views.BasicView, Views.TextView, Views.CCircleIconView][Math.floor(3 * Math.random())]//(node.data.type === "leaf") ? Views.CCircleIconView : Views.TextView
         node.elements = {}
 
         // copy values of data into node

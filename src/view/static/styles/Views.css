@@ -69,3 +69,8 @@ div.TextView {
     background-color: var(--highlight-color);
     color: var(--contrast-color)
 }
+
+/* ########## AsyncView ########## */
+.AsyncView > circle.colorcoded {
+    fill: var(--highlight-color)
+}

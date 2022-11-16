@@ -1,5 +1,6 @@
 import {TreeInstance} from "./Tree.js";
 import * as Views from "./Views.js";
+import {FNode} from "./Node.js";
 
 export let Tree = {}
 

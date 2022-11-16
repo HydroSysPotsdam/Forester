@@ -4,8 +4,9 @@
 
 import os
 import json
-from flask import Blueprint, render_template, abort, current_app, url_for, jsonify
-from .database import get_project, get_all_projects
+from . import database
+from loguru import logger
+from flask import Blueprint, render_template, abort, current_app, url_for, jsonify, request, Response
 
 API = Blueprint("api", __name__, url_prefix="/api", template_folder="./api_templates", static_folder="./api_static")
 
@@ -27,12 +28,12 @@ def api():
 @API.route("/projects")
 def projects():
     """ Returns a list containing all the available projects with their respective metadata. """
-    return jsonify(get_all_projects())
+    return jsonify(database.get_all_projects())
 
 
-@API.route("/project/<uuid>")
+@API.route("/project/<uuid>", methods=["GET"])
 def project(uuid):
-    queried_project = get_project(uuid)
+    queried_project = database.get_project(uuid)
     if queried_project is not None:
         path_to_load = os.path.join(queried_project.path, "tree.json")
         if os.path.exists(path_to_load):
@@ -41,7 +42,17 @@ def project(uuid):
     abort(404)
 
 
-
-
+@API.route("/project/<uuid>", methods=["DELETE"])
+def remove_project(uuid):
+    try:
+        project_to_delete = database.get_project(uuid)
+        if project_to_delete is not None:
+            database.remove_project(uuid)
+            return Response(status=200)
+        else:
+            logger.warning("(not found) " + repr(request))
+            abort(404)
+    except Exception:
+        abort(500)
 
 

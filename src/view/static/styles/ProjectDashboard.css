@@ -36,12 +36,12 @@
 
 .forester-projects-list {
     width: 100%;
-    height: 100px;
-    flex-grow: 1;
+    height: 0px;
+    flex: 1;
 
     /* Overflowing items should be hidden and masked by a gradient to white */
     overflow: scroll;
-    mask-image: linear-gradient(to bottom, black calc(100% - 48px), transparent 100%);
+    mask-image: linear-gradient(to bottom, black calc(100% - 1em), transparent 100%);
 
     /* Grid layout with automatic number of columns and fixed minimal distance between rows/columns */
     padding: 1em;
@@ -133,3 +133,104 @@
     color: var(--forester_highlight);
 }
 
+#forester-projects-new {
+    width: 500px;
+    /*!*visibility: hidden;*!*/
+    /*position: absolute;*/
+    /*width: 50%;*/
+    /*max-height: 80%;*/
+    /*height: fit-content;*/
+    /*top: 50%;*/
+    /*left:50%;*/
+    /*transform: translate(-50%, -50%);*/
+
+    /*display: grid;*/
+    /*grid-template-columns: repeat(2, 1fr);*/
+    /*grid-auto-rows: max-content;*/
+    /*grid-gap: 2rem;*/
+
+    /*position: relative;*/
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+
+    /*padding: 2em;*/
+
+    /*background: var(--forester_background);*/
+    /*border: var(--forester_border);*/
+    /*border-radius: 4px;*/
+
+    /*overflow: scroll;*/
+}
+
+.forester-projects-new-droparea {
+    height: 10em;
+    line-height: 10em;
+    border: var(--forester_highlight) 2px dashed;
+    color: var(--forester_highlight);
+    border-radius: 10px;
+    text-align: center;
+    margin: 1em 0;
+}
+
+.flex-column {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+}
+
+.ui-dialog-title {
+    font-size: large;
+}
+
+
+/* New projects dialog should not have a padding */
+#forester-projects-new.ui-dialog-content {
+    padding: 0;
+}
+
+/* New projects dialog should not have a border around the tablist */
+#forester-projects-new .ui-tabs {
+    border: none;
+}
+
+#forester-projects-new .ui-tabs-nav {
+    display: flex;
+    background: white;
+    border: none;
+    padding-top: 1em;
+}
+
+#forester-projects-new .ui-tabs-nav > span {
+    vertical-align: middle;
+    line-height: 2.5em;
+}
+
+#forester-projects-new .ui-tabs-tab {
+    flex: 1;
+    margin: 0;
+    border: none;
+    background: white;
+    /*background: white;*/
+}
+
+#forester-projects-new .ui-tabs-active > a {
+    color: var(--forester_highlight);
+}
+
+#forester-projects-new .ui-tabs-anchor {
+    width: 100%;
+    padding-left: 0;
+    padding-right: 0;
+    text-align: center;
+}
+
+.ui-dialog .ui-dialog-buttonpane {
+
+}
+
+#forester-projects-new label {
+    margin-top: 10px;
+    margin-bottom: 5px;
+    font-weight: bold;
+}

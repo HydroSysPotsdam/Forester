@@ -22,7 +22,7 @@ def create_app():
     app.register_blueprint(API)
 
     # open the database
-    database.purge()
+    # database.purge()
     database.open_database(app)
 
     @app.route("/")

@@ -154,7 +154,7 @@ def open_database(app=None, **kwargs):
     database = TinyDB(os.path.join(PACKAGE_PATH, "instance", "database.json"))
     projects = database.table("projects")
     if len(projects) == 0:
-        logger.warning("No database was found, created a new one")
+        logger.warning("Database contains no entries")
     else:
         logger.info(f"Database containing {len(projects)} entries loaded")
 

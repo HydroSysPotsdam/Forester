@@ -10,87 +10,21 @@
 
 {% block style %}
     <link rel="stylesheet" href="../static/styles/ProjectDashboard.css"></link>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.1/themes/base/jquery-ui.css">
 {% endblock %}
 
 {% block javascript %}
+    <!-- D3 -->
     <script src="https://d3js.org/d3.v7.min.js"></script>
+
+    <!-- JQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.1.min.js" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/ui/1.13.1/jquery-ui.js"></script>
+
+{   <!-- Helper -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/sugar/2.0.6/sugar.min.js"></script>
 
-    <script type="text/javascript">
-
-        createProjectDashboard = function (projects) {
-
-            /*
-            projects = projects.concat(Array(10).fill({
-                "name": "Placeholder",
-                "author": "David",
-                "size": 10032,
-                "modified": "2022-03-01"
-            }))
-             */
-
-            d3.select(".forester-projects-list")
-              .selectAll("div")
-              .data(projects)
-              .enter()
-              .append("div")
-              .attr("class", "forester-projects-entry")
-              .each(function (project) {
-                  d3.select(this)
-                    .append("img")
-                    .attr("class", "forester-projects-entry-img")
-                    {#.attr("src", d => "https://picsum.photos/250/200" + "?" + Math.random())#}
-                    {#.attr("id", Math.random())#}
-                    .attr("src", "../../static/img/" + project.name + ".png")
-
-                  if (project.example) {
-                      d3.select(this)
-                        .append("img")
-                        .attr("class", "forester-projects-entry-example")
-                        .attr("src", "../../static/img/example.png")
-                  }
-
-                  d3.select(this)
-                    .append("span")
-                    .attr("class", "forester-projects-entry-title")
-                    .text(project.name)
-
-                  d3.select(this)
-                    .append("text")
-                    .attr("class", "forester-projects-entry-info")
-                    .html(project.author + "<br>" + (new Sugar.Date(project.modified)).format("%d.%m.%y") + " | " + (new Sugar.Number(project.size)).bytes(1))
-
-                  d3.select(this)
-                      .append("i")
-                      .attr("class", "fa-solid fa-trash forester-projects-entry-delete")
-                      .on("mouseover", function () {
-                          d3.select(this)
-                            .style("transform", "scale(1.1) rotate(" + 10*Math.sign(Math.random() - 0.5) + "deg)")
-                      })
-                      .on("mouseout", function () {
-                          d3.select(this)
-                            .style("transform", "none")
-                      })
-                      .on("click", function (event) {
-                          event.stopPropagation()
-                          let shouldDelete = confirm("Are you sure you want to delete the project \"" + project.name + "\"?")
-                          if (shouldDelete) {
-                              console.log("Will delete project!")
-                          }
-                      })
-              })
-              .on("click", function (event, project) {
-                  window.location = window.origin + "/editor/" + project.uuid
-              })
-        }
-
-        window.onload = function () {
-            fetch(window.origin + "/api/projects")
-                .then(response => response.json())
-                .then(projects => createProjectDashboard(projects))
-        }
-
-    </script>
+    <script src="../static/ProjectDashboard.js"></script>
 {% endblock %}
 
 {% block content %}
@@ -111,4 +45,34 @@
             <span class="forester-projects-button-new fa-solid fa-plus-circle fa-3x"></span>
         </div>
     </div>
+
+    <form id="forester-projects-new" title="New Project">
+        <div class="tabs">
+            <ul>
+                <li><a href="#selection">Selection</a></li>
+                <span class="fa-solid fa-arrow-right"></span>
+                <li><a href="#options">Options</a></li>
+                <span class="fa-solid fa-arrow-right"></span>
+                <li><a href="#upload">Upload</a></li>
+            </ul>
+            <div id="selection">
+                <div class="forester-projects-new-droparea" ondrop="UploadForm.onDropFile(event);" ondragover="UploadForm.onHoverFile(event);">
+                    Drop Your Files Here
+                </div>
+            </div>
+            <div id="options">
+                <div class="flex-column">
+                    <label for="format">File Origin</label>
+                    <select id="format"></select>
+                    <label for="name">Name</label>
+                    <input id="name" type="text" placeholder="Your project name">
+                    <label for="created">Created</label>
+                    <input id="created" type="datetime-local">
+                </div>
+            </div>
+            <div id="upload">
+            </div>
+        </div>
+
+    </form>
 {% endblock %}

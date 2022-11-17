@@ -4,6 +4,8 @@
  * Forester: Interactive human-in-the-loop web-based visualization of machine learning trees
  */
 
+import * as Views from "./Views.js";
+
 export class FNode extends d3.Node {
 
     constructor(d3Node, meta) {
@@ -22,13 +24,18 @@ export class FNode extends d3.Node {
         }
 
         // initialize some handy accessor fields
-        //this.#initialize(meta)
+        this.#initialize(meta)
     }
 
     /**
      * Initializes some handy accessor fields.
      */
     #initialize(meta) {
+        this.id = uuid.v4()
+
+        this.data.classes  = meta.classes
+        this.data.features = meta.features
+
         this.data.samplesMax      = meta.samples
         this.data.samplesFraction = this.data.samples/this.data.samplesMax
 
@@ -36,6 +43,16 @@ export class FNode extends d3.Node {
         this.data.vote         = meta.classes[this.data.voteIndex]
         this.data.voteFraction = this.data.distribution[this.data.voteIndex] / this.data.distribution.reduce((a, b) => a + b)
         this.data.voteSamples  = this.data.distribution[this.data.voteIndex]
+
+        if (this.data.split) {
+            this.data.splitFeature      = this.data.features[this.data.split.feature]
+            this.data.splitFeatureIndex = this.data.split.feature
+            this.data.splitOperator     = this.data.split.operator
+            this.data.splitLocation     = this.data.split.location
+            delete this.data.split
+        }
+
+        this.view = Views.AsyncView
     }
 
     async #queryOne(key) {

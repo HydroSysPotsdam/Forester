@@ -1,4 +1,4 @@
-import {TreeInstance} from "./Tree.js";
+import {FTree} from "./Tree.js";
 import * as Views from "./Views.js";
 import {FNode} from "./Node.js";
 
@@ -6,14 +6,20 @@ export let Tree = {}
 
 export function openFromData (data) {
     return new Promise((resolve, reject) => {
-        console.log("Loading editor")
-        Tree = new TreeInstance(data, "#tree")
-        window.Tree = Tree
-        window.Views = Views
 
-        Legend.generate()
+        let nodes = new FNode(d3.hierarchy(data.tree), data.meta)
+        console.log(nodes)
 
-        Tree.draw()
+        let tree = new FTree(nodes, "#tree")
+        console.log(tree)
+
+        // Tree = new TreeInstance(data, "#tree")
+        // window.Tree = Tree
+        // window.Views = Views
+        //
+        // Legend.generate()
+        //
+        // Tree.draw()
         resolve()
     })
 }

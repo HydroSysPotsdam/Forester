@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+
+    <script src="https://unpkg.com/eventemitter3@latest/umd/eventemitter3.min.js"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
+<body>
+    <div id="parent">
+        <div id="target1"></div>
+        <div id="target2"></div>
+    </div>
+    <script>
+        class Test {
+            constructor(name) {
+                this.name = name
+                document.addEventListener('settings-change', event => this.sayHello(event))
+            }
+
+            sayHello (event) {
+                console.log("Hello from " + this.name, event)
+            }
+
+            greet () {
+                document.getElementById('target1').dispatchEvent(new CustomEvent('settings-change', {bubbles: true, detail:{a: "blabliblu", b:"test"}}))
+            }
+        }
+
+        let T1 = new Test("T1")
+        let T2 = new Test("T2")
+
+        T2.greet()
+    </script>
+</body>
+</html>

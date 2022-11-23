@@ -22,6 +22,8 @@ import {Legend} from "./Legend.js";
 
 export class View {
 
+    name
+
     constructor(name) {
         this.name = name
     }
@@ -52,49 +54,30 @@ export class View {
     }
 }
 
-export let AsyncView = new View("AsyncView")
-
-AsyncView.illustrate = async function (selection, node, meta) {
-    let samplesFraction    = await node.query("samplesFraction")
-    let vote = await node.query("vote")
-
-    setTimeout(function () {
-        selection.append("svg")
-                 .attr("class", "AsyncView")
-                 .append("circle")
-                 .attr("class", "colorcoded")
-                 .attr("r", samplesFraction*50)
-                 .attr("cx", "50%")
-                 .attr("cy", "50%")
-                 .attr("legend_key", Legend.byLabel(vote).key)
-    }, Math.random() * 1000)
-
-}
-
 export let BasicView = new View("BasicView")
 
-BasicView.illustrate = function (selection, node, meta) {
+BasicView.illustrate = async function (node, settings) {
 
-    if (node.type === "leaf") {
-        selection.append("svg")
-                 .attr("class", "BasicView")
-                 .append("circle")
-                 .attr("class", "colorcoded")
-                 .attr("r", 5)
-                 .attr("cx", "50%")
-                 .attr("cy", "50%")
-                 .attr("legend_key", Legend.byLabel(node.vote).key)
+    const type = await node.query("type")
+
+    await new Promise(resolve => setTimeout(resolve, Math.random() * 1000))
+
+    if (type === "leaf") {
+        d3.select(this)
+          .append("circle")
+          .attr("class", "colorcoded")
+          .attr("r", 5)
+          //.attr("legend_key", Legend.byLabel(node.vote).key)
     } else {
-        selection = selection.append("svg")
-                 .attr("class", "BasicView")
-        selection.append("polygon")
-                 .attr("points", "2,2 12,2 2,12")
-                 .attr("class", "colorcoded")
-                 .attr("legend_key", Legend.byLabel(node.split.feature).key)
-        selection.append("polygon")
-                 .attr("points", "12,12 12,2 2,12")
-                 .attr("class", "colorcoded")
-                 .attr("legend_key", Legend.byLabel(node.split.feature).key)
+        d3.select(this)
+          .append("polygon")
+          .attr("points", "2,2 12,2 2,12")
+          .attr("class", "colorcoded")
+          //.attr("legend_key", Legend.byLabel(node.split.feature).key)
+        d3.select(this).append("polygon")
+          .attr("points", "12,12 12,2 2,12")
+          .attr("class", "colorcoded")
+          //.attr("legend_key", Legend.byLabel(node.split.feature).key)
     }
 }
 
@@ -106,25 +89,19 @@ BasicView.illustrate = function (selection, node, meta) {
  */
 export let CCircleIconView = new View("CCircleIconView")
 
-CCircleIconView.illustrate = function (selection, node, meta) {
-    let d = 50
-    let colors = Legend.classColors
-    let g = selection.append("svg")
-                     .attr("class", "CCircleIconView")
-                     .attr("width", d)
-                     .attr("height", d)
-                     .append("g")
-                     .attr("transform", "translate(" + d / 2 + "," + d / 2 + ")")
+CCircleIconView.illustrate = async function (node, settings) {
 
-    g.selectAll("path")
-     .data(d3.pie()(node.data["distribution"]))
-     .join("path")
-     .attr('d', d3.arc()
-                  .innerRadius(0)
-                  .outerRadius(20))
-        // .attr('fill', (d, i) => colors[i])
-     .attr("class", "colorcoded")
-     .attr("legend_key", (d, i) => Legend.byLabel(Tree.classNames()[i]).key)
+    const distribution = await node.query("distribution")
+
+    await new Promise(resolve => setTimeout(resolve, Math.random() * 1000))
+
+    d3.select(this)
+      .selectAll("path")
+      .data(d3.pie()(distribution))
+      .join("path")
+      .attr("d", d3.arc().innerRadius(0).outerRadius(20))
+      .attr("class", "colorcoded")
+      // .attr("legend_key", "")
 }
 
 export let TextView = new View("TextView");

@@ -19,6 +19,7 @@ import os
 import json
 import numpy as np
 import rpy2.robjects as ro
+from loguru import logger
 
 
 def _build_tree(nodes):
@@ -40,11 +41,13 @@ def _build_tree(nodes):
                     stack.append(node)
     return stack[0]
 
+
 def _humanize(S):
     if type(S) is not list:
         return S.strip().capitalize()
     else:
         return [s.strip().capitalize() for s in S]
+
 
 def parse(path, **kwargs):
     """
@@ -110,61 +113,77 @@ def parse(path, **kwargs):
     if not path.startswith("/"):
         path = os.path.join(os.path.dirname(__file__), path)
 
-    print("* Loading CART structure from file " + path)
+    logger.info("Loading CART structure from file " + path)
+
+    # check if there is a file type in the arguments
+    # if not extract from path
+    if "type" not in kwargs:
+        kwargs['type'] = str(path.split(".").pop())
+
+    # use Forester as default vendor
+    if "vendor" not in kwargs:
+        kwargs['vendor'] = "Forester"
+
+    # use Forester export as default origin
+    if "origin" not in kwargs:
+        kwargs['origin'] = "export"
 
     # get file ending to determine format
-    format_key = str(path.split(".").pop())
+    format_key = kwargs['type'] + "." + kwargs['vendor'] + "." + kwargs['origin']
 
     if format_key in FORMATS.keys():
         return FORMATS[format_key](path, **kwargs)
     else:
-        raise NotImplementedError("File format " + format_key + " not implemented.")
+        raise NotImplementedError(f"Format {format_key} not supported.")
 
 
-def _parse_json(path, **kwargs):
-    fit = json.load(open(path))
+# def _parse_json(path, **kwargs):
+#     fit = json.load(open(path))
+#
+#     if 'origin' not in kwargs.keys():
+#         raise NotImplementedError("Unsure what file format to use, please specify manually by setting field \'origin\'")
+#
+#     if kwargs['origin'] in FORMATS:
+#         return FORMATS[kwargs['origin']](fit, **kwargs)
 
-    if 'origin' not in kwargs.keys():
-        raise NotImplementedError("Unsure what file format to use, please specify manually by setting field \'origin\'")
 
-    if kwargs['origin'] in FORMATS:
-        return FORMATS[kwargs['origin']](fit, **kwargs)
+# def _parse_r(path, **kwargs):
+#     # TODO check if R is installed and package rpy2 works
+#
+#     # load r object
+#     ro.r['load'](path)
+#
+#     # get the name of the r object
+#     # if no name is passed as an argument,
+#     # use the first object in the environment
+#     name = kwargs['name'] if 'name' in kwargs.keys() else list(ro.r['ls']())[0]
+#     kwargs['name'] = name
+#
+#     print('* CART originates from R with name \'' + name + '\'')
+#
+#     # use r object's class attribute to determine origin of file
+#     format_key = 'RData.' + list(ro.r['attr'](ro.r[name], 'class'))[0]
+#
+#     if format_key in FORMATS.keys():
+#         return FORMATS[format_key](**kwargs)
+#     else:
+#         raise NotImplementedError("File format " + format_key + " not implemented.")
 
 
-def _parse_r(path, **kwargs):
-    # TODO check if R is installed and package rpy2 works
+def _parse_rpart_class(path, **kwargs):
 
     # load r object
     ro.r['load'](path)
-
-    # get the name of the r object
-    # if no name is passed as an argument,
-    # use the first object in the environment
     name = kwargs['name'] if 'name' in kwargs.keys() else list(ro.r['ls']())[0]
-    kwargs['name'] = name
-
-    print('* CART originates from R with name \'' + name + '\'')
-
-    # use r object's class attribute to determine origin of file
-    format_key = 'RData.' + list(ro.r['attr'](ro.r[name], 'class'))[0]
-
-    if format_key in FORMATS.keys():
-        return FORMATS[format_key](**kwargs)
-    else:
-        raise NotImplementedError("File format " + format_key + " not implemented.")
-
-
-def _parse_rpart_class(**kwargs):
 
     # ----------- HELPER FUNCTIONS ----------
     def rdf_to_dict(df: ro.DataFrame):
         return dict(zip(list(df.names), map(list, list(df))))
 
     # ----------- PARSING RPART ----------
-    name = kwargs['name']
     fit = ro.r[name]
 
-    print('* CART originates from \'rpart\' and is a classification tree')
+    logger.info('CART originates from \'rpart\' and is a classification tree')
 
     # number of nodes
     n_nodes = fit[0].nrow
@@ -236,7 +255,7 @@ def _parse_rpart_class(**kwargs):
     return {'meta': meta, 'tree': nodes[0]}
 
 
-def _parse_fitctree(fit: dict, **kwargs: dict) -> dict:
+def _parse_fitctree(path, **kwargs) -> dict:
     """
     Parse a *.json* object that was generated using Matlab's ``jsonencode`` function
     from the result of a call to ``fitctree``.
@@ -246,7 +265,9 @@ def _parse_fitctree(fit: dict, **kwargs: dict) -> dict:
     :return: A common representation of the tree
     """
 
-    print('* CART originates from MATLAB\'s function fitctree')
+    logger.info('CART originates from MATLAB\'s function fitctree')
+
+    fit = json.load(open(path))
 
     # general info describing the tree
     meta = {
@@ -286,10 +307,8 @@ def _parse_fitctree(fit: dict, **kwargs: dict) -> dict:
 
 
 FORMATS = {
-    'json': _parse_json,
-    'RData': _parse_r,
-    'RData.rpart': _parse_rpart_class,
-    'MAT.fitctree': _parse_fitctree
+    'rdata.R.rpart': _parse_rpart_class,
+    'json.Matlab.fitctree': _parse_fitctree
 }
 
 # # R diabetes dataset

@@ -10,16 +10,11 @@ export function openFromData (data) {
         let nodes = new FNode(d3.hierarchy(data.tree), data.meta)
         console.log(nodes)
 
-        let tree = new FTree(nodes, "#tree")
-        console.log(tree)
+        Tree = new FTree(nodes, "#tree")
 
-        // Tree = new TreeInstance(data, "#tree")
-        // window.Tree = Tree
-        // window.Views = Views
-        //
-        // Legend.generate()
-        //
-        // Tree.draw()
+        Legend.generate()
+
+        Tree.draw()
         resolve()
     })
 }

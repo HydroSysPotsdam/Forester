@@ -1,0 +1,25 @@
+[
+  {
+    "vendor": "Matlab",
+    "origin": "fitctree",
+    "type": "json",
+    "note": "",
+    "deprecated": false
+  },
+
+  {
+    "vendor": "R",
+    "origin": "rpart",
+    "type": "rdata",
+    "note": "",
+    "deprecated": false
+  },
+
+  {
+    "vendor": "Forester",
+    "origin": "export",
+    "type": "json",
+    "note": "",
+    "deprecated": false
+  }
+]

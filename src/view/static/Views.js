@@ -4,19 +4,6 @@
  * Forester: Interactive human-in-the-loop web-based visualization of machine learning trees
  */
 
-/**
- * Views are code snippets that are used to illustrate nodes in the decision tree.
- * They contain functions to determine whether an illustration can be used with one node,
- * and to generate the illustration.
- *
- * .. note:: As of today, the illustration is generated once for each node and there is no d3 typical vectorization.
- */
-// load settings file
-let SETTINGS = {}
-fetch("../static/settings.json")
-    .then(r => r.json())
-    .then(r => SETTINGS = r)
-
 import {Tree} from "./Editor.js"
 import {Legend} from "./Legend.js";
 
@@ -24,8 +11,15 @@ export class View {
 
     name
 
-    constructor(name) {
-        this.name = name
+    defaultSettings
+
+    constructor(name, settings) {
+        this.name     = name
+        this.defaultSettings = settings
+
+        if (!this.defaultSettings) {
+            this.defaultSettings = {}
+        }
     }
 
     /**
@@ -48,37 +42,39 @@ export class View {
     async illustrate(selection, node, meta) {
         throw Error("View does not implement function \'illustrate\'")
     }
-
-    settings() {
-        return SETTINGS[this.name]
-    }
 }
 
 export let BasicView = new View("BasicView")
 
 BasicView.illustrate = async function (node, settings) {
 
-    const type = await node.query("type")
+    const data = await node.query("type", "splitFeature", "vote")
 
     await new Promise(resolve => setTimeout(resolve, Math.random() * 1000))
 
-    if (type === "leaf") {
+    if (data.type === "leaf") {
         d3.select(this)
           .append("circle")
           .attr("class", "colorcoded")
           .attr("r", 5)
-          //.attr("legend_key", Legend.byLabel(node.vote).key)
+          .attr("legend_key", Legend.byLabel(data.vote).key)
     } else {
         d3.select(this)
           .append("polygon")
           .attr("points", "2,2 12,2 2,12")
           .attr("class", "colorcoded")
-          //.attr("legend_key", Legend.byLabel(node.split.feature).key)
+          .attr("legend_key", Legend.byLabel(data.splitFeature).key)
         d3.select(this).append("polygon")
           .attr("points", "12,12 12,2 2,12")
           .attr("class", "colorcoded")
-          //.attr("legend_key", Legend.byLabel(node.split.feature).key)
+          .attr("legend_key", Legend.byLabel(data.splitFeature).key)
     }
+
+    d3.select(this)
+      .selectAll(".colorcoded")
+      .style("fill", "var(--highlight-color)")
+      .style("stroke", "var(--contrast-color)")
+      .style("stroke-linejoin", "round")
 }
 
 /**
@@ -87,75 +83,170 @@ BasicView.illustrate = async function (node, settings) {
  * number of samples determines the size of the circle.
  * @type {View}
  */
-export let CCircleIconView = new View("CCircleIconView")
+export let CCircleIconView = new View("CCircleIconView", {
+    maxRadius: 20,
+    minRadius: 5,
+    scaleBySamples: false,
+    scaleMethod: "linear"
+})
+
+CCircleIconView.center = false
 
 CCircleIconView.illustrate = async function (node, settings) {
 
-    const distribution = await node.query("distribution")
+    const data = await node.query("distribution", "samplesFraction", "classes")
 
     await new Promise(resolve => setTimeout(resolve, Math.random() * 1000))
 
-    d3.select(this)
-      .selectAll("path")
-      .data(d3.pie()(distribution))
-      .join("path")
-      .attr("d", d3.arc().innerRadius(0).outerRadius(20))
-      .attr("class", "colorcoded")
-      // .attr("legend_key", "")
-}
-
-export let TextView = new View("TextView");
-
-TextView.illustrate = function (selection, node, meta) {
-    const entry_vote = Legend.byLabel(node.vote)
-    const entry_feature = node.split ? Legend.byLabel(node.split.feature) : undefined
-
-    const table =
-        selection.append("div")
-                 .attr("class", "TextView")
-                 .append("table")
-
-    // SPLIT
-    if (node.type != "leaf") {
-        table.append("tr")
-             .call(function (row) {
-                 row.append("th")
-                    .text("Sp")
-                 row.append("td")
-                    .call(function (row) {
-                        row.append("span")
-                           .attr("class", "colorcoded")
-                           .attr("legend_key", entry_feature.key)
-                           .text(node.split.feature)
-                        row.append("text")
-                           .text(" " + node.split.operator + " " + numeral(node.split.location).format("0.00a"))
-                    })
-             })
+    let radius
+    if (settings.scaleBySamples) {
+        radius = data.samplesFraction * (settings.maxRadius - settings.minRadius) + settings.minRadius
+    } else {
+        radius = settings.maxRadius
     }
 
-    // VOTE
-    table.append("tr")
-         .call(function (row) {
-             row.append("th")
-                .text("V")
-             const td = row.append("td")
-             td.append("span")
-               .attr("class", "colorcoded")
-               .attr("legend_key", entry_vote.key)
-               .text(node.vote)
-             td.append("text")
-               .text(" (" + numeral(node.vote_fraction).format("0%") + ")")
-         })
-
-    // SAMPLES
-    table.append("tr")
-         .call(function (row) {
-             row.append("th")
-                .text("S")
-             row.append("td")
-                .text(numeral(node.samples).format("0.00a"))
-         })
+    const pies = d3.pie()(data.distribution)
+    d3.select(this)
+      .selectAll("path")
+      .data(pies)
+      .join("path")
+      .attr("d", d3.arc().innerRadius(0).outerRadius(radius))
+      .attr("class", "colorcoded")
+      .attr("legend_key", (d, i) => Legend.byLabel(data.classes[i]).key)
+      .style("fill", "var(--highlight-color)")
+      .style("stroke", "black")
 }
+
+export let TextView = new View("TextView")
+
+TextView.illustrate = async function (node, settings) {
+
+    const data = await node.query("vote", "voteFraction", "samples", "splitFeature", "splitOperator", "splitLocation")
+
+    // TODO: this should be done with CSS
+    d3.select(this)
+      .style("font-size", "0.5em")
+      .style("transform", "scale(1.2)")
+
+    if (data.splitFeature) {
+        d3.select(this)
+          .append("text")
+          .attr("class", "label")
+          .text("Sp:")
+        d3.select(this)
+          .append("text")
+          .attr("class", "value")
+          .html("<tspan class='colorcoded'>" + data.splitFeature + "</tspan> " + data.splitOperator + " " + numeral(data.splitLocation).format("0.00a"))
+    }
+
+    d3.select(this)
+      .append("text")
+      .attr("class", "label")
+      .text("V:")
+    d3.select(this)
+      .append("text")
+      .attr("class", "value")
+      .html("<tspan class='colorcoded'>" + data.vote + "</tspan>" + " (" + numeral(data.voteFraction).format("0%") + ")")
+
+    d3.select(this)
+      .append("text")
+      .attr("class", "label")
+      .text("S:")
+    d3.select(this)
+      .append("text")
+      .attr("class", "value")
+      .text(numeral(data.samples).format("0a"))
+
+    d3.select(this)
+      .selectAll(".label")
+      .attr("text-anchor", "end")
+      .attr("y", (d, i) => i + "em")
+      .style("font-weight", "bold")
+
+    d3.select(this)
+      .selectAll(".value")
+      .attr("x", "0.2em")
+      .attr("y", (d, i) => i + "em")
+
+    const view = this
+    d3.select(this)
+      .selectAll(".colorcoded")
+      .each(function (d, i, g) {
+          const bbox = this.getBBox()
+          d3.select(view)
+            .insert("rect", ":first-child")
+            .attr("class", "colorcoded")
+            .attr("legend_key", Legend.byLabel(d3.select(this).text()).key)
+            .attr("x", bbox.x + "px")
+            .attr("y", bbox.y + "px")
+            .attr("width",  bbox.width + "px")
+            .attr("height", bbox.height + "px")
+            .style("fill", "var(--highlight-color)")
+      })
+
+    // draw a box behind the view
+    const bbox = d3.select(this).node().getBBox()
+    d3.select(this)
+        .insert("rect", ":first-child")
+        .attr("x", bbox.x + "px")
+        .attr("y", bbox.y + "px")
+        .attr("width", bbox.width + "px")
+        .attr("height", bbox.height + "px")
+        .style("fill", "white")
+}
+
+// export let TextView = new View("TextView");
+//
+// TextView.illustrate = function (selection, node, meta) {
+//     const entry_vote = Legend.byLabel(node.vote)
+//     const entry_feature = node.split ? Legend.byLabel(node.split.feature) : undefined
+//
+//     const table =
+//         selection.append("div")
+//                  .attr("class", "TextView")
+//                  .append("table")
+//
+//     // SPLIT
+//     if (node.type != "leaf") {
+//         table.append("tr")
+//              .call(function (row) {
+//                  row.append("th")
+//                     .text("Sp")
+//                  row.append("td")
+//                     .call(function (row) {
+//                         row.append("span")
+//                            .attr("class", "colorcoded")
+//                            .attr("legend_key", entry_feature.key)
+//                            .text(node.split.feature)
+//                         row.append("text")
+//                            .text(" " + node.split.operator + " " + numeral(node.split.location).format("0.00a"))
+//                     })
+//              })
+//     }
+//
+//     // VOTE
+//     table.append("tr")
+//          .call(function (row) {
+//              row.append("th")
+//                 .text("V")
+//              const td = row.append("td")
+//              td.append("span")
+//                .attr("class", "colorcoded")
+//                .attr("legend_key", entry_vote.key)
+//                .text(node.vote)
+//              td.append("text")
+//                .text(" (" + numeral(node.vote_fraction).format("0%") + ")")
+//          })
+//
+//     // SAMPLES
+//     table.append("tr")
+//          .call(function (row) {
+//              row.append("th")
+//                 .text("S")
+//              row.append("td")
+//                 .text(numeral(node.samples).format("0.00a"))
+//          })
+// }
 
 
 

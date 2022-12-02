@@ -21,18 +21,17 @@
     <script src="https://code.jquery.com/jquery-3.6.1.min.js" crossorigin="anonymous"></script>
     <script src="https://code.jquery.com/ui/1.13.1/jquery-ui.js"></script>
 
-{   <!-- Helper -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/sugar/2.0.6/sugar.min.js"></script>
+    <!-- Helper -->
+    <script src="../static/lib/sugar-custom.min.js"></script>
 
     <script src="../static/ProjectDashboard.js"></script>
 {% endblock %}
 
 {% block content %}
 
-    <div class="forester-projects-dashboard">
+    <div class="forester-projects-dashboard dialog-closed">
+        <h1>Project Dashboard</h1>
         <div class="forester-projects-text">
-            <h1>Project Dashboard</h1>
-            <p>First of all, welcome to Editor!</p>
             <p>We have created some example projects for you so you can explore Foresters functionality. You open the
                 editor by clicking on each tile. Note, that <b>examples will not be saved</b>, and you would need to
                 duplicate the project to make some changes.</p>
@@ -41,8 +40,9 @@
             <p>Have fun creating beautiful illustrations of decision trees!</p>
         </div>
         <div class="forester-projects-listwrapper">
-            <div class="forester-projects-list"></div>
-            <span class="forester-projects-button-new fa-solid fa-plus-circle fa-3x"></span>
+            <div class="forester-projects-list">
+                <div class="forester-projects-button-new fa-solid fa-plus-circle fa-3x"></div>
+            </div>
         </div>
     </div>
 
@@ -56,21 +56,23 @@
                 <li><a href="#upload">Upload</a></li>
             </ul>
             <div id="selection">
-                <div class="forester-projects-new-droparea" ondrop="UploadForm.onDropFile(event);" ondragover="UploadForm.onHoverFile(event);">
-                    Drop Your Files Here
-                </div>
+                <input class="forester-projects-new-droparea" type="file" id="fileselect" accept=".json, .RData">
             </div>
             <div id="options">
                 <div class="flex-column">
-                    <label for="format">File Origin</label>
+                    <text id="fileinfo"></text>
+                    <label for="name">Project Name</label>
+                    <input id="name" type="text">
+                    <label for="format">How was your file created?</label>
                     <select id="format"></select>
-                    <label for="name">Name</label>
-                    <input id="name" type="text" placeholder="Your project name">
-                    <label for="created">Created</label>
-                    <input id="created" type="datetime-local">
+                    <button id="submit" type="button">Create Project</button>
                 </div>
             </div>
             <div id="upload">
+                <div class="flex-column">
+                    <p class="info">Your file is processed by the server...</p>
+                    <span class="info-icon fa-solid fa-cog fa-spin fa-3x"></span>
+                </div>
             </div>
         </div>
 

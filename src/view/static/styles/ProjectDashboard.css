@@ -9,44 +9,65 @@
 
     /* Layout for both the text column and the project dashboard */
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     align-items: stretch;
+}
+
+.forester-projects-dashboard.dialog-open {
+    transition: ease-in-out 300ms;
+    filter: blur(10px) grayscale(1) opacity(0.5);
+    pointer-events: none;
+}
+
+.forester-projects-dashboard.dialog-closed {
+    transition: ease-in-out 300ms;
+    filter: blur(0px) grayscale(0) opacity(1);
+    pointer-events: all;
+}
+
+.forester-projects-dashboard h1 {
+    text-align: center;
 }
 
 .forester-projects-text {
     /* Text column should take up 25% of page */
-    flex: 1;
-    margin: 2em;
+    margin: 0 10%;
 }
 
 .forester-projects-text p {
     /* Text in text column should be justified */
-    text-align: justify;
+    text-align: justify-all;
+    flex-shrink: 1;
+}
+
+.forester-projects-text p:last-child {
+    text-align: center;
 }
 
 .forester-projects-listwrapper {
     /* Project dashboard should take up 75% of the space */
-    flex: 3;
-    margin: 2em;
+    flex: 1 0 300px;
+
+    margin: 1em 0em;
+
+    overflow-x: clip;
+    overflow-y: scroll;
 
     display: flex;
     flex-direction: column;
     align-items: center;
+
+    /* Overflowing items should be hidden and masked by a gradient to white */
+    mask-image: linear-gradient(to bottom, black calc(100% - 1em), transparent 100%);
 }
 
 .forester-projects-list {
     width: 100%;
-    height: 0px;
-    flex: 1;
-
-    /* Overflowing items should be hidden and masked by a gradient to white */
-    overflow: scroll;
-    mask-image: linear-gradient(to bottom, black calc(100% - 1em), transparent 100%);
 
     /* Grid layout with automatic number of columns and fixed minimal distance between rows/columns */
     padding: 1em;
     display: grid;
-    grid-template-columns: repeat(auto-fill, 200px);
+    grid-template-columns: repeat(auto-fit, 200px);
     grid-gap: 2rem;
     justify-content: space-evenly;
 }
@@ -75,6 +96,10 @@
 .forester-projects-entry:hover {
     /* Upon hovering, tile should be scaled by 10% */
     transform: scale(1.1)
+}
+
+.forester-projects-entry:active {
+    transform: scale(1)
 }
 
 .forester-projects-entry-title {
@@ -125,12 +150,30 @@
 
 .forester-projects-button-new {
     /* New Project button should have some distance to the project list */
-    margin-top: 1em;
-    transition: ease 50ms;
+    width: 200px;
+    height: 300px;
+
+    border: 2px dotted var(--forester_highlight);
+    border-radius: 4px;
+    background: none;
+
+    position: relative;
+
+    text-align: center;
+    line-height: 300px;
+
+    transform: scale(1);
+    transition: transform ease 200ms;
+
+    color: var(--forester_highlight)
 }
 
-.forester-projects-dashboard .fa-solid:hover {
-    color: var(--forester_highlight);
+.forester-projects-button-new:hover {
+    transform: scale(1.1);
+}
+
+.forester-projects-button-new:active {
+    transform: scale(1);
 }
 
 #forester-projects-new {
@@ -164,13 +207,11 @@
 }
 
 .forester-projects-new-droparea {
-    height: 10em;
-    line-height: 10em;
+    padding: 4em 4em;
+
     border: var(--forester_highlight) 2px dashed;
     color: var(--forester_highlight);
     border-radius: 10px;
-    text-align: center;
-    margin: 1em 0;
 }
 
 .flex-column {
@@ -225,12 +266,38 @@
     text-align: center;
 }
 
-.ui-dialog .ui-dialog-buttonpane {
-
-}
-
 #forester-projects-new label {
     margin-top: 10px;
     margin-bottom: 5px;
     font-weight: bold;
+}
+
+#fileinfo {
+    margin-bottom: 1em;
+}
+
+.format-note {
+    margin-top: 10px;
+}
+
+#submit {
+    margin-top: 1.5em;
+    align-self: center;
+}
+
+#submit:active {
+    background: var(--forester_highlight)
+}
+
+#upload {
+    text-align: center;
+    align-items: center !important;
+}
+
+#upload .fa-check-circle {
+    color: var(--forester_highlight)
+}
+
+#upload .fa-circle-xmark {
+    color: orangered;
 }

@@ -64,9 +64,8 @@ export class FNode extends d3.Node {
         }
     }
 
-    async #queryMany(...keys) {
-        console.log("This would need to be implemented")
-        return undefined
+    async #queryMany(keys) {
+        return Object.fromEntries(keys.map(key => [key, this.data[key]]))
     }
 
     async query(...keys) {
@@ -78,4 +77,45 @@ export class FNode extends d3.Node {
             return this.#queryMany(keys)
         }
     }
+
+    /**
+     * Selects all nodes similar to this one.
+     *
+     * The similarity is determined by the passed function that is applied over all
+     * nodes of the (sub)tree, determining whether a node should be included.
+     *
+     * @param func - Function indicating similarity. Should return a boolean value.
+     * @param onlyDescendants - Whether only nodes that are descendants should be
+     *      checked for similarity. By default, the whole tree is checked.
+     */
+    selectSimilar(func, args, onlyDescendants=true) {
+        let nodeCollection = onlyDescendants ? this.ancestors().slice(-1)[0].descendants() : this.descendants()
+        return nodeCollection.filter((node) => func(this, node, args))
+    }
+
+    static basedOnType(comparator, node) {
+        return comparator.data.type == node.data.type
+    }
+
+    static basedOnDistance(comparator, node, threshold = 1) {
+        return comparator.path(node).length <= (threshold + 1)
+    }
+
+    static basedOnVote (comparator, node) {
+        return comparator.data.vote == node.data.vote
+    }
+
+    static basedOnDistribution (comparator, node, threshold = 0.95) {
+        let bc = comparator.data.distribution
+        bc = bc.map((v, i) => v * node.data.distribution[i] / comparator.data.samples / node.data.samples)
+        bc = bc.map(v => Math.sqrt(v))
+        bc = bc.reduce((a, b) => a + b)
+        return bc >= threshold
+    }
+
+    static basedOnFeature (comparator, node) {
+        return comparator.data.splitFeature && node.data.splitFeature && comparator.data.splitFeature == node.data.splitFeature
+    }
 }
+
+window.FNode = FNode

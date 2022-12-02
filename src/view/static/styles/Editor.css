@@ -4,7 +4,7 @@
  * Forester: Interactive human-in-the-loop web-based visualization of machine learning trees
  */
 
-@import "Views.css";
+/*@import "Views.css";*/
 @import "Legend.css";
 @import "Panzoom.css";
 @import "Settings.css";

@@ -27,6 +27,7 @@ class NodeRenderer {
     //TODO: implement safety check for selection
     //TODO: implement settings
     //TODO: use event based functions that may be set (onViewChange, onPositionUpdate, onSettingsChange, ...)
+    //TODO: only update the color of the view and not all colorcoded elements in the DOM
 
     // The svg group that is used to render all illustrations for the bound node
     #elem
@@ -54,14 +55,23 @@ class NodeRenderer {
     // when the view changes.
     settings
 
+    #ee
+
     /**
      * Creates a new NodeRenderer for the given node with an initial view.
      * @param node - The node that is mapped to this renderer.
      * @param view - The initial view used for illustration.
      */
     constructor (node, view) {
-        this.node = node
-        this.view  = view
+        this.node     = node
+
+        this.#ee      = new EventEmitter3()
+
+        this.view     = view
+        this.settings = {}
+        this.settings[view.name] = view.defaultSettings
+
+        this.on("view-ready", () => this.#onViewReady())
     }
 
     /**
@@ -81,6 +91,9 @@ class NodeRenderer {
         this.#elem
             .attr("class", "tree-node")
             .attr("forID", this.node.id)
+
+        // fire a ready event
+        this.#ee.emit("ready", {context: this})
     }
 
     /**
@@ -130,35 +143,11 @@ class NodeRenderer {
             .style("height", "25px")
 
         // recenter the placeholder
-        this.#updateElement()
+        this.#updateTransform()
 
         // illustrate the node with the current view
-        this.view.illustrate.call(this.#elem.select(".node-view").node(), this.node, this.settings)
-            .then((ready) => this.#onViewReady(ready))
-    }
-
-    /**
-     * Called when the asynchronous illustration function of the view completed.
-     *
-     * This function implements the fourth step in the algorithmic description of
-     * the draw function. It removes the temporary placeholder, and shows the
-     * illustration.
-     *
-     * @param ready - The return value of the illustration function.
-     */
-    #onViewReady (ready) {
-        // remove the placeholder
-        this.#elem
-            .select(".view-placeholder")
-            .remove()
-
-        // center the view again
-        this.#updateElement()
-
-        // show the view
-        this.#elem
-            .select(".node-view")
-            .style("visibility", "visible")
+        this.view.illustrate.call(this.#elem.select(".node-view").node(), this.node, this.settings[this.view.name])
+            .then(() => this.#ee.emit("view-ready"))
     }
 
     /**
@@ -193,7 +182,10 @@ class NodeRenderer {
         this.y  = y
 
         // update transformation of svg group and center
-        this.#updateElement()
+        this.#updateTransform()
+
+        // fire a position update event
+        this.#ee.emit("position-update", {context: this, keepOriginal: keepOriginal, animate: animate})
     }
 
     /**
@@ -208,23 +200,66 @@ class NodeRenderer {
      * group is already translated so that the illustration is centered with regard to
      * the displayed position.
      */
-    #updateElement() {
+    #updateTransform() {
 
         // get the bounding box to center the view around (x, y)
         // if the element is not ready, e.g. no bbox exists do not
         // center the view
         const bbox = this.#elem.node().getBBox()
-        if (bbox.x && bbox.y && bbox.width && bbox.height) {
-            const x = this.x - (bbox.x + 0.5*bbox.width)
-            const y = this.y - (bbox.y + 0.5*bbox.height)
+        let x, y
+        if (bbox) {
+            x = this.x - (bbox.x + 0.5*bbox.width)
+            y = this.y - (bbox.y + 0.5*bbox.height)
         } else {
-            const x = this.x
-            const y = this.y
+            x = this.x
+            y = this.y
         }
 
         // update the transform matrix
         this.#elem
             .attr("transform", "translate(" + x + ", " + y + ")")
+    }
+
+    /**
+     * Register a function to be executed when a specific event is fired by
+     * the renderer.
+     *
+     * Available events are:
+     * - "ready"           (fired when the renderer is bound to a svg group)
+     * - "view-ready"      (fired when the view finished its asynchronous illustration)
+     * - "position-update" (fired when the views position changed)
+     *
+     * @param eventName - The name of the event
+     * @param func - The function to be executed
+     */
+    on(eventName, func) {
+        this.#ee.addListener(eventName, func)
+    }
+
+    /**
+     * Called when the asynchronous illustration function of the view completed.
+     *
+     * This function implements the fourth step in the algorithmic description of
+     * the draw function. It removes the temporary placeholder, and shows the
+     * illustration.
+     */
+    #onViewReady () {
+        // remove the placeholder
+        this.#elem
+            .select(".view-placeholder")
+            .style("background", "red")
+            .remove()
+
+        // center the view again
+        this.#updateTransform()
+
+        // update legend
+        Legend.update()
+
+        // show the view
+        this.#elem
+            .select(".node-view")
+            .style("visibility", "visible")
     }
 }
 
@@ -271,7 +306,7 @@ export class FTree {
         // add the panzoom functionality
         //this.panzoom = new Panzoom(this.#ui_elem.node())
 
-        this.draw()
+        window.Tree = this
     }
 
     #initializeContainer (elem) {
@@ -289,7 +324,9 @@ export class FTree {
 
         // go through all the nodes and assign a node renderer
         for (const node of this.nodes) {
-            let renderer = new NodeRenderer(node, Views.CCircleIconView)
+            // const view = [Views.BasicView, Views.CCircleIconView, Views.TextView][Math.floor(Math.random() * 3)]
+            const view = Views.TextView
+            let renderer = new NodeRenderer(node, view)
             this.renderers.set(node.id, renderer)
         }
 
@@ -392,6 +429,75 @@ export class FTree {
             this.linkRenderer.draw(source, target)
         }
     }
+
+    classNames() {
+        return this.nodes.data.classes
+    }
+
+    featureNames () {
+        return this.nodes.data.features
+    }
+
+    saveSVG() {
+
+        // const createStyleElementFromCSS = () => {
+        //     // JSFiddle's custom CSS is defined in the second stylesheet file
+        //     const sheet = document.styleSheets[1];
+        //
+        //     const styleRules = [];
+        //     for (let i = 0; i < sheet.cssRules.length; i++)
+        //         styleRules.push(sheet.cssRules.item(i).cssText);
+        //
+        //     const style = document.createElement('style');
+        //     style.type = 'text/css';
+        //     style.appendChild(document.createTextNode(styleRules.join(' ')))
+        //
+        //     return style;
+        // };
+
+        // const style = createStyleElementFromCSS();
+
+        // fetch SVG-rendered image as a blob object
+        const svg = this.#ui_elem.select("svg").node();
+        // svg.insertBefore(style, svg.firstChild); // CSS must be explicitly embedded
+        const data = (new XMLSerializer()).serializeToString(svg);
+        console.log(data)
+        const svgBlob = new Blob([data], {
+            type: 'image/svg+xml;charset=utf-8'
+        });
+        // style.remove(); // remove temporarily injected CSS
+
+        // convert the blob object to a dedicated URL
+        const url = URL.createObjectURL(svgBlob);
+
+        // load the SVG blob to a flesh image object
+        const img = new Image();
+        img.addEventListener('load', () => {
+            // draw the image on an ad-hoc canvas
+            const bbox = svg.getBoundingClientRect();
+            console.log(bbox)
+
+            const canvas = document.createElement('canvas');
+            canvas.width  = bbox.width;
+            canvas.height = bbox.height;
+
+            const context = canvas.getContext('2d');
+            context.drawImage(img, 0, 0, 2*bbox.width, 2*bbox.height);
+
+            URL.revokeObjectURL(url);
+
+            // trigger a synthetic download operation with a temporary link
+            const a = document.createElement('a');
+            a.download = 'image.png';
+            document.body.appendChild(a);
+            a.href = canvas.toDataURL();
+            a.click();
+            a.remove();
+        });
+        img.src = url;
+
+    }
+
 
 
     /**

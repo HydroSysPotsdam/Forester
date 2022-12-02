@@ -6,7 +6,7 @@
 
 createProjectDashboard = function (projects) {
     d3.select(".forester-projects-list")
-      .selectAll("div")
+      .selectAll("div.forester-projects-entry")
       .data(projects)
       .enter()
       .append("div")
@@ -59,72 +59,117 @@ createProjectDashboard = function (projects) {
       })
 }
 
-UploadForm = {
+preloadFile = async function (event) {
+    console.log("Loading file")
 
-    onHoverFile: function (event) {
-        event.preventDefault()
-        console.log("Hovering file")
-    },
+    const file = d3.select(".forester-projects-new-droparea").node().files[0]
+    console.log(file)
+    const type = file.name.split(".").slice(-1)[0]
+    console.log(type)
 
-    onDropFile: function (event) {
-        event.preventDefault()
-        console.log("Dropping file")
+    let formats = await fetch(window.origin + "/api/formats").then(resp => resp.json())
 
-        let file
-        if (event.dataTransfer.items) {
-            let item = event.dataTransfer.items[0]
-            if (item.kind === 'file') {
-                file = item.getAsFile()
+    formats = formats.filter(format => !format.deprecated && format.type === type)
+    console.log(formats)
+
+    // enable the second tab
+    $("#forester-projects-new > .tabs").tabs({disabled: [2], active: 1})
+
+    // set the file info
+    d3.select("#fileinfo")
+      .html("<span class='fa-solid fa-file-circle-check'></span> " + file.name + " (" + Sugar.Number(file.size).bytes(1) + ")")
+
+    // update the projects name
+    d3.select("#name")
+      .attr("placeholder", Sugar.String(file.name).replace(/\..*/, "").humanize())
+
+    // set the options for format
+    d3.select("#format")
+      .selectAll("option")
+      .data(formats)
+      .enter()
+      .append("option")
+      .text(format => format.vendor + " - " + format.origin)
+
+    // function that is called when the selected origin changes
+    let onFormatChange = function () {
+        // find the selected index
+        const index = d3.select("#format").node().selectedIndex
+        // find the parent of the format selector
+        const parent = d3.select("#format").node().parentNode
+        // delete the format note
+        d3.select(parent)
+          .selectAll(".format-note")
+          .remove()
+        // if there is a format note, append it
+        if (formats[index].note.length > 0) {
+            d3.select(parent)
+              .insert("text", "#format + *")
+              .attr("class", "format-note")
+              .html("<span class='fa-solid fa-info-circle'></span> " + formats[index].note)
+        }
+    }
+
+    let onSubmitClick = function () {
+        uploadFile({
+            "file":   file,
+            "name":   d3.select("#name").node().value ? d3.select("#name").node().value : d3.select("#name").attr("placeholder"),
+            "format": formats[d3.select("#format").node().selectedIndex]
+        })
+    }
+
+    // change listener to update the note text
+    d3.select("#format")
+      .on("change", onFormatChange)
+    // update the note text once
+    onFormatChange()
+
+    // submit button for form
+    $("#submit").button().click(onSubmitClick)
+}
+
+uploadFile = function (project) {
+    // enable the third tab
+    $("#forester-projects-new > .tabs").tabs({disabled: [], active: 2})
+
+    // prepare request
+    let req = new XMLHttpRequest()
+    let uri = window.origin + "/api/projects"
+
+    // add the information from the upload dialog
+    let formData = new FormData();
+    formData.set("name",   project.name)
+    formData.set("format", JSON.stringify(project.format))
+    formData.set("file",   project.file)
+
+    req.onreadystatechange = function () {
+
+        if (this.readyState == 4) {
+
+            let resp = JSON.parse(this.response)
+            if (resp.hasOwnProperty("message")) {
+                d3.select("#upload")
+                  .select(".info")
+                  .text(resp.message)
             }
-        } else {
-            file = event.dataTransfer.files[0]
+
+            if (this.status === 201) {
+                d3.select("#upload")
+                  .select(".info-icon")
+                  .attr("class", "info-icon fa-solid fa-check-circle fa-3x")
+            }
+
+            if (this.status === 500) {
+                d3.select("#upload")
+                  .select(".info-icon")
+                  .attr("class", "info-icon fa-solid fa-circle-xmark fa-shake fa-3x")
+            }
         }
+    }
 
-        UploadForm.start(file)
-    },
-
-    start: function (file) {
-
-        // disable other tabs
-        $("#forester-projects-new > .tabs").tabs({disabled: [1, 2]})
-
-        let format = file['name'].split(".").slice(-1)
-
-        let options
-        switch (format) {
-            case "json":
-                options = ["Forester Project", "Matlab's fitctree"]
-                break
-            case "rdata":
-                options = ["R's rpart"]
-                break
-            default:
-                options = ["", "Forester Project", "Matlab's fitctree", "R's rpart"]
-                break
-        }
-
-        // change the drop area to display the file name
-        d3.select(".forester-projects-new-droparea")
-          .text(file['name'])
-
-        // enable the second tab
-        $("#forester-projects-new > .tabs").tabs({disabled: [2], active: 1})
-
-
-        // set the options for format
-        d3.select("#format")
-          .selectAll("option")
-          .data(options)
-          .enter()
-          .append("option")
-          .text(o => o)
-
-        // auto set the created field
-        d3.select("#created")
-          .attr("valueAsDate", new Date(file['lastModified']).toDateInputValue())
-
-        console.log(format, options, file)
-    },
+    // send request
+    req.open("POST", uri)
+    req.send(formData);
 }
 
 removeProject = function (project) {
@@ -151,13 +196,28 @@ removeProject = function (project) {
 $(function () {
     $("#forester-projects-new").dialog({
         width: "500px",
-        resizable: false
-        // scroll: false
+        resizable: false,
+        draggable: false,
+        autoOpen: false,
+        open: function () {
+            $(".forester-projects-dashboard").toggleClass("dialog-closed dialog-open")
+        },
+        beforeClose: function () {
+            $(".forester-projects-dashboard").toggleClass("dialog-closed dialog-open")
+        }
     })
 
     $("#forester-projects-new > .tabs").tabs({
-        disabled: [1, 2]
+        // disabled: [1, 2]
     })
+
+    // clicking the new project tile opens the project creation dialog
+    $('.forester-projects-button-new').click(function (event) {
+        $("#forester-projects-new").dialog("open")
+    })
+
+    // change in the file drop-area trigger preloading of file
+    $('.forester-projects-new-droparea').change(() => preloadFile())
 })
 
 window.onload = function () {

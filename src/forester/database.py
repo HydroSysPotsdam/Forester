@@ -15,6 +15,10 @@ from . import config, PACKAGE_PATH
 global database, projects
 
 
+class DatabaseError(Exception):
+    pass
+
+
 @dataclass_json
 @dataclass
 class Project:
@@ -45,7 +49,7 @@ class Project:
     """
     name:     str
     path:     str
-    created:  str  = field(repr=False)
+    created:  str  = field(repr=False, default=None)
     modified: str  = field(repr=False, default=None)
     author:   str  = field(default="local")
     example:  bool = field(default=False)
@@ -56,6 +60,9 @@ class Project:
         """
             When no timestamp of last modification is given, the creation timestamp will automatically be used.
         """
+        if hasattr(self, "modified"):
+            self.created = datetime.now().isoformat()
+
         if hasattr(self, "modified"):
             self.modified = self.created
 
@@ -210,8 +217,8 @@ def create_project(name: str, *copy_files, **kwargs) -> Project:
     project_path = os.path.join(config['projects_directory_path'], name)
 
     # check if a project with the same name already exists
-    if os.path.isdir(project_path):
-        return None
+    if os.path.exists(project_path) and os.path.isdir(project_path):
+        raise DatabaseError(f"A project with the name {name} already exists.")
 
     # create directory
     os.mkdir(project_path)
@@ -322,3 +329,7 @@ def open_database(app=None, **kwargs):
 
     # check if there are new examples in the example folder and create a project directory for them
     load_examples(**kwargs)
+
+
+def parse_project(file):
+    return None;

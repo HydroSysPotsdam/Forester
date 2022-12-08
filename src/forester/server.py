@@ -3,13 +3,7 @@
 #  Forester: Interactive human-in-the-loop web-based visualization of machine learning trees
 
 from flask import Flask, redirect, url_for, render_template
-from . import database
 from .api import API
-
-# class InterceptHandler(logging.Handler):
-#     def emit(self, record):
-        #logger_opt = logger.opt(depth=6, exception=record.exc_info)
-        #logger.log(record.levelno, record.getMessage())
 
 
 def create_app():
@@ -20,10 +14,6 @@ def create_app():
 
     # register api routes
     app.register_blueprint(API)
-
-    # open the database
-    # database.purge()
-    database.open_database(app)
 
     @app.route("/")
     def welcome():

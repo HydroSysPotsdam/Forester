@@ -6,7 +6,7 @@ import shutil
 import unittest
 from distutils.dir_util import copy_tree
 
-from src.forester.database2 import *
+from src.forester.database import *
 
 
 class DatabaseTest(unittest.TestCase):
@@ -27,7 +27,7 @@ class MethodTest(DatabaseTest):
     def __init__(self, methodName):
         super().__init__(methodName)
 
-        self.database = Database("./instance")
+        self.database = Database("./instance", clean=True)
         self.database.load_examples(directory="./instance/examples")
 
     def test_examples_loaded(self):

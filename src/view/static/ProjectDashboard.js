@@ -69,7 +69,7 @@ preloadFile = async function (event) {
 
     let formats = await fetch(window.origin + "/api/formats").then(resp => resp.json())
 
-    formats = formats.filter(format => !format.deprecated && format.type === type)
+    formats = formats.filter(format => !format.deprecated && format.type.toLowerCase() === type.toLowerCase())
     console.log(formats)
 
     // enable the second tab
@@ -102,7 +102,7 @@ preloadFile = async function (event) {
           .selectAll(".format-note")
           .remove()
         // if there is a format note, append it
-        if (formats[index].note.length > 0) {
+        if (formats[index].note && formats[index].note.length > 0) {
             d3.select(parent)
               .insert("text", "#format + *")
               .attr("class", "format-note")
@@ -144,25 +144,18 @@ uploadFile = function (project) {
 
     req.onreadystatechange = function () {
 
-        if (this.readyState == 4) {
+        if (this.readyState == 4 && this.status == 500) {
+            console.log(this)
+
+            d3.select("#upload")
+              .select(".info-icon")
+              .attr("class", "info-icon fa-solid fa-circle-xmark fa-shake fa-3x")
 
             let resp = JSON.parse(this.response)
-            if (resp.hasOwnProperty("message")) {
+            if (resp) {
                 d3.select("#upload")
                   .select(".info")
-                  .text(resp.message)
-            }
-
-            if (this.status === 201) {
-                d3.select("#upload")
-                  .select(".info-icon")
-                  .attr("class", "info-icon fa-solid fa-check-circle fa-3x")
-            }
-
-            if (this.status === 500) {
-                d3.select("#upload")
-                  .select(".info-icon")
-                  .attr("class", "info-icon fa-solid fa-circle-xmark fa-shake fa-3x")
+                  .text(resp.description)
             }
         }
     }

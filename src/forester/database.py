@@ -2,20 +2,34 @@
 #  David Strahl, University of Potsdam
 #  Forester: Interactive human-in-the-loop web-based visualization of machine learning trees
 
-import os
+import os.path
 import shutil
 import uuid
-from loguru import logger
-from tinydb import TinyDB, Query
-from datetime import datetime
 from dataclasses import dataclass, field
+from datetime import datetime
+
 from dataclasses_json import dataclass_json
-from . import config, PACKAGE_PATH
+from loguru import logger
+from tinydb import TinyDB, where
 
-global database, projects
+
+class DatabaseException(Exception):
+    pass
 
 
-class DatabaseError(Exception):
+class ProjectNotFoundException(DatabaseException):
+    pass
+
+
+class ProjectAlreadyExistsException(DatabaseException):
+    pass
+
+
+class DatabaseError(RuntimeError):
+    pass
+
+
+class DatabaseCorruptionError(DatabaseError):
     pass
 
 
@@ -31,7 +45,7 @@ class Project:
         ----------
         name: str
             The user given name of the project, may not be unique.
-        path: file path
+        files: file path
             The path to the project directory, where the server saves all project related files.
         created: str
             Timestamp of creation in ISO format.
@@ -47,14 +61,15 @@ class Project:
         size: int
             File size of the project in bytes (default zero)
     """
-    name:     str
-    path:     str
-    created:  str  = field(repr=False, default=None)
-    modified: str  = field(repr=False, default=None)
-    author:   str  = field(default="local")
-    example:  bool = field(default=False)
-    uuid:     str  = field(default_factory=lambda: str(uuid.uuid4()), repr=False)
-    size:     int  = field(repr=False, default=0)
+    name: str
+    path: str
+    created: str = field(repr=False, default=None)
+    modified: str = field(repr=False, default=None)
+    author: str = field(default="You")
+    example: bool = field(default=False)
+    uuid: str = field(default_factory=lambda: str(uuid.uuid4()), repr=False)
+    size: int = field(repr=False, default=0)
+    files: dict = field(repr=False, default_factory=lambda: {})
 
     def __post_init__(self):
         """
@@ -66,270 +81,416 @@ class Project:
         if hasattr(self, "modified"):
             self.modified = self.created
 
-
-def purge():
-    """
-        Purges the database.
-        This does not delete all entries but remove the entire database file, as well as all project
-        related directories.
-        The file structure is then regenerated on the next startup.
-    """
-    logger.warning("Database purged")
-    try:
-        shutil.rmtree(config['projects_directory_path'])
-        os.remove(os.path.join(PACKAGE_PATH, "instance", "database.json"))
-    except FileNotFoundError:
-        logger.warning("There are no database files to delete")
+        # use tree as a default name for the tree path
+        self.files = {'tree': os.path.join(self.path, "tree.json")}
 
 
-def has_project(name_or_uuid, uuid_version=4):
-    """
-    Checks, whether a project exists.
-    For this, either the `name` or `uuid` values are checked.
-    For a given name, projects may not be unique.
+class Database:
+    root_path = None
+    base_path = None
+    temp_path = None
+    data_path = None
 
-    Parameters
-    ----------
-    name_or_uuid: str or uuid
-        Either the project name or its UUID as a string. UUIDs will automatically be detected.
-    uuid_version: int
-        Version of the UUID (default 4)
+    database = None
 
-    Returns
-    -------
-    bool: Whether at least one entry was found with this name or UUID.
+    def __init__(self, directory, table_name="projects", delete_unlinked=True, clean=False) -> None:
 
-    """
-    PROJECT = Query()
-    try:
-        # check if name_or_uuid is uuid
-        uuid.UUID(name_or_uuid, version=uuid_version)
-        return len(projects.search(PROJECT.uuid == name_or_uuid)) != 0
-    except ValueError:
-        return len(projects.search(PROJECT.name == name_or_uuid)) != 0
+        # create the different paths
+        self.root_path = directory
+        self.base_path = os.path.join(directory, "database.json")
+        self.temp_path = os.path.join(directory, "temp")
+        self.data_path = os.path.join(directory, "data")
 
+        for path in [self.base_path, self.temp_path, self.data_path]:
+            if os.path.exists(path) and clean:
+                logger.warning(f"Clean startup: Deleted {path}")
+                shutil.rmtree(path, ignore_errors=True)
 
-def get_project(name_or_uuid, uuid_version=4) -> Project:
-    """
-    Returns a project based on its name or UUID.
+        # add the directories if they not already exists
+        for path in [self.root_path, self.temp_path, self.data_path]:
+            if not os.path.isdir(path):
+                logger.info(f"Created {path}")
+                os.mkdir(path)
 
-    Parameters
-    ----------
-    name_or_uuid: str or uuid
-        Either the project name or its UUID as a string. UUIDs will automatically be detected.
-    uuid_version: int
-        Version of the UUID (default 4)
+        # create the TinyDB database
+        database = TinyDB(self.base_path)
+        self.database = database.table(table_name)
 
-    Returns
-    -------
-    :class:`database.Project`:
-        Returns the first match.
-        If no project is found, `None` is returned.
-        If multiple projects with the same name are found, the first one is returned.
+        # validate the directory
+        self._validate_directory(delete=delete_unlinked)
 
-    See Also
-    --------
-    :meth:`database.has_project`
+    def _cross_validate(self, delete=True):
+        """
+            Cross validates the database file and the project directory.
 
-    """
-    PROJECT = Query()
-    try:
-        # check if name_or_uuid is uuid
-        uuid.UUID(name_or_uuid, version=uuid_version)
-        query_result = projects.search(PROJECT.uuid == name_or_uuid)
-    except ValueError:
-        query_result = projects.search(PROJECT.name == name_or_uuid)
+            For each entry in the database, the method checks whether a project directory exists.
+            For each project directory, the method checks if there is a database entry.
+            With `delete`, the folders/entries are deleted.
 
-    # return the first entry in the list of projects or None
-    if len(query_result) >= 1:
-        return Project.from_dict(query_result[0])
-    else:
-        return None
+            Parameters
+            ----------
+            delete: bool
+                Whether to deleted unlinked entries and folders.
 
+            Raises
+            ------
+            DatabaseError
+                Without `delete` unlinked entries and folders raise exceptions.
+        """
 
-def get_all_projects():
-    """
-    Returns a list of all projects in the database.
+        # check if all database entries have a folder
+        for project in self.database.all():
 
-    Returns
-    -------
-    list:
-        List of type :class:`database.Project` with all projects in the database.
+            # check if the important fields are in the database
+            if not all(key in project for key in ("uuid", "name", "path")):
+                raise DatabaseCorruptionError(f"Invalid entry in database: {project}")
 
-    See Also
-    --------
-    :meth:`database.get_project`
-    """
-    return [Project.from_dict(dict) for dict in projects.all()]
+            # create a Project instance
+            project = Project.from_dict(project)
 
+            # path to the project
+            path = os.path.join(self.data_path, project.name)
 
-def remove_project(name_or_uuid, uuid_version=4):
-    """
-    Removes on project from the database based on its name or UUID.
+            # delete the entry from the database if no folder is found
+            if not os.path.isdir(path):
 
-    Parameters
-    ----------
-    name_or_uuid: str or uuid
-        Either the project name or its UUID as a string. UUIDs will automatically be detected.
-    uuid_version: int
-        Version of the UUID (default 4)
+                if delete:
+                    self.database.remove(where('uuid') == project.uuid)
+                    logger.warning(f"Removed entry {project}")
+                else:
+                    logger.error(f"Unlinked entry {project}")
+                    raise DatabaseCorruptionError(f"Database contains the unlinked entry {project}")
 
-    See Also
-    --------
-    :meth:`database.has_project`
-    """
-    project = get_project(name_or_uuid)
+        # check all folders in the data directory for a database entry
+        for name in os.listdir(self.data_path):
+            directory = os.path.join(self.data_path, name)
+            if os.path.isdir(directory) and self.database.contains(where('name') == directory):
+                if delete:
+                    shutil.rmtree(directory)
+                    logger.warning(f"Removed folder ./data/{name}")
+                else:
+                    logger.error(f"Unlinked folder ./data/{name}")
+                    raise DatabaseCorruptionError(f"Database has found an unlinked project {name}")
 
-    # remove an entry
-    PROJECT = Query()
-    projects.remove(PROJECT.uuid == project.uuid)
+    def _validate_directory(self, delete=True):
+        """
+            Validates the directory.
 
-    # remove the folder from the underlying file structure, too
-    project_path = os.path.join(config['projects_directory_path'], project.name)
-    shutil.rmtree(project_path)
+            This includes generating the file structure and cross-validating the database file
+            with the project folders.
+        """
 
-    logger.info(f"Project {project.name} deleted")
+        # temporary files folder
+        if not os.path.isdir(self.temp_path):
+            logger.info("Created the directory ./temp")
+            os.mkdir(self.temp_path)
+        else:
+            logger.info("Cleared the directory ./temp")
+            shutil.rmtree(self.temp_path, ignore_errors=True)
+            os.mkdir(self.temp_path)
 
+        # project files folder
+        if not os.path.isdir(self.data_path):
+            logger.info("Created the directory ./data")
+            os.mkdir(self.data_path)
 
-def create_project(name: str, *copy_files, **kwargs) -> Project:
-    """
-    Creates a new project and adds it to the database.
-    All specified files are copied into a folder with the given name at the project directories location.
+        # cross validate project files with database
+        self._cross_validate(delete=delete)
 
-    .. note:: When a project folder with this name already exists, `None` is returned and no project is created.
+    def purge(self):
+        """
+            Purges the database.
 
-    Parameters
-    ----------
-    name: str
-        The name of the project (folder).
-    copy_files: list
-        A list of paths that should be copied into the project directory.
-    kwargs: dict
-        List of arguments that should be passed to the :class:`database.Project` constructor.
-        It should not contain the name, as the argument of the function is used.
+            This deletes all entries from the database, as well as all folders in the
+            project directory.
+        """
 
-    Returns
-    -------
-    :class:`database.Project`
-        Project that was added or None if the function aborted.
+        # number of entries
+        n = len(self.database.all())
 
-    """
-    project_path = os.path.join(config['projects_directory_path'], name)
+        # clear the database
+        self.database.truncate()
 
-    # check if a project with the same name already exists
-    if os.path.exists(project_path) and os.path.isdir(project_path):
-        raise DatabaseError(f"A project with the name {name} already exists.")
+        # remove all the folders in the project directory.
+        try:
+            shutil.rmtree(self.data_path)
+            os.mkdir(self.data_path)
+        except FileNotFoundError:
+            pass
 
-    # create directory
-    os.mkdir(project_path)
+        # inform the user
+        logger.warning(f"Purged {n} entries from the database.")
 
-    # copy all given files if they exist
-    for copy_file in copy_files:
-        if os.path.exists(copy_file):
-            shutil.copy(copy_file, project_path, follow_symlinks=False)
+    def size(self):
+        return len(self.database.all())
 
-    # create a new project
-    project = Project(name, project_path, **kwargs)
+    def has_project(self, name_or_uuid, uuid_version=4):
+        """
+            Checks, whether a project exists.
+            For this, either the `name` or `uuid` values are checked.
+            For a given name, projects may not be unique.
 
-    # add the project to the database
-    projects.insert(project.to_dict())
-    logger.info(f"Project {project.name} created")
+            Parameters
+            ----------
+            name_or_uuid: str or uuid
+                Either the project name or its UUID as a string. UUIDs will automatically be detected.
+            uuid_version: int
+                Version of the UUID (default 4)
 
-    # return the project wrapper
-    return project
+            Returns
+            -------
+            bool: Whether at least one entry was found with this name or UUID.
+        """
+        try:
+            # check if name_or_uuid is uuid
+            uuid.UUID(name_or_uuid, version=uuid_version)
+            return self.database.contains(where('uuid') == name_or_uuid)
+        except ValueError:
+            return self.database.contains(where('name') == name_or_uuid)
 
+    def get_project(self, name_or_uuid, uuid_version=4) -> Project:
+        """
+        Returns a project based on its name or UUID.
 
-def load_examples(examples_folder="../../examples", reload=False):
-    """
-    Checks all files in the specified folder and creates new projects if they not already exist.
-    Creation and modification timestamp are taken from the computers file system.
-    The author is automatically set to *Forester Team*.
+        Parameters
+        ----------
+        name_or_uuid: str or uuid
+            Either the project name or its UUID as a string. UUIDs will automatically be detected.
+        uuid_version: int
+            Version of the UUID (default 4)
 
-    .. note:: For now, all files should be named *tree.json* for automatic detection.
+        Returns
+        -------
+        :class:`database.Project`:
+            Returns the first match.
+            If no project is found, `None` is returned.
+            If multiple projects with the same name are found, the first one is returned.
 
-    Parameters
-    ----------
-    examples_folder: str
-        Path to the folder that should be checked for new examples.
-    reload: bool
-        Whether already existing projects should be overwritten (default `False`)
+        See Also
+        --------
+        :meth:`database.has_project`
 
-    Returns
-    -------
-    int:
-    The number of new examples added.
+        """
+        try:
+            # check if name_or_uuid is uuid
+            uuid.UUID(name_or_uuid, version=uuid_version)
+            query_result = self.database.get(where('uuid') == name_or_uuid)
+        except ValueError:
+            query_result = self.database.get(where('name') == name_or_uuid)
 
-    """
-    new_examples = 0;
-    for root, dirs, files in os.walk(os.path.abspath(os.path.join(PACKAGE_PATH, examples_folder))):
-        for file in files:
-            if file.lower().startswith('tree') and file.lower().endswith(".json"):
-                name = root.split("/")[-1]
-                path = os.path.join(root, file)
+        # raise a database exception if there is no entry for this query
+        if query_result is not None:
+            project = Project.from_dict(query_result)
+            # this line is needed, as the Project.from_dict function is not recursive
+            # and converts the files dict into a set
+            if "files" in query_result.keys():
+                project.files = query_result['files']
+                return project
+            else:
+                raise DatabaseCorruptionError(f"Project {project} has no file directory.")
+        else:
+            raise ProjectNotFoundException(f"No project for {name_or_uuid}")
 
-                # remove project is existing
-                if has_project(name) and reload:
-                    remove_project(name)
+    def get_projects(self):
+        """
+        Returns a list of all projects in the database.
 
-                # load new project
-                if not has_project(name):
-                    create_project(name, path,
-                                   size=os.path.getsize(path),
-                                   created=datetime.fromtimestamp(os.path.getctime(path)).isoformat(),
-                                   modified=datetime.fromtimestamp(os.path.getmtime(path)).isoformat(),
-                                   example=True,
-                                   author="Forester Team")
-                    new_examples += 1
+        The list may be empty if the database does not hold any projects.
 
-    logger.info(f"{new_examples if new_examples > 0 else 'no'} new examples added")
+        Returns
+        -------
+        projects: list
+            List of all projects in the database.
 
-    return new_examples
+        """
+        return [Project.from_dict(project) for project in self.database.all()]
 
+    def remove_project(self, name_or_uuid, uuid_version=4):
+        """
+        Removes on project from the database based on its name or UUID.
 
-def open_database(app=None, **kwargs):
-    """
-    Opens the database.
+        Parameters
+        ----------
+        name_or_uuid: str or uuid
+            Either the project name or its UUID as a string. UUIDs will automatically be detected.
+        uuid_version: int
+            Version of the UUID (default 4)
 
-    The database consists of one index *json* file and a directory in which each project has its own folder.
-    The location of the directory is saved in Foresters configuration and may be changed by the user.
-    If the database index file does not exist a new one is created and the database is regarded as empty.
-    If the database file directory does not exist, it is equally generated automatically.
+        See Also
+        --------
+        :meth:`database.has_project`
+        """
+        # get the project
+        # this raises a DatabaseException when the project is not available
+        project = self.get_project(name_or_uuid)
 
-    After opening the database, examples will be automatically loaded.
+        # remove an entry
+        self.database.remove(where('uuid') == project.uuid)
 
-    Parameters
-    ----------
-    app: FlaskApp
-        The current flask app to get the app context.
-    kwargs: dict
-        Parameters passed to the :meth:`database.load_examples` function.
+        # remove the folder from the underlying file structure, too
+        shutil.rmtree(os.path.join(self.data_path, project.name), ignore_errors=True)
 
+        logger.warning(f"Deleted project {project}")
 
-    See Also
-    --------
-    :func:`database.load_examples` for how the database loads examples.
-    """
-    # get projects directory path from config
-    projects_directory_path = config["projects_directory_path"]
-    logger.info(f"Database is located in {projects_directory_path}")
+    def _add_project(self, project: Project):
+        """
+        Includes a project in the JSON database.
 
-    # check if the projects directory exists and create otherwise
-    if not os.path.isdir(projects_directory_path):
-        os.mkdir(projects_directory_path)
-        logger.info("Project database folder created")
+        Before adding the project, it is checked whether the project folder and
+        all linked files exist.
 
-    # create database in the directory
-    global database, projects
-    database = TinyDB(os.path.join(PACKAGE_PATH, "instance", "database.json"))
-    projects = database.table("projects")
-    if len(projects) == 0:
-        logger.warning("Database contains no entries")
-    else:
-        logger.info(f"Database containing {len(projects)} entries loaded")
+        Parameters
+        ----------
+        project: Project
+            The project to add.
 
-    # check if there are new examples in the example folder and create a project directory for them
-    load_examples(**kwargs)
+        Returns
+        -------
+            The added project.
 
+        """
+        # check if project already exists
+        if self.has_project(project.uuid) or self.has_project(project.name):
+            raise ProjectAlreadyExistsException(f"A project with id {project.uuid} or name {project.name} already exists.")
 
-def parse_project(file):
-    return None;
+        # check if project directory exists
+        if not os.path.isdir(project.path):
+            raise DatabaseCorruptionError(f"Project {project} does not have a directory yet.")
+
+        # check if all files exist
+        for filename in project.files.values():
+            path = os.path.join(project.path, filename)
+            if not os.path.isfile(path):
+                raise DatabaseCorruptionError(f"File {filename} missing in project directory.")
+
+        # add the project to the database
+        self.database.insert(project.to_dict())
+
+        logger.info(f"{project} created")
+
+        # return the project wrapper
+        return project
+
+    def create_project_from_files(self, name, paths, **kwargs):
+        """
+        Creates a project from a file path.
+
+        Each project has one directory in the database. If the directory does
+        not exist, it is generated. An instance of Project is created based
+        on the given parameters. The file is copied to the directory and linked
+        with the project instance.
+
+        Multiple files are not yet supported.
+
+        Parameters
+        ----------
+        name: str
+            The name of the project.
+        paths: path
+            The path of the file from which the project should be generated.
+        kwargs: dict
+            Additional information for the project. See Project.
+
+        Returns
+        -------
+        The added project.
+
+        """
+        # the path where the database stores the project
+        project_path = os.path.join(self.data_path, name)
+
+        # create the project directory if not existing
+        if not os.path.isdir(project_path):
+            os.mkdir(project_path)
+
+        # delete the keys from kwargs just to make sure
+        kwargs.pop('name', None)
+        kwargs.pop('path', None)
+
+        # create the project
+        project = Project(name, project_path, **kwargs)
+
+        # copy the file into the project directory
+        # add the file to the projects filename directory
+        if type(paths) is str:
+            # use the only path
+            path = paths
+
+            # check if path exists and is a file
+            if not os.path.isfile(path):
+                raise DatabaseException(f"The given path {path} is not a file!")
+
+            # copy the given file into the project directory
+            shutil.copy(path, project_path)
+
+            # new path
+            new_path = os.path.join(project_path, os.path.basename(path))
+
+            # check if file was copied correctly
+            if not os.path.isfile(new_path):
+                raise DatabaseException(f"Copying the file {path} failed!")
+
+            # add the only file as the tree
+            project.files = {'tree': os.path.basename(path)}
+
+        if type(paths) is dict:
+            raise NotImplementedError(f"Creating a project from multiple files is not yet supported!")
+
+        # add the project to the database
+        self._add_project(project)
+
+        return project
+
+    def parse_project(self):
+        pass
+
+    def load_examples(self, directory, reload=False):
+        """
+            Checks all files in the specified folder and creates new projects if they not already exist.
+            Creation and modification timestamp are taken from the computers file system.
+            The author is automatically set to *Forester Team*.
+
+            .. note:: For now, all files should be named *tree.json* for automatic detection.
+
+            Parameters
+            ----------
+            directory: str
+                Path to the folder that should be checked for new examples.
+            reload: bool
+                Whether already existing projects should be overwritten (default `False`)
+
+            Returns
+            -------
+            int:
+            The number of new examples added.
+        """
+        # carry for the number of examples loaded
+        new_examples = 0;
+
+        for root, dirs, files in os.walk(os.path.abspath(directory)):
+            for file in files:
+                if file.lower().startswith('tree') and file.lower().endswith(".json"):
+                    name = root.split("/")[-1]
+                    path = os.path.join(root, file)
+
+                    # when a project with this name already exists, overwrite it if
+                    # the reload setting is given
+                    if self.has_project(name) and reload:
+                        self.remove_project(name)
+
+                    # load new project
+                    if not self.has_project(name):
+
+                        self.create_project_from_files(name, path,
+                                                       size=os.path.getsize(path),
+                                                       created=datetime.fromtimestamp(os.path.getctime(path)).isoformat(),
+                                                       modified=datetime.fromtimestamp(os.path.getmtime(path)).isoformat(),
+                                                       example=True,
+                                                       author="Forester Team")
+
+                        # keep track of the number of added projects
+                        new_examples += 1
+
+        logger.info(f"{new_examples if new_examples > 0 else 'no'} new examples added")
+
+        return new_examples

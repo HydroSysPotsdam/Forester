@@ -48,7 +48,7 @@
     /* Project dashboard should take up 75% of the space */
     flex: 1 0 300px;
 
-    margin: 1em 0em;
+    margin: 1em;
 
     overflow-x: clip;
     overflow-y: scroll;
@@ -65,7 +65,7 @@
     width: 100%;
 
     /* Grid layout with automatic number of columns and fixed minimal distance between rows/columns */
-    padding: 1em;
+    padding: 2em;
     display: grid;
     grid-template-columns: repeat(auto-fit, 200px);
     grid-gap: 2rem;

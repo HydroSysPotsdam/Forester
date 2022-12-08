@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>DRAFT - New Project Form</title>
+
+    <script src="https://unpkg.com/just-validate@latest/dist/just-validate.production.min.js"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+
+    <style>
+        form {
+            display: flex;
+            flex-direction: column;
+            width: 300px;
+        }
+
+        form > label, button {
+            margin-top: 1em;
+        }
+    </style>
+</head>
+<body>
+    <form id="new-project-form">
+        <div>
+            <label for="origin">Origin of File</label>
+            <select id="origin" required class="form__input form-control">
+                <option></option>
+                <option>Matlab - fitctree</option>
+                <option>Forester - export</option>
+            </select>
+        </div>
+
+        <div>
+            <label for="name">Name</label>
+            <input type="text" id="name" required class="form__input form-control">
+        </div>
+
+        <div>
+            <label for="created">Creation Date</label>
+            <input type="datetime-local" id="created" required class="form__input form-control">
+        </div>
+
+        <button class="btn btn-primary" id="submit-btn">Submit</button>
+    </form>
+
+    <script>
+        const validate = new JustValidate('#new-project-form',
+            {
+                errorFieldCssClass: 'is-invalid',
+                errorLabelStyle: {
+                    fontSize: '14px',
+                    color: '#dc3545',
+                },
+                focusInvalidField: true,
+                lockForm: true,
+            })
+
+        validate.addField('#origin', [{
+            validator: (value) => value !== "",
+            errorMessage: 'Please select a value!'
+        }])
+
+        validate.addField('#name', [{
+            validator: (value) => !["test"].includes(value),
+            errorMessage: "Name already taken!"
+        },
+        {
+            rule: 'minLength',
+            value: 3,
+            errorMessage: "Too short!"
+        },
+        {
+            rule: 'required'
+        }])
+
+        d3.select("#new-project-form")
+          .selectAll(".form__input")
+          .on("change", function () {
+              const id = d3.select(this).node().id
+              validate.revalidateField("#" + id)
+          })
+    </script>
+</body>
+</html>

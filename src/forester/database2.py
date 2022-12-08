@@ -1,6 +1,7 @@
 #  CC-0 2022.
 #  David Strahl, University of Potsdam
 #  Forester: Interactive human-in-the-loop web-based visualization of machine learning trees
+import json
 import os.path
 import shutil
 import uuid
@@ -16,7 +17,19 @@ class DatabaseException(Exception):
     pass
 
 
+class ProjectNotFoundException(DatabaseException):
+    pass
+
+
+class ProjectAlreadyExistsException(DatabaseException):
+    pass
+
+
 class DatabaseError(RuntimeError):
+    pass
+
+
+class DatabaseCorruptionError(DatabaseError):
     pass
 
 
@@ -56,6 +69,7 @@ class Project:
     example: bool = field(default=False)
     uuid: str = field(default_factory=lambda: str(uuid.uuid4()), repr=False)
     size: int = field(repr=False, default=0)
+    files: dict = field(repr=False, default_factory=lambda: {})
 
     def __post_init__(self):
         """
@@ -66,6 +80,9 @@ class Project:
 
         if hasattr(self, "modified"):
             self.modified = self.created
+
+        # use tree as a default name for the tree path
+        self.files = {'tree': os.path.join(self.path, "tree.json")}
 
 
 class Database:
@@ -119,7 +136,7 @@ class Database:
 
             # check if the important fields are in the database
             if not all(key in project for key in ("uuid", "name", "path")):
-                raise DatabaseError(f"Invalid entry in database: {project}")
+                raise DatabaseCorruptionError(f"Invalid entry in database: {project}")
 
             # create a Project instance
             project = Project.from_dict(project)
@@ -135,7 +152,7 @@ class Database:
                     logger.warning(f"Removed entry {project}")
                 else:
                     logger.error(f"Unlinked entry {project}")
-                    raise DatabaseError(f"Database contains the unlinked entry {project}")
+                    raise DatabaseCorruptionError(f"Database contains the unlinked entry {project}")
 
         # check all folders in the data directory for a database entry
         for name in os.listdir(self.data_path):
@@ -146,7 +163,7 @@ class Database:
                     logger.warning(f"Removed folder ./data/{name}")
                 else:
                     logger.error(f"Unlinked folder ./data/{name}")
-                    raise DatabaseError(f"Database has found an unlinked project {name}")
+                    raise DatabaseCorruptionError(f"Database has found an unlinked project {name}")
 
     def _validate_directory(self, delete=True):
         """
@@ -256,9 +273,16 @@ class Database:
 
         # raise a database exception if there is no entry for this query
         if query_result is not None:
-            return Project.from_dict(query_result)
+            project = Project.from_dict(query_result)
+            # this line is needed, as the Project.from_dict function is not recursive
+            # and converts the files dict into a set
+            if "files" in query_result.keys():
+                project.files = query_result['files']
+                return project
+            else:
+                raise DatabaseCorruptionError(f"Project {project} has no file directory.")
         else:
-            raise DatabaseException(f"No project for {name_or_uuid}")
+            raise ProjectNotFoundException(f"No project for {name_or_uuid}")
 
     def get_projects(self):
         """
@@ -301,20 +325,36 @@ class Database:
 
         logger.warning(f"Deleted project {project}")
 
-    def create_project(self, project: Project, copy_files={}):
+    def _add_project(self, project: Project):
+        """
+        Includes a project in the JSON database.
+
+        Before adding the project, it is checked whether the project folder and
+        all linked files exist.
+
+        Parameters
+        ----------
+        project: Project
+            The project to add.
+
+        Returns
+        -------
+            The added project.
+
+        """
         # check if project already exists
         if self.has_project(project.uuid) or self.has_project(project.name):
-            raise DatabaseException(f"A project with id {project.uuid} or name {project.name} already exists.")
+            raise ProjectAlreadyExistsException(f"A project with id {project.uuid} or name {project.name} already exists.")
 
-        # path to the project folder
-        project_path = os.path.join(self.data_path, project.name)
+        # check if project directory exists
+        if not os.path.isdir(project.path):
+            raise DatabaseCorruptionError(f"Project {project} does not have a directory yet.")
 
-        # create directory
-        os.mkdir(project_path)
-
-        # copy all given files if they exist
-        for file_name in copy_files:
-            pass
+        # check if all files exist
+        for filename in project.files.values():
+            path = os.path.join(project.path, filename)
+            if not os.path.isfile(path):
+                raise DatabaseCorruptionError(f"File {filename} missing in project directory.")
 
         # add the project to the database
         self.database.insert(project.to_dict())
@@ -322,6 +362,76 @@ class Database:
         logger.info(f"{project} created")
 
         # return the project wrapper
+        return project
+
+    def create_project_from_files(self, name, paths, **kwargs):
+        """
+        Creates a project from a file path.
+
+        Each project has one directory in the database. If the directory does
+        not exist, it is generated. An instance of Project is created based
+        on the given parameters. The file is copied to the directory and linked
+        with the project instance.
+
+        Multiple files are not yet supported.
+
+        Parameters
+        ----------
+        name: str
+            The name of the project.
+        paths: path
+            The path of the file from which the project should be generated.
+        kwargs: dict
+            Additional information for the project. See Project.
+
+        Returns
+        -------
+        The added project.
+
+        """
+        # the path where the database stores the project
+        project_path = os.path.join(self.data_path, name)
+
+        # create the project directory if not existing
+        if not os.path.isdir(project_path):
+            os.mkdir(project_path)
+
+        # delete the keys from kwargs just to make sure
+        kwargs.pop('name', None)
+        kwargs.pop('path', None)
+
+        # create the project
+        project = Project(name, project_path, **kwargs)
+
+        # copy the file into the project directory
+        # add the file to the projects filename directory
+        if type(paths) is str:
+            # use the only path
+            path = paths
+
+            # check if path exists and is a file
+            if not os.path.isfile(path):
+                raise DatabaseException(f"The given path {path} is not a file!")
+
+            # copy the given file into the project directory
+            shutil.copy(path, project_path)
+
+            # new path
+            new_path = os.path.join(project_path, os.path.basename(path))
+
+            # check if file was copied correctly
+            if not os.path.isfile(new_path):
+                raise DatabaseException(f"Copying the file {path} failed!")
+
+            # add the only file as the tree
+            project.files = {'tree': os.path.basename(path)}
+
+        if type(paths) is dict:
+            raise NotImplementedError(f"Creating a project from multiple files is not yet supported!")
+
+        # add the project to the database
+        self._add_project(project)
+
         return project
 
     def parse_project(self):
@@ -356,18 +466,22 @@ class Database:
                     name = root.split("/")[-1]
                     path = os.path.join(root, file)
 
-                    # remove project is existing
+                    # when a project with this name already exists, overwrite it if
+                    # the reload setting is given
                     if self.has_project(name) and reload:
                         self.remove_project(name)
 
                     # load new project
                     if not self.has_project(name):
-                        # create_project(name, path,
-                        #                size=os.path.getsize(path),
-                        #                created=datetime.fromtimestamp(os.path.getctime(path)).isoformat(),
-                        #                modified=datetime.fromtimestamp(os.path.getmtime(path)).isoformat(),
-                        #                example=True,
-                        #                author="Forester Team")
+
+                        self.create_project_from_files(name, path,
+                                                       size=os.path.getsize(path),
+                                                       created=datetime.fromtimestamp(os.path.getctime(path)).isoformat(),
+                                                       modified=datetime.fromtimestamp(os.path.getmtime(path)).isoformat(),
+                                                       example=True,
+                                                       author="Forester Team")
+
+                        # keep track of the number of added projects
                         new_examples += 1
 
         logger.info(f"{new_examples if new_examples > 0 else 'no'} new examples added")

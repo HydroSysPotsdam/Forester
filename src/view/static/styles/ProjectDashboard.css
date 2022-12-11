@@ -136,16 +136,30 @@
 
 .forester-projects-entry-delete {
     position: absolute;
-    top: 10px;
-    right: 10px;
+    top: 5px;
+    right: 5px;
     color: orangered;
-    visibility: hidden;
+    padding: 0.5em;
+
     transition: ease 200ms;
+
+    visibility: hidden;
+    opacity: 0;
+    transform: none;
+
+}
+
+.forester-projects-entry-delete:hover {
+    transform: scale(1.1) rotate(10deg);
+}
+
+.forester-projects-entry-delete:active {
+    transform: scale(1) rotate(10deg);
 }
 
 .forester-projects-entry:hover .forester-projects-entry-delete {
     visibility: visible;
-    color: orangered !important;
+    opacity: 1;
 }
 
 .forester-projects-button-new {
@@ -272,12 +286,12 @@
     font-weight: bold;
 }
 
-#fileinfo {
-    margin-bottom: 1em;
+#forester-projects-new .inline-info {
+    margin: 5px 0;
 }
 
-.format-note {
-    margin-top: 10px;
+#forester-projects-new .inline-info i {
+    margin-right: 5px;
 }
 
 #submit {

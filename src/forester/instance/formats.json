@@ -3,7 +3,7 @@
     "vendor": "Matlab",
     "origin": "fitctree",
     "type": "json",
-    "note": "",
+    "note": "BlaBli",
     "deprecated": false
   },
 
@@ -11,7 +11,7 @@
     "vendor": "R",
     "origin": "rpart",
     "type": "rdata",
-    "note": "",
+    "note": "TipTop",
     "deprecated": false
   },
 
@@ -19,7 +19,7 @@
     "vendor": "Forester",
     "origin": "export",
     "type": "json",
-    "note": "",
+    "note": "Wausa!",
     "deprecated": false
   }
 ]

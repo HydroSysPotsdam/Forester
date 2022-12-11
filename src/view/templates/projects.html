@@ -58,16 +58,33 @@
             <div id="selection">
                 <input class="forester-projects-new-droparea" type="file" id="fileselect" accept=".json, .RData">
             </div>
+
             <div id="options">
                 <div class="flex-column">
-                    <text id="fileinfo"></text>
+                    <!-- Info on the file  -->
+                    <div class="inline-info" id="file-info">
+                        <i class='fa-solid fa-file-circle-check'></i>
+                        <span></span>
+                    </div>
+
+                    <!-- Text field for the file name-->
                     <label for="name">Project Name</label>
                     <input id="name" type="text">
+
+                    <!-- Selector for the format -->
                     <label for="format">How was your file created?</label>
                     <select id="format"></select>
+
+                    <!-- Info on the format (given by the server) -->
+                    <div class="inline-info" id="format-info">
+                        <i class='fa-solid fa-info-circle'></i>
+                        <span></span>
+                    </div>
+
                     <button id="submit" type="button">Create Project</button>
                 </div>
             </div>
+
             <div id="upload">
                 <div class="flex-column">
                     <p class="info">Your file is processed by the server...</p>
@@ -75,6 +92,5 @@
                 </div>
             </div>
         </div>
-
     </form>
 {% endblock %}

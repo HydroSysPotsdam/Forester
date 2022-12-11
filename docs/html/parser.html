@@ -6,7 +6,7 @@
 <link rel="author" title="About these documents" href="about.html" /><link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" />
 
     <meta name="generator" content="sphinx-5.0.1, furo 2022.06.04.1"/>
-        <title>Parser - Editor 0.0 documentation</title>
+        <title>Parser - Forester 0.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=40978830699223671f4072448e654b5958f38b89" />
     <link rel="stylesheet" type="text/css" href="_static/sphinxcontrib-images/LightBox2/lightbox2/dist/css/lightbox.css" />
@@ -125,7 +125,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">Editor 0.0 documentation</div></a>
+      <a href="index.html"><div class="brand">Forester 0.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -136,7 +136,7 @@
           <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
         </button>
       </div>
-      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
         <div class="visually-hidden">Toggle table of contents sidebar</div>
         <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
       </label>
@@ -148,7 +148,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
   
-  <span class="sidebar-brand-text">Editor 0.0 documentation</span>
+  <span class="sidebar-brand-text">Forester 0.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
@@ -157,12 +157,19 @@
 </form>
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
   <ul>
-<li class="toctree-l1 has-children"><a class="reference internal" href="workflows.html">Workflows</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="_workflows/legend.html">Working with the Legend</a></li>
-<li class="toctree-l2"><a class="reference internal" href="_workflows/views.html">The Node View System</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="modules.html">Documentation</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="Documentation/forester.database.html">forester.database</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="Documentation/forester.database.Database.html">forester.database.Database</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Documentation/forester.database.Project.html">forester.database.Project</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Documentation/forester.database.DatabaseCorruptionError.html">forester.database.DatabaseCorruptionError</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Documentation/forester.database.DatabaseError.html">forester.database.DatabaseError</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Documentation/forester.database.DatabaseException.html">forester.database.DatabaseException</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Documentation/forester.database.ProjectAlreadyExistsException.html">forester.database.ProjectAlreadyExistsException</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Documentation/forester.database.ProjectNotFoundException.html">forester.database.ProjectNotFoundException</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="about.html">About</a></li>
+</ul>
+</li>
 </ul>
 
 </div>
@@ -190,7 +197,7 @@
               <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
             </button>
           </div>
-          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
             <div class="visually-hidden">Toggle table of contents sidebar</div>
             <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
           </label>
@@ -198,73 +205,73 @@
         <article role="main">
           <section id="module-parser">
 <span id="parser"></span><h1>Parser<a class="headerlink" href="#module-parser" title="Permalink to this heading"></a></h1>
-<section id="conversion-from-matlab-r-python-to-forester">
-<h2>Conversion from Matlab, R, Python to Editor<a class="headerlink" href="#conversion-from-matlab-r-python-to-forester" title="Permalink to this heading"></a></h2>
-<p>Module that implements conversion functionality for common R, Matlab and Python function that
-train classification or regression trees. From the output of these functions, a common
-representation is extracted and given in <cite>.json</cite> format. This file can than be loaded in
-Editor</p>
-<div class="line-block">
-<div class="line">As of today, the following functions are supported:</div>
-<div class="line">- Matlab’s <code class="docutils literal notranslate"><span class="pre">fitctree</span></code></div>
-<div class="line">- R’s <code class="docutils literal notranslate"><span class="pre">rpart</span></code></div>
-</div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>For the R functionality to work, the user needs to have a <strong>running installation
-of R studio</strong> and needs to have the Python module <strong>rpy2 installed</strong>.</p>
-</div>
-<dl class="py function">
-<dt class="sig sig-object py" id="parser.parse">
-<span class="sig-prename descclassname"><span class="pre">parser.</span></span><span class="sig-name descname"><span class="pre">parse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#parser.parse" title="Permalink to this definition"></a></dt>
-<dd><p>Converts some output formats from Matlab and R into the Editor generalized format.</p>
-<p>Output from Matlab can be parsed by first running the function <code class="docutils literal notranslate"><span class="pre">jsonencode</span></code> within
-Matlab and loading the resulting .json string (file).</p>
-<p>Output from R can be loaded by loading the .RData file that can be exported from R studio.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>path</strong> (<em>str</em>) – The path to the output file to be loaded. May be absolute or relative.</p></li>
-<li><p><strong>kwargs</strong> (<em>dict</em>) – Dictionary containing some additional information for the parser. See Notes.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>The generalized Editor tree structure as a .json string</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>str</p>
-</dd>
-</dl>
-<p class="rubric">Examples</p>
-<div class="highlight-python notranslate" id="iris-dataset-from-r-s-rpart"><div class="highlight"><pre><span></span>    <span class="n">r</span> <span class="o">=</span> <span class="n">parse</span><span class="p">(</span><span class="s2">&quot;../../examples/R/iris.RData&quot;</span><span class="p">)</span>
-    <span class="n">file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;../../examples/R/iris.json&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span>
-    <span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">r</span><span class="p">))</span>
-    <span class="n">file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-</pre></div>
-</div>
-<div class="highlight-python notranslate" id="diabetes-dataset-from-r-s-rpart"><div class="highlight"><pre><span></span>    <span class="n">r</span> <span class="o">=</span> <span class="n">parse</span><span class="p">(</span><span class="s2">&quot;../../examples/R/diabetes.RData&quot;</span><span class="p">)</span>
-    <span class="n">file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;../../example/R/diabetes.json&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span>
-    <span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">r</span><span class="p">))</span>
-    <span class="n">file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-</pre></div>
-</div>
-<div class="highlight-python notranslate" id="iris-dataset-from-matlab-s-fitctree"><div class="highlight"><pre><span></span><span class="hll">    <span class="n">mat</span> <span class="o">=</span> <span class="n">parse</span><span class="p">(</span><span class="s2">&quot;../view/static/example/Matlab/output.json&quot;</span><span class="p">,</span> <span class="n">origin</span><span class="o">=</span><span class="s2">&quot;MAT.fitctree&quot;</span><span class="p">)</span>
-</span>    <span class="n">file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;../view/static/example/Matlab/iris.json&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span>
-    <span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">mat</span><span class="p">))</span>
-    <span class="n">file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-</pre></div>
-</div>
-<p>Because the parser can not read .mat files directly and the result from Matlab is given as .json,
-the user may need to set the origin algorithm using the <code class="docutils literal notranslate"><span class="pre">origin</span></code> field.</p>
-<p class="rubric">Notes</p>
-<p>The following values can be passed to the <code class="docutils literal notranslate"><span class="pre">**kwargs</span></code> field.</p>
-<ul class="simple">
-<li><p><strong>origin</strong> - Algorithm from which the output originated, at the moment only necessary for <code class="docutils literal notranslate"><span class="pre">&quot;Matlab.fitctree&quot;</span></code></p></li>
-<li><p><strong>name</strong> - Name of the R object if not at the first splot in the environment.</p></li>
-</ul>
+<p>This is an interface to Python’s internal parser.</p>
+<dl class="py exception">
+<dt class="sig sig-object py" id="parser.ParserError">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">parser.</span></span><span class="sig-name descname"><span class="pre">ParserError</span></span><a class="headerlink" href="#parser.ParserError" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
 </dd></dl>
 
-</section>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="parser.STType">
+<span class="sig-prename descclassname"><span class="pre">parser.</span></span><span class="sig-name descname"><span class="pre">STType</span></span><a class="headerlink" href="#parser.STType" title="Permalink to this definition"></a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">st</span></code></p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="parser.compilest">
+<span class="sig-prename descclassname"><span class="pre">parser.</span></span><span class="sig-name descname"><span class="pre">compilest</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#parser.compilest" title="Permalink to this definition"></a></dt>
+<dd><p>Compiles an ST object into a code object.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="parser.expr">
+<span class="sig-prename descclassname"><span class="pre">parser.</span></span><span class="sig-name descname"><span class="pre">expr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#parser.expr" title="Permalink to this definition"></a></dt>
+<dd><p>Creates an ST object from an expression.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="parser.isexpr">
+<span class="sig-prename descclassname"><span class="pre">parser.</span></span><span class="sig-name descname"><span class="pre">isexpr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#parser.isexpr" title="Permalink to this definition"></a></dt>
+<dd><p>Determines if an ST object was created from an expression.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="parser.issuite">
+<span class="sig-prename descclassname"><span class="pre">parser.</span></span><span class="sig-name descname"><span class="pre">issuite</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#parser.issuite" title="Permalink to this definition"></a></dt>
+<dd><p>Determines if an ST object was created from a suite.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="parser.sequence2st">
+<span class="sig-prename descclassname"><span class="pre">parser.</span></span><span class="sig-name descname"><span class="pre">sequence2st</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#parser.sequence2st" title="Permalink to this definition"></a></dt>
+<dd><p>Creates an ST object from a tree representation.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="parser.st2list">
+<span class="sig-prename descclassname"><span class="pre">parser.</span></span><span class="sig-name descname"><span class="pre">st2list</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#parser.st2list" title="Permalink to this definition"></a></dt>
+<dd><p>Creates a list-tree representation of an ST.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="parser.st2tuple">
+<span class="sig-prename descclassname"><span class="pre">parser.</span></span><span class="sig-name descname"><span class="pre">st2tuple</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#parser.st2tuple" title="Permalink to this definition"></a></dt>
+<dd><p>Creates a tuple-tree representation of an ST.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="parser.suite">
+<span class="sig-prename descclassname"><span class="pre">parser.</span></span><span class="sig-name descname"><span class="pre">suite</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#parser.suite" title="Permalink to this definition"></a></dt>
+<dd><p>Creates an ST object from a suite.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="parser.tuple2st">
+<span class="sig-prename descclassname"><span class="pre">parser.</span></span><span class="sig-name descname"><span class="pre">tuple2st</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#parser.tuple2st" title="Permalink to this definition"></a></dt>
+<dd><p>Creates an ST object from a tree representation.</p>
+</dd></dl>
+
 </section>
 
         </article>
@@ -294,27 +301,8 @@ the user may need to set the origin algorithm using the <code class="docutils li
         
       </footer>
     </div>
-    <aside class="toc-drawer">
+    <aside class="toc-drawer no-toc">
       
-      
-      <div class="toc-sticky toc-scroll">
-        <div class="toc-title-container">
-          <span class="toc-title">
-            Contents
-          </span>
-        </div>
-        <div class="toc-tree-container">
-          <div class="toc-tree">
-            <ul>
-<li><a class="reference internal" href="#">Parser</a><ul>
-<li><a class="reference internal" href="#conversion-from-matlab-r-python-to-forester">Conversion from Matlab, R, Python to Editor</a></li>
-</ul>
-</li>
-</ul>
-
-          </div>
-        </div>
-      </div>
       
       
     </aside>

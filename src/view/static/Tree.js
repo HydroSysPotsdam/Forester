@@ -4,12 +4,9 @@
  * Forester: Interactive human-in-the-loop web-based visualization of machine learning trees
  */
 
-import {Panzoom} from "./Panzoom.js";
 import {GlobalSettings} from "./Settings.js";
 import * as Views from "./Views.js";
 import {Legend} from "./Legend.js";
-import {Tree} from "./Editor.js";
-import {FNode} from "./Node.js";
 
 /**
  * Wrapper around a node that keeps track of the used view for illustration and
@@ -65,7 +62,7 @@ class NodeRenderer {
     constructor (node, view) {
         this.node     = node
 
-        this.#ee      = new EventEmitter3()
+        this.#ee      = new EventEmitter()
 
         this.view     = view
         this.settings = {}
@@ -325,7 +322,7 @@ export class FTree {
         // go through all the nodes and assign a node renderer
         for (const node of this.nodes) {
             // const view = [Views.BasicView, Views.CCircleIconView, Views.TextView][Math.floor(Math.random() * 3)]
-            const view = Views.TextView
+            const view = Views.CCircleIconView
             let renderer = new NodeRenderer(node, view)
             this.renderers.set(node.id, renderer)
         }

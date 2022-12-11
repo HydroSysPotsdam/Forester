@@ -22,6 +22,10 @@ import rpy2.robjects as ro
 from loguru import logger
 
 
+class UnknownFormatException(Exception):
+    pass
+
+
 def _build_tree(nodes):
     stack = []
     for node in nodes:
@@ -129,12 +133,12 @@ def parse(path, **kwargs):
         kwargs['origin'] = "export"
 
     # get file ending to determine format
-    format_key = kwargs['type'] + "." + kwargs['vendor'] + "." + kwargs['origin']
+    format_key = (kwargs['type'] + "." + kwargs['vendor'] + "." + kwargs['origin']).lower()
 
     if format_key in FORMATS.keys():
         return FORMATS[format_key](path, **kwargs)
     else:
-        raise NotImplementedError(f"Format {format_key} not supported.")
+        raise UnknownFormatException(f"Format {format_key} not supported.")
 
 
 # def _parse_json(path, **kwargs):
@@ -307,8 +311,8 @@ def _parse_fitctree(path, **kwargs) -> dict:
 
 
 FORMATS = {
-    'rdata.R.rpart': _parse_rpart_class,
-    'json.Matlab.fitctree': _parse_fitctree
+    'rdata.r.rpart': _parse_rpart_class,
+    'json.matlab.fitctree': _parse_fitctree
 }
 
 # # R diabetes dataset

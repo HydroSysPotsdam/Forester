@@ -144,8 +144,9 @@ uploadFile = function (project) {
 
     req.onreadystatechange = function () {
 
+        console.log(this)
+
         if (this.readyState == 4 && this.status == 500) {
-            console.log(this)
 
             d3.select("#upload")
               .select(".info-icon")
@@ -157,6 +158,18 @@ uploadFile = function (project) {
                   .select(".info")
                   .text(resp.description)
             }
+        }
+
+        if (this.readyState == 4 && this.status == 200) {
+            d3.select("#upload")
+              .select(".info-icon")
+              .attr("class", "info-icon fa-solid fa-check-circle fa-shake fa-3x")
+
+            d3.select("#upload")
+                  .select(".info")
+                  .text("Sucess")
+
+            setTimeout(() => location.reload(), 100)
         }
     }
 
@@ -176,12 +189,16 @@ removeProject = function (project) {
     // when the server returns 404, the project was not found and therefore not deleted
     // when the
     req.onreadystatechange = function () {
+        console.log(this)
+
         if (this.readyState === 4 && this.status === 200) {
             // remove the project tile
             d3.select("#P-" + project.uuid)
               .remove()
-        } else {
-            prompt(this.status + " - could not remove project!")
+        }
+
+        if (this.readyState === 4 && this.status === 400) {
+            alert(this.status + " - could not remove project!")
         }
     }
 }

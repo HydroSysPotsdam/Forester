@@ -1,7 +1,7 @@
 #  CC-0 2022.
 #  David Strahl, University of Potsdam
 #  Forester: Interactive human-in-the-loop web-based visualization of machine learning trees
-
+import json
 import os.path
 import shutil
 import uuid
@@ -11,6 +11,8 @@ from datetime import datetime
 from dataclasses_json import dataclass_json
 from loguru import logger
 from tinydb import TinyDB, where
+
+from . import parser
 
 
 class DatabaseException(Exception):
@@ -441,8 +443,45 @@ class Database:
 
         return project
 
-    def parse_project(self):
-        pass
+    def create_project_from_vendor(self, name, path, **kwargs):
+        """
+        Creates a new project by parsing a file.
+
+        Parameters
+        ----------
+        name: str
+            The name of the project.
+        path: path
+            The path to the file that should be parsed.
+        kwargs: dict
+            Dictionary with values that are passed on to the parsing function.
+
+        Returns
+        -------
+            The added project.
+        """
+
+        # path where the tree will be saved
+        tree_path = os.path.join(self.temp_path, "tree.json")
+
+        try:
+            # parse the file
+            # TODO: should happen in another thread
+            tree = parser.parse(os.path.abspath(path), **kwargs)
+
+            # save the parsed file
+            file = open(tree_path, "w")
+            file.write(json.dumps(tree))
+            file.close()
+
+            # drop the name parameter from kwargs to be sure
+            # that no error happens
+            kwargs.pop('name', None)
+
+            # create the project
+            return self.create_project_from_files(name, tree_path)
+        finally:
+            os.remove(tree_path)
 
     def load_examples(self, directory, reload=False):
         """

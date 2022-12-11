@@ -27,7 +27,7 @@ class MethodTest(DatabaseTest):
     def __init__(self, methodName):
         super().__init__(methodName)
 
-        self.database = Database("./instance", clean=True)
+        self.database = Database("./instance")
         self.database.load_examples(directory="./instance/examples")
 
     def test_examples_loaded(self):
@@ -66,6 +66,11 @@ class MethodTest(DatabaseTest):
 
     def test_add_double(self):
         self.assertRaises(ProjectAlreadyExistsException, self.database.create_project_from_files, "R Iris", "./instance/examples/R Iris/tree.json")
+
+    def test_parse(self):
+        self.database.purge()
+        project = self.database.create_project_from_vendor("R Iris", "./instance/examples/R Iris/input.RData", type="RData", vendor="R", origin="rpart")
+        self.assertEqual(1, self.database.size())
 
 
 if __name__ == '__main__':

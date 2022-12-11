@@ -17,6 +17,7 @@ API = Blueprint("api", __name__, url_prefix="/api", template_folder="./api_templ
 
 # start the database
 database = Database(os.path.join(PACKAGE_PATH, "instance"))
+database.purge()
 database.load_examples(directory="../examples")
 
 
@@ -68,67 +69,38 @@ def new_project():
     form = json.loads(request.form['format'])
     file = request.files['file']
 
-    raise ProjectAlreadyExistsException("Test message")
+    print(form)
 
-    # # temporary folder in which the project is stored
-    # temp_path = os.path.join(PACKAGE_PATH, "instance/temp")
-    #
-    # if not os.path.isdir(temp_path):
-    #     # recreate the temporary folder
-    #     os.mkdir(temp_path)
-    #
-    # # path where the file will be saved
-    # file_path = os.path.join(temp_path, file.filename)
-    #
-    # # remove the temporary file if it already exists
-    # if os.path.exists(file_path):
-    #     os.remove(file_path)
-    #
-    # try:
-    #     # save the file
-    #     # TODO: maybe it would be best to compress file
-    #     # TODO: should happen in another thread
-    #     file.save(file_path)
-    #
-    #     # parse the file
-    #     # TODO: should happen in another thread
-    #     tree = parser.parse(file_path, **form)
-    #     print(json.dumps(tree))
-    #
-    #     # close the file storage
-    #     file.close()
-    #
-    #     # save the parsed file
-    #     file = open(file_path, "w")
-    #     file.write(json.dumps(tree))
-    #     file.close()
-    #
-    #     # create the project
-    #     database.create_project(name, file_path)
-    #
-    # except (NotImplementedError, database.DatabaseError) as error:
-    #     logger.error(str(error))
-    #     return make_response(jsonify({"message": str(error), "code": "FAILED"}), 500)
-    # finally:
-    #     pass
-    #     # os.remove(file_path)
-    #
-    # return make_response(jsonify({"message": "Done", "code": "SUCCESS"}), 201)
+    # path where the file will be saved
+    file_path = os.path.join(database.temp_path, file.filename)
+
+    # path where the parsed tree will be saved
+    tree_path = os.path.join(database.temp_path, "tree.json")
+
+    try:
+        # save the file
+        # TODO: maybe it would be best to compress file
+        # TODO: should happen in another thread
+        file.save(file_path)
+        file.close()
+
+        # create the project
+        database.create_project_from_vendor(name, file_path, **form)
+
+    finally:
+        os.remove(file_path)
+
+    return make_response("Success", 200)
 
 
 @API.route("/project/<uuid>", methods=["DELETE"])
 def remove_project(uuid):
-    raise NotImplementedError("Removing a project needs to be linked to the new database code")
-    # try:
-    #     project_to_delete = database.get_project(uuid)
-    #     if project_to_delete is not None:
-    #         database.remove_project(uuid)
-    #         return Response(status=200)
-    #     else:
-    #         logger.warning("(not found) " + repr(request))
-    #         abort(404)
-    # except Exception:
-    #     abort(500)
+    try:
+        database.remove_project(uuid)
+        return Response(status=200)
+    except DatabaseException as e:
+        e.with_traceback()
+        return Response(status=400)
 
 
 @API.route("/formats")

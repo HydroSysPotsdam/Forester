@@ -86,7 +86,7 @@ BasicView.illustrate = async function (node, settings) {
 export let CCircleIconView = new View("CCircleIconView", {
     maxRadius: 20,
     minRadius: 5,
-    scaleBySamples: false,
+    scaleBySamples: true,
     scaleMethod: "linear"
 })
 

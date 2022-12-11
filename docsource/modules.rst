@@ -1,8 +1,11 @@
 Documentation
 =============
 
-.. toctree::
-   :maxdepth: 4
+This is the documentation.
 
-   parser
-   forester
+.. autosummary::
+    :toctree: Documentation
+    :recursive:
+    :nosignatures:
+
+    forester.database

@@ -4,11 +4,20 @@
  * Forester: Interactive human-in-the-loop web-based visualization of machine learning trees
  */
 
+/**
+ * The project dashboard object bundles all code that is necessary to display
+ * an overview of the users projects and do basic operations like adding a new
+ * project, removing one or opening the editor.
+ *
+ * The nesting is mostly for better readability of the code.
+ */
 ProjectDashboard = {
 
     /**
-     * Retrieves a list of available projects from the server and
-     * opens the dashboard with them.
+     * Retrieves a list of available projects from the server and adds the
+     * tiles to the dashboard.
+     *
+     * TODO: what happens when the project list is empty?
      *
      * @returns A promise of the list of retrieved projects.
      */
@@ -19,7 +28,8 @@ ProjectDashboard = {
     },
 
     /**
-     * Clears all tiles from the project dashboard.
+     * Removes all tiles from the dashboard. They have the class
+     * .forester-projects-entry.
      */
     removeAll: function () {
         d3.select(".forester-projects-list")
@@ -28,7 +38,13 @@ ProjectDashboard = {
     },
 
     /**
+     * Removes the tile corresponding to a project from the dashboard, if it
+     * exists.
      *
+     * Each tile is uniquely identified by the projects UUID
+     * prefixed with #P-UUID.
+     *
+     * @param project A project object containing a UUID.
      */
     removeTile: function (project) {
         d3.select("#P-" + project.uuid)
@@ -36,7 +52,21 @@ ProjectDashboard = {
     },
 
     /**
-     * Initializes the project dashboard from a list of projects.
+     * Initializes the project dashboard.
+     *
+     * The list of projects is retrieved from the server subpage `api/projects`.
+     *
+     * For each project, a tile is created containing some basic information like
+     * name, author and size. Additionally, a thumbnail is used when it can be
+     * retrieved from the server as is an indicator icon for example projects.
+     *
+     * TODO: validate project
+     * TODO: delegate thumbnail retrieval to the server, use placeholder when none is found
+     * TODO: more pretty confirmation dialog?
+     *
+     * @param projects A list of projects each containing a UUID, a human-readable
+     * name, an author, a size and whether the project is an example.
+     *
      */
     createTiles: function (projects) {
 
@@ -46,10 +76,8 @@ ProjectDashboard = {
         // function to create one tile
         // called for each project
         let createTile = function (project) {
-            // TODO: validate project
 
             // add the thumbnail image
-            // TODO: delegate this to the server
             d3.select(this)
               .append("img")
               .attr("class", "forester-projects-entry-img")
@@ -82,7 +110,6 @@ ProjectDashboard = {
               // add the listener to trigger removal
               .on("click", function (event) {
                   event.stopPropagation()
-                  //TODO: more pretty confirmation dialog?
                   let shouldDelete = confirm("Are you sure you want to delete the project \"" + project.name + "\"?")
                   if (shouldDelete) {
                       ProjectDashboard.remove(project)
@@ -107,7 +134,16 @@ ProjectDashboard = {
 
     /**
      * Removes a project from the dashboard and sends a request to the server
-     * to delete it.
+     * to delete it from the database
+     *
+     * This is done by sending a DELETE request to the url `api/project/<UUID>`
+     * When the server response with HTTP status 200 (OK), the project has successfully been
+     * removed from the database. A status of 400 (Bad Request) is returned when the server
+     * could not find or delete a project with this UUID.
+     *
+     * TODO: pretty up the dialogs
+     *
+     * @param project The project that should be deleted, containing a UUID.
      */
     remove: function (project) {
         // projects are removed by sending an DELETE request to the /api/project/<uui> url
@@ -117,13 +153,12 @@ ProjectDashboard = {
 
         // listeners for when the response of the server was loaded
         req.onload = function () {
-            // TODO: pretty up the dialogs
             switch (this.status) {
-                case 200:
+                case 200: //OK
                     // remove the project tile
                     ProjectDashboard.removeTile(project)
                     break
-                case 400:
+                case 400: //Bad Request
                     alert(this.status + " - could not remove project")
                     break
                 default:
@@ -135,14 +170,31 @@ ProjectDashboard = {
         req.send()
     },
 
+    /**
+     * Opens the editor for a given project.
+     *
+     * The editor may be accessed from the url `editor/<UUID>`.
+     *
+     * @param {project} The project that should be opened containing a UUID.
+     */
     openEditor: function (project) {
         window.location = window.origin + "/editor/" + project.uuid
     }
 
 }
 
+/**
+ * The project creation dialog bundles all code that deals with creating a new project.
+ * This includes loading a file from the server, gathering some important metadata and
+ * sending the file to the server for parsing.
+ */
 ProjectCreationDialog = {
 
+    /**
+     * Called when the project creation dialog is opened. The dialog is focussed by
+     * blurring the background and reset by deleting all input from the form and disabling
+     * all tabs except the first one.
+     */
     onOpen: function () {
         // toggle the dialog class
         $(".forester-projects-dashboard").toggleClass("dialog-closed dialog-open")
@@ -154,18 +206,37 @@ ProjectCreationDialog = {
         document.getElementById("forester-projects-new").reset();
     },
 
+    /**
+     * Called when the project creation dialog is closed. Disables the blurring of the
+     * background.
+     */
     onClose: function () {
         // toggle the dialog class
         $(".forester-projects-dashboard").toggleClass("dialog-closed dialog-open")
     },
 
+    /**
+     * Called when a file is dropped or selected in the drop-area. The second tab
+     * (project information form) is then opened.
+     *
+     * At the moment two file types are supported: json and rdata. One file type
+     * can correspond to multiple training algorithms that were used to create the file.
+     * Therefore, a list of supported formats is downloaded from the server, filtered
+     * and displayed so that the user can select an algorithm.
+     *
+     * The information that is gathered in the form additionally includes a project name
+     * (with a default name generated from the file-name).
+     *
+     * TODO: what happens when the file is invalid?
+     *
+     * @param {event} The event that was dispatched when the file changed.
+     */
     onFileDrop: async function (event) {
 
         // enable the second tab
         $("#forester-projects-new > .tabs").tabs({disabled: [2], active: 1})
 
         // get the file that the user dropped
-        // TODO: what happens when the file is invalid?
         const file = d3.select(".forester-projects-new-droparea").node().files[0]
         const type = file.name.split(".").slice(-1)[0]
 
@@ -227,6 +298,24 @@ ProjectCreationDialog = {
         })
     },
 
+    /**
+     * Called when the user submits the project information form and both file and
+     * form content should be transferred to the server for parsing.
+     *
+     * The transfer is done using a POST HTTP request to `/api/projects` with the
+     * form included in the request data.
+     *
+     * When the server returns code 200 (OK) the project was successfully created
+     * and will from now on be included in the project list. A code 500 (internal
+     * server error) is returned when an error occurred during parsing. The response
+     * then contains a message that describes this error. Other codes may be returned
+     * but are not differentiated.
+     *
+     * TODO: validate project
+     *
+     * @param project The project containing a name, the file format and the file to
+     * be parsed.
+     */
     onFormSubmit: function (project) {
         // enable the third tab
         $("#forester-projects-new > .tabs").tabs({disabled: [], active: 2})
@@ -235,8 +324,6 @@ ProjectCreationDialog = {
         let uri = window.origin + "/api/projects"
         let req = new XMLHttpRequest()
         req.open("POST", uri)
-
-        // TODO: validate project
 
         // add the information from the upload dialog
         let formData = new FormData();
@@ -267,6 +354,17 @@ ProjectCreationDialog = {
         req.send(formData);
     },
 
+    /**
+     * Called when the project creation was successful.
+     *
+     * Displays a confirmation icon on the project creation tab and reloads
+     * the project dashboard.
+     *
+     * TODO: do the reloading by re-creating the dashboard and not refreshing the page
+     *
+     * @param response The response that is returned by the server. A object that contains a
+     * code and message field.
+     */
     onCreationSuccess: function (response) {
         // in the upload tab change the status indicator icon
         d3.select("#upload")
@@ -279,12 +377,20 @@ ProjectCreationDialog = {
           .text("Sucess")
 
         // reload the page
-        // TODO: replace this by closing the dialog and reloading the dashboard
         setTimeout(() => location.reload(), 100)
     },
 
+    /**
+     * Called when the project could not be created.
+     *
+     * Displays an error indicator and the error message.
+     *
+     * TODO: check whether the dialog is visible and the tab available
+     *
+     * @param response The response that is returned by the server. A object that contains a
+     * code and message field.
+     */
     onCreationError: function (response) {
-        // TODO: check whether the dialog is visible and the tab available
 
         // in the upload tab change the status indicator icon
         d3.select("#upload")

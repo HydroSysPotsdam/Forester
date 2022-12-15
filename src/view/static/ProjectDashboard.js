@@ -62,7 +62,6 @@ ProjectDashboard = {
      *
      * TODO: validate project
      * TODO: delegate thumbnail retrieval to the server, use placeholder when none is found
-     * TODO: more pretty confirmation dialog?
      *
      * @param projects A list of projects each containing a UUID, a human-readable
      * name, an author, a size and whether the project is an example.
@@ -108,9 +107,9 @@ ProjectDashboard = {
               .append("i")
               .attr("class", "fa-solid fa-trash forester-projects-entry-delete")
               // add the listener to trigger removal
-              .on("click", function (event) {
+              .on("click", async function (event) {
                   event.stopPropagation()
-                  let shouldDelete = confirm("Are you sure you want to delete the project \"" + project.name + "\"?")
+                  let shouldDelete = await showConfirmationDialog("Are you sure you want to delete the project \"" + project.name + "\"?")
                   if (shouldDelete) {
                       ProjectDashboard.remove(project)
                   }
@@ -141,8 +140,6 @@ ProjectDashboard = {
      * removed from the database. A status of 400 (Bad Request) is returned when the server
      * could not find or delete a project with this UUID.
      *
-     * TODO: pretty up the dialogs
-     *
      * @param project The project that should be deleted, containing a UUID.
      */
     remove: function (project) {
@@ -159,10 +156,10 @@ ProjectDashboard = {
                     ProjectDashboard.removeTile(project)
                     break
                 case 400: //Bad Request
-                    alert(this.status + " - could not remove project")
+                    showInfoDialog(this.status + " - could not remove project", "ERROR")
                     break
                 default:
-                    alert(this.status + " - unknown response by the server")
+                    showInfoDialog(this.status + " - unknown response by the server", "ERROR")
             }
         }
 
@@ -334,7 +331,7 @@ ProjectCreationDialog = {
         req.onload = function () {
 
             // parse the response string
-            let response = JSON.parse(this.response)
+            let response = this.responseType === "json" ? JSON.parse(this.response) : this.response
 
             switch (this.status) {
                 case 200:
@@ -360,24 +357,28 @@ ProjectCreationDialog = {
      * Displays a confirmation icon on the project creation tab and reloads
      * the project dashboard.
      *
-     * TODO: do the reloading by re-creating the dashboard and not refreshing the page
-     *
      * @param response The response that is returned by the server. A object that contains a
      * code and message field.
      */
     onCreationSuccess: function (response) {
+        // enable the third tab
+        $("#forester-projects-new > .tabs").tabs({disabled: [], active: 2})
+
         // in the upload tab change the status indicator icon
         d3.select("#upload")
           .select(".info-icon")
-          .attr("class", "info-icon fa-solid fa-check-circle fa-shake fa-3x")
+          .attr("class", "info-icon fa-solid fa-check-circle fa-3x")
 
         // show a success message
         d3.select("#upload")
           .select(".info")
           .text("Sucess")
 
+        // close the dialog
+        $("#forester-projects-new").dialog("close")
+
         // reload the page
-        setTimeout(() => location.reload(), 100)
+        setTimeout(ProjectDashboard.initialize, 100)
     },
 
     /**
@@ -385,12 +386,12 @@ ProjectCreationDialog = {
      *
      * Displays an error indicator and the error message.
      *
-     * TODO: check whether the dialog is visible and the tab available
-     *
      * @param response The response that is returned by the server. A object that contains a
      * code and message field.
      */
     onCreationError: function (response) {
+        // enable the third tab
+        $("#forester-projects-new > .tabs").tabs({disabled: [], active: 2})
 
         // in the upload tab change the status indicator icon
         d3.select("#upload")
@@ -404,6 +405,87 @@ ProjectCreationDialog = {
               .text(response.description)
         }
     }
+}
+
+window.showInfoDialog = function (message, status="OK") {
+
+    $(".forester-projects-dashboard").toggleClass("dialog-closed dialog-open")
+
+    let classes = ""
+    let title = ""
+    switch (status) {
+        case "OK":
+            classes = "fa-solid fa-check-circle"
+            title = "Success"
+            break;
+        case "INFO":
+            classes = "fa-solid fa-circle-info"
+            title = "Info"
+            break;
+        case "CONFIRM":
+            classes = "fa-solid fa-circle-question"
+            title = "Confirm"
+            break;
+        case "WARNING":
+            classes = "fa-solid fa-circle-exclamation"
+            title = "Warning"
+            break;
+        case "ERROR":
+            classes = "fa-solid fa-circle-xmark fa-shake"
+            title = "Error"
+            break;
+    }
+
+    let container = $("<div><div>")
+        .appendTo("body")
+        .dialog({
+            modal: true,
+            resizable: false,
+            draggable: false,
+            title: title,
+            height: 'auto',
+            buttons: {
+                Ok: function () {
+                    $(this).dialog("close")
+                }
+            },
+            close: function () {
+                $(".forester-projects-dashboard").toggleClass("dialog-closed dialog-open")
+                $(this).remove()
+            }
+        })
+        .addClass("forester-dialog")
+        .html(message)
+
+    container.parent().find('.ui-dialog-title').html("<i class='" + classes + "'></i><span>" + title + "</span>")
+
+    return container;
+}
+
+window.showConfirmationDialog = function (message) {
+    let dialog = showInfoDialog(message, "CONFIRM")
+
+    return new Promise(resolve => {
+        dialog.dialog({
+            buttons: {
+                Yes: function () {
+                    $(".forester-projects-dashboard").toggleClass("dialog-closed dialog-open")
+                    $(this).remove()
+                    resolve(true)
+                },
+                No: function () {
+                    $(".forester-projects-dashboard").toggleClass("dialog-closed dialog-open")
+                    $(this).remove()
+                    resolve(false)
+                }
+            },
+            close: function () {
+                $(".forester-projects-dashboard").toggleClass("dialog-closed dialog-open")
+                $(this).remove()
+                resolve(false)
+            }
+        })
+    })
 }
 
 $(function () {

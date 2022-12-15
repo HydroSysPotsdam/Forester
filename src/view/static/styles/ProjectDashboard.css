@@ -146,7 +146,6 @@
     visibility: hidden;
     opacity: 0;
     transform: none;
-
 }
 
 .forester-projects-entry-delete:hover {
@@ -308,10 +307,22 @@
     align-items: center !important;
 }
 
-#upload .fa-check-circle {
+.fa-check-circle {
     color: var(--forester_highlight)
 }
 
-#upload .fa-circle-xmark {
+.fa-circle-xmark {
     color: orangered;
+}
+
+.fa-circle-exclamation {
+    color: orange;
+}
+
+.ui-dialog-title > i {
+    margin: .2em .5em .2em .2em;
+}
+
+.ui-dialog-buttonpane {
+    padding: .2em;
 }

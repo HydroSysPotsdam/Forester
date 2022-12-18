@@ -321,8 +321,7 @@ export class FTree {
 
         // go through all the nodes and assign a node renderer
         for (const node of this.nodes) {
-            const view = [Views.BasicView, Views.CCircleIconView, Views.TextView][Math.floor(Math.random() * 3)]
-            // const view = Views.CCircleIconView
+            const view = [Views.BasicView, Views.CCircleIconView, Views.TextView, Views.BarChartView][Math.floor(Math.random() * 4)]
             let renderer = new NodeRenderer(node, view)
             this.renderers.set(node.id, renderer)
         }

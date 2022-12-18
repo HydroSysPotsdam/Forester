@@ -195,58 +195,105 @@ TextView.illustrate = async function (node, settings) {
         .style("fill", "white")
 }
 
-// export let TextView = new View("TextView");
-//
-// TextView.illustrate = function (selection, node, meta) {
-//     const entry_vote = Legend.byLabel(node.vote)
-//     const entry_feature = node.split ? Legend.byLabel(node.split.feature) : undefined
-//
-//     const table =
-//         selection.append("div")
-//                  .attr("class", "TextView")
-//                  .append("table")
-//
-//     // SPLIT
-//     if (node.type != "leaf") {
-//         table.append("tr")
-//              .call(function (row) {
-//                  row.append("th")
-//                     .text("Sp")
-//                  row.append("td")
-//                     .call(function (row) {
-//                         row.append("span")
-//                            .attr("class", "colorcoded")
-//                            .attr("legend_key", entry_feature.key)
-//                            .text(node.split.feature)
-//                         row.append("text")
-//                            .text(" " + node.split.operator + " " + numeral(node.split.location).format("0.00a"))
-//                     })
-//              })
-//     }
-//
-//     // VOTE
-//     table.append("tr")
-//          .call(function (row) {
-//              row.append("th")
-//                 .text("V")
-//              const td = row.append("td")
-//              td.append("span")
-//                .attr("class", "colorcoded")
-//                .attr("legend_key", entry_vote.key)
-//                .text(node.vote)
-//              td.append("text")
-//                .text(" (" + numeral(node.vote_fraction).format("0%") + ")")
-//          })
-//
-//     // SAMPLES
-//     table.append("tr")
-//          .call(function (row) {
-//              row.append("th")
-//                 .text("S")
-//              row.append("td")
-//                 .text(numeral(node.samples).format("0.00a"))
-//          })
-// }
+export let BarChartView = new View("Bar Chart", {
+    axis:   "horizontal",
+    width:  80,
+    height: 30,
+    aggregate: 0.1,
+    sort: true
+})
+
+BarChartView.illustrate = async function (node, settings) {
+    // TODO: the thresholding works but is not a good choice: small values are aggregated leading to larger other than some other but slightly larger values
+
+    const data = await node.query("distribution", "classes", "samples")
+
+    // select axis based on value
+    let axis, cross_axis, extend, cross_extend
+    switch (settings.axis) {
+        default:
+            // use vertical as default
+        case "horizontal":
+            extend       = "width"
+            cross_extend = "height"
+            axis         = "x"
+            cross_axis   = "y"
+            break;
+        case "vertical":
+            extend       = "height"
+            cross_extend = "width"
+            axis         = "y"
+            cross_axis   = "x"
+            break;
+    }
+
+    // get distribution of sample values per class
+    let distribution = _.zip(data.distribution, data.classes)
+
+    // sort distribution in ascending order
+    if (settings.sort) {
+        distribution = _.sortBy(distribution, e => e[0]).reverse()
+    }
+
+    let bars = []
+    let other  = 0
+    for (let class_value of distribution) {
+        // first element is sample number, will be normalized
+        let samples = class_value[0]/data.samples
+        // second element is class label
+        let label   = class_value[1]
+
+        // add one bar for a value when it is either above the aggregate thresholding value or
+        // there is only one left and this would fall below the threshold
+        if (samples > settings.aggregate || (other == 0 && distribution.indexOf(class_value) == distribution.length - 1)) {
+            if (bars.length == 0) {
+                // first bar must have a cumsum of zero
+                bars.push([0, samples, label])
+            } else {
+                // other bars calculate cumsum based on previous values
+                bars.push([bars.at(-1)[0] + bars.at(-1)[1], samples, label])
+            }
+        // when the sample number is below the threshold, add it to the "other" bar
+        } else {
+            other += samples
+        }
+    }
+
+    // when the other bar has a size above zero, add it to the chart
+    if (other > 0) {
+        bars.push([bars.at(-1)[0] + bars.at(-1)[1], other, "Other"])
+    }
+
+    // when the axis is vertical, the direction of the bars needs to be reversed
+    // this is done by inverting the cumulative sum
+    if (settings.axis === "vertical") {
+        bars.forEach(bar => bar[0] = 1 - (bar[0] + bar[1]))
+    }
+
+    d3.select(this)
+      .selectAll("rect")
+      .data(bars)
+      .enter()
+      .append("rect")
+      // axis is the longer side of the chart
+      .attr(axis,   d => d[0]*settings.width + "px")
+      // extend is the length of the longer side
+      .attr(extend, d => d[1]*settings.width + "px")
+      // cross extend is the perpendicular size
+      .attr(cross_extend, settings.height + "px")
+      .attr("class", "colorcoded")
+      .style("stroke", "black")
+      .each(function (d) {
+          if (d[2] !== "Other") {
+              d3.select(this)
+                .attr("legend_key", Legend.byLabel(d[2]).key)
+                .style("fill", "var(--highlight-color)")
+          } else {
+              d3.select(this)
+                .style("fill", "white")
+          }
+      })
+}
 
 
 

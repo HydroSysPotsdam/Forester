@@ -1,6 +1,7 @@
 import {FTree} from "./Tree.js";
 import * as Views from "./Views.js";
 import {FNode} from "./Node.js";
+import {Panzoom} from "./Panzoom.js";
 
 export let Tree = {}
 
@@ -12,9 +13,15 @@ export function openFromData (data) {
 
         Tree = new FTree(nodes, "#tree")
 
+        console.log(document.getElementById(Tree.id))
+
         Legend.generate()
 
         Tree.draw()
+
+        // add pan and zoom funcionality
+        let panzoom = new Panzoom(document.getElementById(Tree.id))
+
         resolve()
     })
 }

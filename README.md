@@ -5,7 +5,6 @@
 [![Stargazers][stars-shield]][stars-url]
 [![Issues][issues-shield]][issues-url]
 [![MIT License][license-shield]][license-url]
-[![LinkedIn][linkedin-shield]][linkedin-url]
 
 
 <br />
@@ -25,13 +24,19 @@
 
 ## Quickstart
 
+For now, 
+
+```
+git clone https://github.com/HydroSysPotsdam/Forester.git
+```
+
 ## Table of Contents
 <ol>
     <li><a href="#about-the-project">About The Project</a></li>
     <li><a href="#roadmap">Roadmap</a></li>
     <li><a href="#contributing">Contributing</a></li>
     <li><a href="#license">License</a></li>
-    <li><a href="#contact">Contact Us</a></li>
+    <li><a href="#contact-us">Contact Us</a></li>
 </ol>
 
 ---
@@ -51,9 +56,9 @@
 ## License
 Distributed under the [CC-BY-NC][license-url] license.
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
 ## Contact Us
+
+Send a mail to 💌 [David Strahl](<mailto:david.strahl@uni-potsdam.de>) or 💌 [Robert Reinecke](<mailto:robert.reinecke@uni-potsdam.de>).
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 

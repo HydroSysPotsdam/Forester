@@ -24,11 +24,21 @@
 
 ## Quickstart
 
-For now, 
+For now, Forester may only be installed by cloning the GitHub repository.
 
 ```
 git clone https://github.com/HydroSysPotsdam/Forester.git
 ```
+
+Once the repository is installed, run the following command inside the project folder. Make sure, that you have installed Python.
+
+```
+python run.py
+```
+
+Now go to the displayed address in your browser. The default value is [http://127.0.0.1:8000](http://127.0.0.1:8000).
+
+We are planning on simplifying the installation dramatically. We want Forester to be installable with Conda and Pip and runnable using a simple script.
 
 ## Table of Contents
 <ol>
@@ -43,9 +53,67 @@ git clone https://github.com/HydroSysPotsdam/Forester.git
 
 ## About The Project
 
+Forester is an interactive web-based visualization tool for decision trees. With Forester, decision trees finally become beautiful __and__ informative!
+
+With our modular approach, one decision tree can take on many forms. Of course, any one looks good by itself!
+This allows the user to exactly convey what is important.
+
+Below you can see a classification for the infamous Fisher Iris dataset. 
+We think Foresters illustration far outperforms R or Matlab.
+
+<br>
+
+![](./docs/html/_images/preview.png)
+
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
+Learn more about Forester by reading the section [Getting Started]() in the docs. Or you just try it out yourself!
+
 ## Roadmap
+
+We are planning to publish Forester in three development steps.
+
+Forester is usable in any of these steps, allowing user to test it and contribute to its functionality.
+
+### Basic Functionality (2023/Q1):
+The first development iteration focuses mainly on the visualization of already calculated decision trees. 
+From user generated _classification_ decision trees in R, Matlab or Python, Forester will generate publication ready plots.
+The following features are planned:
+- [x] Support for R's _rpart_ and Matlab's _fitctree_
+- [x] Different Visualization approaches
+  - [x] Text summary
+  - [x] Class distribution charts
+  - [x] Focussed on features and splitting values
+- [x] Customizable legend
+- [x] Sample flow indicator
+- [ ] Custom layout algorithm
+- [ ] Support for Python classification libraries
+- [ ] Interactive Tutorial
+- [ ] Customizing visualization for every node
+- [ ] Export as svg, png, pdf
+
+<br>
+
+![](./docs/html/_images/upcoming_v0.png)
+
+
+### Data-Driven Visualization (2023/Q4)
+The second introduces a data-driven approach, allowing access to the original training data and much more insightful visualizations.
+
+- [ ] Support for regression trees
+- [ ] Advanced node visualizations
+  - [ ] Class distribution based on feature values
+  - [ ] Regression value based on feature values
+  - [ ] Feature space illustrations
+  - [ ] Partial dependence plots
+  
+<br>
+  
+![](./docs/html/_images/upcoming_v1.png)
+
+### A Human in the Loop
+
+The third one focuses on the human-in-the-loop approach by allowing the user to influence the training algorithm by interacting with the illustration.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 

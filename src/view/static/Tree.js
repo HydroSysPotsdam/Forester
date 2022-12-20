@@ -350,8 +350,6 @@ export class FTree {
             .append("svg")
             .attr("class", "canvas")
             .attr("xmlns:xhtml", "http://www.w3.org/1999/xhtml")
-            .style("left", 50)
-            .style("top", 50)
             .style("position", "relative")
 
         // append the links group
@@ -395,8 +393,8 @@ export class FTree {
         // update the size of the svg image
         this.#ui_elem
             .select("svg")
-            .style("width", width + "px")
-            .style("height", height + "px")
+            .style("width", width)
+            .style("height", height)
 
         for (const node of this.nodes) {
             let renderer = this.renderers.get(node.id)

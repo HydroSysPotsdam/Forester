@@ -13,8 +13,6 @@ export function openFromData (data) {
 
         Tree = new FTree(nodes, "#tree")
 
-        console.log(document.getElementById(Tree.id))
-
         Legend.generate()
 
         Tree.draw()

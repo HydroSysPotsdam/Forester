@@ -115,7 +115,7 @@ class Settings {
     }
 
     entries () {
-        return this.#settings.entries()
+        return new Map(this.#settings)
     }
 
     addChangeListener(callback, key, index = -1) {

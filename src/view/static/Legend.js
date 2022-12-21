@@ -4,7 +4,7 @@
  * Forester: Interactive human-in-the-loop web-based visualization of machine learning trees
  */
 
-import {Tree} from "./Editor.js";
+import {Tree} from "./editor/Editor.js";
 import {GlobalSettings} from "./Settings.js";
 
 $("#legend").ready(function () {

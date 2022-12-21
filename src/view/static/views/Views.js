@@ -4,8 +4,14 @@
  * Forester: Interactive human-in-the-loop web-based visualization of machine learning trees
  */
 
-import {Tree} from "./Editor.js"
-import {Legend} from "./Legend.js";
+/*
+ * CC-0 2022.
+ * David Strahl, University of Potsdam
+ * Forester: Interactive human-in-the-loop web-based visualization of machine learning trees
+ */
+
+import {Tree} from "../editor/Editor.js"
+import {Legend} from "../Legend.js";
 
 export class View {
 
@@ -50,8 +56,6 @@ BasicView.illustrate = async function (node, settings) {
 
     const data = await node.query("type", "splitFeature", "vote")
 
-    await new Promise(resolve => setTimeout(resolve, Math.random() * 1000))
-
     if (data.type === "leaf") {
         d3.select(this)
           .append("circle")
@@ -95,8 +99,6 @@ CCircleIconView.center = false
 CCircleIconView.illustrate = async function (node, settings) {
 
     const data = await node.query("distribution", "samplesFraction", "classes")
-
-    await new Promise(resolve => setTimeout(resolve, Math.random() * 1000))
 
     let radius
     if (settings.scaleBySamples) {

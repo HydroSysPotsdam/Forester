@@ -1,7 +1,14 @@
-import {FTree} from "./Tree.js";
-import * as Views from "./Views.js";
-import {FNode} from "./Node.js";
-import {Panzoom} from "./Panzoom.js";
+/*
+ * CC-0 2022.
+ * David Strahl, University of Potsdam
+ * Forester: Interactive human-in-the-loop web-based visualization of machine learning trees
+ */
+
+import {TreeRenderer} from "./TreeRenderer.js";
+import * as Views from "../views/Views.js";
+import {FNode} from "../Node.js";
+import {Panzoom} from "../Panzoom.js";
+import {GlobalSettings} from "../Settings.js";
 
 export let Tree = {}
 
@@ -11,11 +18,12 @@ export function openFromData (data) {
         let nodes = new FNode(d3.hierarchy(data.tree), data.meta)
         console.log(nodes)
 
-        Tree = new FTree(nodes, "#tree")
+        Tree = new TreeRenderer(nodes, "#tree")
 
         Legend.generate()
 
-        Tree.draw()
+        let settings = GlobalSettings.entries()
+        Tree.draw(settings)
 
         // add pan and zoom funcionality
         let panzoom = new Panzoom(document.getElementById(Tree.id))

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/eventemitter3/5.0.0/index.min.js"></script>
+
+    <style>
+
+        .settings-form {
+            display: flex;
+            flex-direction: column;
+            width: 400px;
+        }
+
+        .settings-group {
+            display: flex;
+            flex-direction: column;
+            margin:  0.5em;
+            padding: 0.5em;
+            border: 1px solid black;
+        }
+
+        .settings-entry {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            margin: 0.2em 0;
+        }
+
+        .settings-form > .settings-entry {
+            margin: 1em;
+        }
+
+    </style>
+</head>
+<body>
+    <script type="module">
+        import SettingsDialog from "../../static/SettingsDialog.js";
+
+        let rules = {
+            "colorscale":       "in:Brewer 1,Brewer 2, Brewer 3|default:Brewer 2",
+            "layout.direction": "in:top-bottom,left-right|default:top-bottom",
+            "layout.lspace":    "numeric|min:0|max:100|default:50",
+            "layout.bspace":    "numeric|min:0|max:100|default:50",
+            "path.style":       "in:Linear,Curved,Ragged|default:Linear",
+            "path.flow":        "in:None,Linear,Autocontrast,Colorcoded|default:None",
+            "test":             "boolean|default:true"
+        }
+
+        new SettingsDialog({}, rules)
+
+    </script>
+</body>
+</html>

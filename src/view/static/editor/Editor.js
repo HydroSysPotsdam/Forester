@@ -9,27 +9,68 @@ import * as Views from "../views/Views.js";
 import {FNode} from "../Node.js";
 import {Panzoom} from "../Panzoom.js";
 import {GlobalSettings} from "../Settings.js";
+import {BasicLinkRenderer, FlowLinkRenderer} from "./LinkRenderer.js";
 
+// TODO: remove this variable
 export let Tree = {}
 
-export function openFromData (data) {
-    return new Promise((resolve, reject) => {
+export default {
 
+    Events: new EventEmitter(),
+
+    // the current tree renderer
+    Tree,
+
+    // handle to the editors legend
+    Legend,
+
+    // the current panzoom handler
+    Panzoom,
+
+    openFromData: async function (data) {
+
+        // load the nodes from the data
         let nodes = new FNode(d3.hierarchy(data.tree), data.meta)
-        console.log(nodes)
 
-        Tree = new TreeRenderer(nodes, "#tree")
+        // register the settings handles
+        this.registerEventListeners()
 
-        Legend.generate()
-
+        // render the tree
         let settings = GlobalSettings.entries()
-        Tree.draw(settings)
+        this.Tree = new TreeRenderer(nodes, "#tree")
+        this.Tree.draw(settings)
+        Tree = this.Tree
+
+        // generate the legend
+        Legend.generate()
+        this.Legend = Legend
 
         // add pan and zoom funcionality
-        let panzoom = new Panzoom(document.getElementById(Tree.id))
+        this.Panzoom = new Panzoom(document.getElementById(Tree.id))
 
-        resolve()
-    })
+        // add a handle to the window
+        window.Editor = this
+    },
+
+    registerEventListeners: function () {
+        GlobalSettings.addChangeListeners(() => this.onLayoutSettingChange.call(this, GlobalSettings.entries()), "layout.direction", "layout.lspace", "layout.bspace")
+        GlobalSettings.addChangeListeners(() => this.onLinkSettingChange.call(this, GlobalSettings.entries()), "path.style", "path.flow")
+    },
+
+    onLayoutSettingChange: function (settings) {
+        this.Tree.layout(settings)
+    },
+
+    onLinkSettingChange: function (settings) {
+
+        if (settings.get("path.style") === "none") {
+            Tree.linkRenderer = new BasicLinkRenderer(d3.select(".tree-links").node())
+        } else {
+            Tree.linkRenderer = new FlowLinkRenderer(d3.select(".tree-links").node())
+        }
+
+        this.Tree.redrawLinks(settings)
+    }
 }
 
 // export let Tree

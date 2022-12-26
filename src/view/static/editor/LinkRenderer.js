@@ -111,9 +111,7 @@ export class FlowLinkRenderer extends BasicLinkRenderer {
      */
     async draw(source, target, settings) {
 
-        let data = await source.node.query("samplesFraction", "samples", "distribution", "classes")
-
-        await new Promise(resolve => setTimeout(resolve, Math.random()*500));
+        let data = await target.node.query("samplesFraction", "samples", "distribution", "classes")
 
         // draw the link, so that the flow curve can be generated
         let path = await super.draw(source, target, settings)

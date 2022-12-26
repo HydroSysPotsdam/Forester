@@ -34,29 +34,11 @@ export class TreeRenderer {
 
         // go through all the nodes and assign a node renderer
         for (const node of this.nodes) {
-            const view = [Views.BasicView, Views.CCircleIconView, Views.TextView, Views.BarChartView][Math.floor(Math.random() * 4)]
+            // const view = [Views.BasicView, Views.CCircleIconView, Views.TextView, Views.BarChartView][Math.floor(Math.random() * 4)]
+            const view = Views.CCircleIconView
             let renderer = new NodeRenderer(node, view)
             this.renderers.set(node.id, renderer)
         }
-
-        // add the panzoom functionality
-        //this.panzoom = new Panzoom(this.#ui_elem.node())
-
-        GlobalSettings.addChangeListeners(() => this.layout.call(this, GlobalSettings.entries()), "layout.direction", "layout.lspace", "layout.bspace")
-
-        GlobalSettings.addChangeListeners(() => {
-            let settings = GlobalSettings.entries()
-
-            if (settings.get("path.style") === "none") {
-                this.linkRenderer = new BasicLinkRenderer(this.#ui_elem.select(".tree-links").node())
-            } else {
-                this.linkRenderer = new FlowLinkRenderer(this.#ui_elem.select(".tree-links").node())
-            }
-
-            this.redrawLinks.call(this, settings)
-        }, "path.style", "path.flow")
-
-        window.Tree = this
     }
 
     #initializeContainer (elem) {

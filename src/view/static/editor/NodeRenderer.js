@@ -10,7 +10,7 @@
  * Forester: Interactive human-in-the-loop web-based visualization of machine learning trees
  */
 
-import {Legend} from "../Legend.js";
+import Editor from "./Editor.js";
 
 /**
  * Wrapper around a node that keeps track of the used view for illustration and
@@ -70,7 +70,7 @@ export class NodeRenderer {
 
         this.view     = view
         this.settings = {}
-        this.settings[view.name] = view.defaultSettings
+        this.settings[view.name] = {}
 
         this.on("view-ready", () => this.#onViewReady())
     }
@@ -147,8 +147,11 @@ export class NodeRenderer {
         this.#updateTransform()
 
         // illustrate the node with the current view
-        this.view.illustrate.call(this.#elem.select(".node-view").node(), this.node, this.settings[this.view.name])
+        this.view.draw(this.#elem.select(".node-view").node(), this.node, this.settings[this.view.name])
             .then(() => this.#ee.emit("view-ready"))
+
+        // dispatch an node-added event
+        Editor.Events.emit('node-drawn', this)
     }
 
     /**
@@ -255,7 +258,7 @@ export class NodeRenderer {
         this.#updateTransform()
 
         // update legend
-        Legend.update()
+        Editor.Legend.update()
 
         // show the view
         this.#elem

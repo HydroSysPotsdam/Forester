@@ -17,7 +17,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/numeral.js/2.0.6/numeral.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/uuid/8.3.2/uuid.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore.js"></script>
-    <script src="../static/lib/validator.js"></script>
     <script src="../static/lib/quicksettings.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html-to-image/1.10.8/html-to-image.min.js"></script>
     <script src="https://unpkg.com/geometric@2.5.0/build/geometric.js"></script>
@@ -46,20 +45,24 @@
         <text>Loading your project...</text>
     </div>
     <script type="module" defer>
-        import * as Editor from "../static/editor/Editor.js";
+        import Editor from "../static/editor/Editor.js";
 
         /**
          * Short wrapper function for loading the data from the server and starting the editor when the document
          * finished loading. The loading screen is automatically removed.
          */
         $(document).ready(async function () {
+            // fetch the data from the server
             let url  = "{{ url_for('api.project', uuid=uuid, _external=True)}}"
             let data = await fetch(url).then(resp => resp.json())
-            await Editor.openFromData(data).then(function () {
-                console.log("Removing loading screen")
-                {#document.querySelector(".forester-editor").setAttribute("visibility", "visible")#}
-                document.querySelector(".forester-editor-loading").remove()
-            })
+
+            // open the editor
+            await Editor.openFromData(data)
+
+            // remove the loading screen after the editor is done loading
+            console.log("Removing loading screen")
+            {#document.querySelector(".forester-editor").setAttribute("visibility", "visible")#}
+            document.querySelector(".forester-editor-loading").remove()
         })
     </script>
 

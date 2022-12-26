@@ -4,27 +4,24 @@
  * Forester: Interactive human-in-the-loop web-based visualization of machine learning trees
  */
 
-/*
- * CC-0 2022.
- * David Strahl, University of Potsdam
- * Forester: Interactive human-in-the-loop web-based visualization of machine learning trees
- */
-
 import {Tree} from "../editor/Editor.js"
 import {Legend} from "../Legend.js";
+import Validator from "../Validator.js";
 
 export class View {
 
+    // name of the view to be displayed in the editor
     name
 
-    defaultSettings
+    // rules to validate the settings and generate a settings panel
+    rules
 
-    constructor(name, settings) {
-        this.name     = name
-        this.defaultSettings = settings
+    constructor(name, rules) {
+        this.name  = name
+        this.rules = rules
 
-        if (!this.defaultSettings) {
-            this.defaultSettings = {}
+        if (!this.rules) {
+            this.rules = {}
         }
     }
 
@@ -39,13 +36,26 @@ export class View {
         return false
     }
 
+    async draw(context, node, settings) {
+
+        // prepare the validator for the settings
+        let settingsValidator = new Validator(settings, this.rules)
+
+        // validate settings and throw error when there was an unknown setting
+        if (settingsValidator.passes()) {
+            await this.illustrate.call(context, node, settings)
+        } else {
+            throw Error(settingsValidator.error.all())
+        }
+    }
+
     /**
      * Generates the illustration for a given node and canvas key.
      * @param selection - The d3 selection to which all graphic elements should be added
      * @param node - The node that should be added
      * @param meta - The metadata that is linked to the node for easy access
      */
-    async illustrate(selection, node, meta) {
+    async illustrate(node, settings) {
         throw Error("View does not implement function \'illustrate\'")
     }
 }
@@ -88,13 +98,11 @@ BasicView.illustrate = async function (node, settings) {
  * @type {View}
  */
 export let CCircleIconView = new View("CCircleIconView", {
-    maxRadius: 20,
-    minRadius: 5,
-    scaleBySamples: true,
-    scaleMethod: "linear"
+    maxRadius:      "numeric|min:0|max:100|default:20",
+    minRadius:      "numeric|min:0|max:100|default:5.5",
+    scaleBySamples: "boolean|default:true",
+    scaleMethod:    "in:linear,auto|default:linear"
 })
-
-CCircleIconView.center = false
 
 CCircleIconView.illustrate = async function (node, settings) {
 
@@ -125,7 +133,6 @@ TextView.illustrate = async function (node, settings) {
 
     const data = await node.query("vote", "voteFraction", "samples", "splitFeature", "splitOperator", "splitLocation")
 
-    // TODO: this should be done with CSS
     d3.select(this)
       .style("font-size", "0.5em")
       .style("transform", "scale(1.2)")

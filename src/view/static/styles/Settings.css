@@ -76,3 +76,39 @@
 .qs_label b {
     font-weight: normal;
 }
+
+.settings-form {
+    width:  100%;
+    height: 100%;
+    max-height: available;
+    display: flex;
+    flex-direction: column;
+}
+
+.settings-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.settings-group > label {
+    margin: 0.5em 0;
+    padding-bottom: 0.2em;
+    border-bottom: 1px solid black;
+}
+
+.settings-entry {
+    margin: 0.2em 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+}
+
+.settings-form > .settings-entry {
+    margin: 0;
+}
+
+.settings-submit {
+    margin-top: 4em;
+}
+
+.settings-entry[for=applyTo] {
+}

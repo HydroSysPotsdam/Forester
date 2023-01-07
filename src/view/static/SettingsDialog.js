@@ -40,7 +40,7 @@ import "../static/Validator.js";
  * The whole flattened notation is here called address with the last section being the field or
  * variables name.
  */
-export default class SettingsDialog extends EventEmitter {
+export default class SettingsDialog {
 
     // register for the functions that are used to generate the DOM elements,
     // retrieve their values and keep track of change events
@@ -55,6 +55,10 @@ export default class SettingsDialog extends EventEmitter {
     // the rules for this dialog
     #rules
 
+    #target
+
+    // the validator used to validate the input data
+    #inputValidator
 
     /**
      *
@@ -64,14 +68,15 @@ export default class SettingsDialog extends EventEmitter {
      * @param rules - The rules that constrain the data in extended or flattened form.
      * @param elem - The DOM element to which the dialog should be appended (default body).
      */
-    constructor(data, rules, elem = document.body) {
-        super()
+    constructor(data, rules, elem = document.body, target = undefined) {
 
         // save the datas
         this.#data = data
 
         // save the rules
         this.#rules = rules
+
+        this.#target = target
 
         // save a d3 selection of the element
         this.#elem =
@@ -81,6 +86,7 @@ export default class SettingsDialog extends EventEmitter {
 
         // set up validator
         let validator = new Validator(data, rules)
+        this.#inputValidator = validator
 
         // display error when validator fails
         if (validator.fails()) {
@@ -122,7 +128,7 @@ export default class SettingsDialog extends EventEmitter {
                             // add the group for this address
                             group = this.#addGroup(group, next_address)
                             // emit group-added event
-                            this.emit("group-added", group.node())
+                            group.node().dispatchEvent(new CustomEvent("group-added", {bubbles: true}))
                         } else {
                             group = group.select(".settings-group[for=" + next_address + "]")
                         }
@@ -155,18 +161,15 @@ export default class SettingsDialog extends EventEmitter {
                                          .node()
 
                         // emit entry-added event
-                        this.emit("entry-added", input)
+                        entry.node().dispatchEvent(new CustomEvent("entry-added", {bubbles: true}))
                     }
                 }
             }
         }
 
         this.#addSubmitButton()
-    }
 
-    emit(e, a) {
-        super.emit(e, a)
-        console.log(e, a)
+        return this
     }
 
     /**
@@ -233,6 +236,7 @@ export default class SettingsDialog extends EventEmitter {
     #addSubmitButton() {
         this.#elem
             .append("button")
+            .attr("class", "settings-submit")
             .text("Submit")
             .on("click", e => {
                 // prevent default, because otherwise the page will be reloaded
@@ -246,9 +250,9 @@ export default class SettingsDialog extends EventEmitter {
 
                 // check values
                 if (validator.passes()) {
-                    this.emit("submit", values)
+                    this.#elem.node().dispatchEvent(new CustomEvent("submit", {detail: {values: values, target: this.#target}, bubbles: true}))
                 } else {
-                    this.emit("error")
+                    this.#elem.node().dispatchEvent(new CustomEvent("error",  {detail: {target: this.#target}, bubbles: true}))
                     // TODO: implement error display
                     throw Error("Error display needs to be implemented")
                 }
@@ -291,7 +295,45 @@ export default class SettingsDialog extends EventEmitter {
                 location[address[0]] = SettingsDialog.#GeneratorFunctions[rule]["value"].call(this)
             })
 
+        const values_flat = this.#inputValidator._flattenObject(values)
+        // add an accessor to a flattened version of the returned values
+        values.flatten = () => values_flat
+
         return values
+    }
+
+    setLabelNames(labels) {
+        // flatten the input
+        labels = this.#inputValidator._flattenObject(labels)
+
+        // go through all labels and update the corresponding elements
+        for (const label in labels) {
+            this.#elem
+                .selectAll(".settings-entry > label[for='" + label + "']")
+                .html(labels[label])
+        }
+
+        // return the dialog for chained calls
+        return this
+    }
+
+    setGroupNames(labels) {
+        // flatten the input
+        labels = this.#inputValidator._flattenObject(labels)
+
+        // go through all the group labels and update the corresponding elements
+        for (const label in labels) {
+            this.#elem
+                .selectAll(".settings-group > label[for='" + label + "']")
+                .html(labels[label])
+        }
+
+        // return the dialog for chained calls
+        return this
+    }
+
+    setTarget (target) {
+        this.#target = target
     }
 
     /**
@@ -367,6 +409,7 @@ SettingsDialog.register(
           .attr("type", "range")
           .attr("min", options.min)
           .attr("max", options.max)
+          .attr("step", (options.max - options.min)/100)
           .attr("value", options.value)
     },
     // the property value would return a string, therefore a value function needs to

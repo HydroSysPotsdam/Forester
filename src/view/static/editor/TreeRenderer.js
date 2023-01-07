@@ -10,7 +10,7 @@
  * Forester: Interactive human-in-the-loop web-based visualization of machine learning trees
  */
 
-import {GlobalSettings} from "../Settings.js";
+import {GlobalSettings} from "../Settings_old.js";
 import * as Views from "../views/Views.js";
 import {NodeRenderer} from "./NodeRenderer.js";
 import {BasicLinkRenderer, FlowLinkRenderer} from "./LinkRenderer.js";
@@ -34,8 +34,8 @@ export class TreeRenderer {
 
         // go through all the nodes and assign a node renderer
         for (const node of this.nodes) {
-            // const view = [Views.BasicView, Views.CCircleIconView, Views.TextView, Views.BarChartView][Math.floor(Math.random() * 4)]
-            const view = Views.CCircleIconView
+            const view = [Views.BasicView, Views.CCircleIconView, Views.TextView, Views.BarChartView][Math.floor(Math.random() * 4)]
+            // const view = Views.CCircleIconView
             let renderer = new NodeRenderer(node, view)
             this.renderers.set(node.id, renderer)
         }

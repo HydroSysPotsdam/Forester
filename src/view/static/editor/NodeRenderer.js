@@ -4,13 +4,8 @@
  * Forester: Interactive human-in-the-loop web-based visualization of machine learning trees
  */
 
-/*
- * CC-0 2022.
- * David Strahl, University of Potsdam
- * Forester: Interactive human-in-the-loop web-based visualization of machine learning trees
- */
-
 import Editor from "./Editor.js";
+import Validator from "../Validator.js";
 
 /**
  * Wrapper around a node that keeps track of the used view for illustration and
@@ -95,6 +90,9 @@ export class NodeRenderer {
 
         // fire a ready event
         this.#ee.emit("ready", {context: this})
+
+        this.#elem
+            .on("settings-change", event => this.#onSettingsChange(event))
     }
 
     /**
@@ -264,5 +262,36 @@ export class NodeRenderer {
         this.#elem
             .select(".node-view")
             .style("visibility", "visible")
+    }
+
+    #onSettingsChange (event) {
+        const settings  = event.detail.values
+        const view      = event.detail.view
+
+        const validator = new Validator(settings, this.view.rules)
+
+        if (validator.passes()) {
+
+            // TODO: implement safety check
+            if (this.view !== view) {
+                this.view = view
+            }
+
+            // update the setting for the new (or old) view
+            this.settings[this.view.name] = settings
+
+            // redraw the view
+            this.draw()
+        } else {
+            throw Error("Settings change passed invalid values")
+        }
+    }
+
+    getCurrentSettings () {
+        return this.settings[this.view.name]
+    }
+
+    getCurrentRules () {
+        return this.view.rules
     }
 }

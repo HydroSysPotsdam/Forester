@@ -5,7 +5,7 @@
  */
 
 import {Tree} from "./editor/Editor.js";
-import {GlobalSettings} from "./Settings.js";
+import {GlobalSettings} from "./Settings_old.js";
 
 $("#legend").ready(function () {
 

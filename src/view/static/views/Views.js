@@ -17,6 +17,7 @@ export class View {
     rules
 
     constructor(name, rules) {
+        // TODO: prepare name for CSS class
         this.name  = name
         this.rules = rules
 
@@ -204,12 +205,12 @@ TextView.illustrate = async function (node, settings) {
         .style("fill", "white")
 }
 
-export let BarChartView = new View("Bar Chart", {
-    axis:   "horizontal",
-    width:  80,
-    height: 30,
-    aggregate: 0.1,
-    sort: true
+export let BarChartView = new View("BarChartView", {
+    axis:      "in:horizontal,vertical|default:horizontal",
+    width:     "numeric|min:0|max:100|default:80",
+    height:    "numeric|min:0|max:100|default:30",
+    aggregate: "numeric|min:0|max:1|default:0.1",
+    sort:      "boolean|default:true"
 })
 
 BarChartView.illustrate = async function (node, settings) {
@@ -267,6 +268,7 @@ BarChartView.illustrate = async function (node, settings) {
             other += samples
         }
     }
+
 
     // when the other bar has a size above zero, add it to the chart
     if (other > 0) {

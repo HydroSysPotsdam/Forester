@@ -46,7 +46,7 @@ export class View {
         if (settingsValidator.passes()) {
             await this.illustrate.call(context, node, settings)
         } else {
-            throw Error(settingsValidator.error.all())
+            throw Error("Settings passed to view are invalid")
         }
     }
 
@@ -99,10 +99,9 @@ BasicView.illustrate = async function (node, settings) {
  * @type {View}
  */
 export let CCircleIconView = new View("CCircleIconView", {
-    maxRadius:      "numeric|min:0|max:100|default:20",
-    minRadius:      "numeric|min:0|max:100|default:5.5",
-    scaleBySamples: "boolean|default:true",
-    scaleMethod:    "in:linear,auto|default:linear"
+    radius:                 "numeric|min:10|max:100|default:20",
+    "scale.scaleBySamples": "boolean|default:true",
+    "scale.scaleMethod":    "in:linear,auto|default:linear"
 })
 
 CCircleIconView.illustrate = async function (node, settings) {
@@ -110,10 +109,10 @@ CCircleIconView.illustrate = async function (node, settings) {
     const data = await node.query("distribution", "samplesFraction", "classes")
 
     let radius
-    if (settings.scaleBySamples) {
-        radius = data.samplesFraction * (settings.maxRadius - settings.minRadius) + settings.minRadius
+    if (settings.scale.scaleBySamples) {
+        radius = (0.9*data.samplesFraction + 0.1) * settings.radius
     } else {
-        radius = settings.maxRadius
+        radius = settings.radius
     }
 
     const pies = d3.pie()(data.distribution)
@@ -206,11 +205,11 @@ TextView.illustrate = async function (node, settings) {
 }
 
 export let BarChartView = new View("BarChartView", {
-    axis:      "in:horizontal,vertical|default:horizontal",
-    width:     "numeric|min:0|max:100|default:80",
-    height:    "numeric|min:0|max:100|default:30",
-    aggregate: "numeric|min:0|max:1|default:0.1",
-    sort:      "boolean|default:true"
+    "bar.axis":         "in:horizontal,vertical|default:horizontal",
+    "bar.width":        "numeric|min:0|max:100|default:80",
+    "bar.height":       "numeric|min:0|max:100|default:30",
+    "class.aggregate":  "numeric|min:0|max:1|default:0.1",
+    "class.sort":       "boolean|default:true"
 })
 
 BarChartView.illustrate = async function (node, settings) {
@@ -220,7 +219,7 @@ BarChartView.illustrate = async function (node, settings) {
 
     // select axis based on value
     let axis, cross_axis, extend, cross_extend
-    switch (settings.axis) {
+    switch (settings.bar.axis) {
         default:
             // use vertical as default
         case "horizontal":
@@ -241,7 +240,7 @@ BarChartView.illustrate = async function (node, settings) {
     let distribution = _.zip(data.distribution, data.classes)
 
     // sort distribution in ascending order
-    if (settings.sort) {
+    if (settings.class.sort) {
         distribution = _.sortBy(distribution, e => e[0]).reverse()
     }
 
@@ -255,7 +254,7 @@ BarChartView.illustrate = async function (node, settings) {
 
         // add one bar for a value when it is either above the aggregate thresholding value or
         // there is only one left and this would fall below the threshold
-        if (samples > settings.aggregate || (other == 0 && distribution.indexOf(class_value) == distribution.length - 1)) {
+        if (samples > settings.class.aggregate || (other == 0 && distribution.indexOf(class_value) == distribution.length - 1)) {
             if (bars.length == 0) {
                 // first bar must have a cumsum of zero
                 bars.push([0, samples, label])
@@ -277,7 +276,7 @@ BarChartView.illustrate = async function (node, settings) {
 
     // when the axis is vertical, the direction of the bars needs to be reversed
     // this is done by inverting the cumulative sum
-    if (settings.axis === "vertical") {
+    if (settings.bar.axis === "vertical") {
         bars.forEach(bar => bar[0] = 1 - (bar[0] + bar[1]))
     }
 
@@ -287,11 +286,11 @@ BarChartView.illustrate = async function (node, settings) {
       .enter()
       .append("rect")
       // axis is the longer side of the chart
-      .attr(axis,   d => d[0]*settings.width + "px")
+      .attr(axis,   d => d[0]*settings.bar.width + "px")
       // extend is the length of the longer side
-      .attr(extend, d => d[1]*settings.width + "px")
+      .attr(extend, d => d[1]*settings.bar.width + "px")
       // cross extend is the perpendicular size
-      .attr(cross_extend, settings.height + "px")
+      .attr(cross_extend, settings.bar.height + "px")
       .attr("class", "colorcoded")
       .style("stroke", "black")
       .each(function (d) {

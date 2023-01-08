@@ -14,6 +14,29 @@ import {BasicLinkRenderer, FlowLinkRenderer} from "./LinkRenderer.js";
 // TODO: remove this variable
 export let Tree = {}
 
+let LANGUAGE_QUICKFIX = {
+    "bar": "Style",
+    "class": "Class Distribution",
+    "bar.axis": "Direction",
+    "bar.width":  "Width",
+    "bar.height": "Height",
+    "class.aggregate":  "Collect Small Classes",
+    "class.sort":       "Sort Distribution",
+    "radius": "Radius",
+    "scale": "Radius Scaling",
+    "scale.scaleBySamples": "Scale by Samples",
+    "scale.scaleMethod":    "Scaling Method",
+    "applyTo": "Apply To",
+    "colorscale": "Colors",
+    "layout": "Tree Layout",
+    "layout.direction": "Direction",
+    "layout.lspace": "Level Extend",
+    "layout.bspace": "Branch Extend",
+    "path": "Node Links",
+    "path.style": "Style",
+    "path.flow": "Indicate Sample Flow"
+}
+
 export default {
 
     Events: new EventEmitter(),
@@ -50,17 +73,12 @@ export default {
         // create the Settings panel
         this.Settings = new Settings("#settings")
 
-        // render the tree
-        let settings = [
-            ["color.scale", ["#8dd3c7", "#ffffb3", "#bebada", "#fb8072", "#80b1d3", "#fdb462", "#b3de69", "#fccde5", "#d9d9d9", "#bc80bd", "#ccebc5", "#ffed6f"]],
-            ["layout.direction", "top-bottom"],
-            ["layout.lspace", 1],
-            ["layout.bspace", 1],
-            ["path.style", "linear"],
-            ["path.flow", "none"]]
+        // prepare the initial settings
+        const initialSettings = {}
+        new Validator(initialSettings, this.GlobalSettingRules).passes()
 
         this.Tree = new TreeRenderer(nodes, "#tree")
-        this.Tree.draw(new Map(settings))
+        this.Tree.draw(initialSettings)
         Tree = this.Tree
 
         // generate the legend
@@ -96,6 +114,8 @@ export default {
                 if (event.key === "M") {
                     const dialog = Editor.Settings.openDialog("Global Settings", {}, Editor.GlobalSettingRules)
                     dialog.setTarget({type: "global-settings"})
+                    dialog.setLabelNames(LANGUAGE_QUICKFIX)
+                    dialog.setGroupNames(LANGUAGE_QUICKFIX)
                 }
             })
     },
@@ -138,11 +158,7 @@ export default {
     },
 
     onGlobalSettingsChange: function (event) {
-        let settings = event.detail.values
-
-        settings = new Map(Object.entries(settings.flatten()))
-        console.log(settings)
-        // Editor.Tree.draw(settings)
+        Tree.updateSettings(event.detail.settings, event.detail.changed)
     },
 
     /**
@@ -169,27 +185,33 @@ export default {
         const applyTo = settings.applyTo
         delete settings.applyTo
 
+        // add the view to the event details
         const view = Editor.Tree.renderers.get(id).view
+        event.detail.view = view
+
+        const nodeEvent = new CustomEvent("settings-change", {detail: event.detail})
 
         switch (applyTo) {
             // settings should only be applied to this node
             case "this":
                 // select node based on ID and dispatch event
-                const elem = d3.select(".tree-node[forID=" + id + "]").node()
-                elem.dispatchEvent(new CustomEvent("settings-change", {detail: {values: settings}}))
+                const elem = d3.select(".tree-node[forID='" + id + "']").node()
+                elem.dispatchEvent(nodeEvent)
             break;
 
             // settings should be applied to all nodes but view should not change
             case "view":
                 for (const elem of d3.selectAll(".tree-node." + view.name)) {
-                    elem.dispatchEvent(new CustomEvent("settings-change", {detail: {values: settings, view: view}}))
+                    nodeEvent.detail.viewChange = false
+                    elem.dispatchEvent(nodeEvent)
                 }
             break;
 
             // settings should be applied to all nodes and view should change
             case "all":
                 for (const elem of d3.selectAll(".tree-node")) {
-                    elem.dispatchEvent(new CustomEvent("settings-change", {detail: {values: settings, view: view}}))
+                    nodeEvent.detail.viewChange = true
+                    elem.dispatchEvent(nodeEvent)
                 }
             break;
         }
@@ -239,7 +261,8 @@ export default {
             const dialog = Editor.Settings.openDialog("Node Settings", settings, rules)
 
             // set the label names, TODO: this should happend automatically based on a language settings
-            dialog.setLabelNames({width: "Breite"})
+            dialog.setLabelNames(LANGUAGE_QUICKFIX)
+            dialog.setGroupNames(LANGUAGE_QUICKFIX)
 
             // the target property is part of the event details and can be
             // used to find the node for which the settings should be updated

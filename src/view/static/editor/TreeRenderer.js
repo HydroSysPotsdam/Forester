@@ -99,9 +99,9 @@ export class TreeRenderer {
     layout(settings) {
 
         // load layout and path settings
-        let direction = settings.get("layout.direction")
-        let lspace    = settings.get("layout.lspace")
-        let bspace    = settings.get("layout.bspace")
+        let direction = settings.layout.direction
+        let lspace    = settings.layout.lspace
+        let bspace    = settings.layout.bspace
         let layout, width, height, xmin, ymin;
 
         // helper function
@@ -187,6 +187,29 @@ export class TreeRenderer {
 
     featureNames () {
         return this.nodes.data.features
+    }
+
+    updateSettings(settings, changed) {
+        if (changed && changed.length > 0) {
+
+            if (changed.contains("layout.direction") || changed.contains("layout.lspace") || changed.contains("layout.bspace")) {
+                this.layout(settings)
+            }
+
+            if (changed.contains("path.style")) {
+                this.redrawLinks(settings)
+            }
+
+            if (changed.contains("path.flow")) {
+                const flow = settings.path.flow
+                if (flow != "None") {
+                    this.linkRenderer = new FlowLinkRenderer(this.#ui_elem.select(".tree-links").node())
+                } else {
+                    this.linkRenderer = new BasicLinkRenderer(this.#ui_elem.select(".tree-links").node())
+                }
+                this.redrawLinks(settings)
+            }
+        }
     }
 
     #setLinkRenderer (renderer) {

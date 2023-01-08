@@ -250,7 +250,29 @@ export default class SettingsDialog {
 
                 // check values
                 if (validator.passes()) {
-                    this.#elem.node().dispatchEvent(new CustomEvent("submit", {detail: {values: values, target: this.#target}, bubbles: true}))
+
+                    // get the parameter names of the changed values
+                    const changed = this.#getChangedFields(values)
+
+                    // update the stored data
+                    this.#data = values
+
+                    // create a submit event
+                    const event = new CustomEvent("submit", {
+                        detail: {
+                            // the new values
+                            values:  values,
+                            // the target to which the settings should apply
+                            target:  this.#target,
+                            // the changed parameters
+                            changed: changed
+                        },
+                        bubbles: true
+                    })
+
+                    // dispatch the event
+                    this.#elem.node().dispatchEvent(event)
+
                 } else {
                     this.#elem.node().dispatchEvent(new CustomEvent("error",  {detail: {target: this.#target}, bubbles: true}))
                     // TODO: implement error display
@@ -300,6 +322,23 @@ export default class SettingsDialog {
         values.flatten = () => values_flat
 
         return values
+    }
+
+    #getChangedFields (newValues) {
+
+        const oldValues = this.#inputValidator._flattenObject(this.#data)
+              newValues = this.#inputValidator._flattenObject(newValues)
+
+        // array to hold the changed keys
+        let changed = []
+
+        for (const key of Object.keys(oldValues)) {
+            if (newValues[key] !== oldValues[key] && key !== "flatten") {
+                changed.push(key)
+            }
+        }
+
+        return changed
     }
 
     setLabelNames(labels) {

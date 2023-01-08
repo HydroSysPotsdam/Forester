@@ -1,3 +1,0 @@
-The Node View System
-====================
-

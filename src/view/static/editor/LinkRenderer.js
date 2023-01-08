@@ -52,7 +52,7 @@ export class BasicLinkRenderer {
      */
     async draw(source, target, settings) {
 
-        let curve = settings.get("path.style")
+        let curve = settings.path.style
 
         if (curve === "linear") curve = d3.curveLinear
         if (curve === "curved") curve = d3.curveBumpY
@@ -116,7 +116,7 @@ export class FlowLinkRenderer extends BasicLinkRenderer {
         // draw the link, so that the flow curve can be generated
         let path = await super.draw(source, target, settings)
 
-        let flow = settings.get("path.flow")
+        let flow = settings.path.flow
         let stroke_max_width = 10;
         let flow_sample_dist = 10;
 

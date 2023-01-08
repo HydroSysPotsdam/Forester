@@ -4,12 +4,6 @@
  * Forester: Interactive human-in-the-loop web-based visualization of machine learning trees
  */
 
-#settings-button {
-    position: fixed;
-    right: 0%;
-    bottom: 0%;
-}
-
 #settings {
     position: fixed;
     right: 0%;
@@ -28,53 +22,8 @@
     overflow-x: clip;
     overflow-y: scroll;
 
-    font-family: Verdana;
-}
-
-.settings-save {
-    position: absolute;
-    margin: 10px auto;
-    left: 50%;
-    bottom: 0%;
-    transform: translate(-50%, 0);
-}
-
-#settings .qs_main {
-    position: relative;
-    width: 100%;
-    height: max-content;
-}
-
-#settings .qs_title_bar {
-    cursor: none;
-    font-weight: bold;
-    font-size: 1.5em;
-    margin-bottom: 10px;
-}
-
-#settings .qs_container {
-    display: grid;
-    grid-template-columns: 60% 40%;
-    grid-auto-rows: 30px;
-    align-items: center;
-    margin: 2px 0px;
-}
-
-#settings .qs_subheader {
-    margin-top: 10px;
-    margin-bottom: 0px;
-    padding-bottom: 5px;
-    border-bottom: 1px solid black;
-    font-weight: bold;
-}
-
-.qs_label, .qs_checkbox_label {
-    font-size: 0.8em;
-    margin: 0px;
-}
-
-.qs_label b {
-    font-weight: normal;
+    display: flex;
+    flex-direction: column;
 }
 
 .settings-form {
@@ -83,21 +32,26 @@
     max-height: available;
     display: flex;
     flex-direction: column;
+    flex-grow: 1;
 }
 
 .settings-group {
     display: flex;
     flex-direction: column;
+    margin: 1em 0em;
 }
 
 .settings-group > label {
-    margin: 0.5em 0;
     padding-bottom: 0.2em;
+    margin-bottom: 0.2em;
+
     border-bottom: 1px solid black;
+
+    font-weight: bold;
 }
 
 .settings-entry {
-    margin: 0.2em 0;
+    margin: 0.5em 0;
     display: grid;
     grid-template-columns: 1fr 1fr;
 }
@@ -107,8 +61,10 @@
 }
 
 .settings-submit {
-    margin-top: 4em;
+    margin-top: 2em;
 }
 
 .settings-entry[for=applyTo] {
+    margin-top: auto;
+    grid-template-columns: 1fr 2fr;
 }

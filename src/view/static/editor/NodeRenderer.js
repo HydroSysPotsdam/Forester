@@ -51,8 +51,6 @@ export class NodeRenderer {
     // when the view changes.
     settings
 
-    #ee
-
     /**
      * Creates a new NodeRenderer for the given node with an initial view.
      * @param node - The node that is mapped to this renderer.
@@ -61,13 +59,9 @@ export class NodeRenderer {
     constructor (node, view) {
         this.node     = node
 
-        this.#ee      = new EventEmitter()
-
         this.view     = view
         this.settings = {}
         this.settings[view.name] = {}
-
-        this.on("view-ready", () => this.#onViewReady())
     }
 
     /**
@@ -89,10 +83,12 @@ export class NodeRenderer {
             .attr("forID", this.node.id)
 
         // fire a ready event
-        this.#ee.emit("ready", {context: this})
+        // this.#ee.emit("ready", {context: this})
 
         this.#elem
             .on("settings-change", event => this.#onSettingsChange(event))
+            .on("view-ready", event => this.#onViewReady())
+            .on("view-draw-error", event => this.#onViewDrawError())
     }
 
     /**
@@ -144,12 +140,17 @@ export class NodeRenderer {
         // recenter the placeholder
         this.#updateTransform()
 
-        // illustrate the node with the current view
-        this.view.draw(this.#elem.select(".node-view").node(), this.node, this.settings[this.view.name])
-            .then(() => this.#ee.emit("view-ready"))
+        // the svg group with which the view should work
+        const canvas = this.#elem.select(".node-view").node()
 
-        // dispatch an node-added event
-        Editor.Events.emit('node-drawn', this)
+        try {
+            // illustrate the node with the current view
+            this.view.draw(canvas, this.node, this.settings[this.view.name])
+                .then(() => this.#elem.node().dispatchEvent(new CustomEvent("view-ready")))
+        } catch(e) {
+            console.log(e)
+            this.#elem.node().dispatchEvent(new CustomEvent("view-draw-error"))
+        }
     }
 
     /**
@@ -187,7 +188,7 @@ export class NodeRenderer {
         this.#updateTransform()
 
         // fire a position update event
-        this.#ee.emit("position-update", {context: this, keepOriginal: keepOriginal, animate: animate})
+        //this.#ee.emit("position-update", {context: this, keepOriginal: keepOriginal, animate: animate})
     }
 
     /**
@@ -223,22 +224,6 @@ export class NodeRenderer {
     }
 
     /**
-     * Register a function to be executed when a specific event is fired by
-     * the renderer.
-     *
-     * Available events are:
-     * - "ready"           (fired when the renderer is bound to a svg group)
-     * - "view-ready"      (fired when the view finished its asynchronous illustration)
-     * - "position-update" (fired when the views position changed)
-     *
-     * @param eventName - The name of the event
-     * @param func - The function to be executed
-     */
-    on(eventName, func) {
-        this.#ee.addListener(eventName, func)
-    }
-
-    /**
      * Called when the asynchronous illustration function of the view completed.
      *
      * This function implements the fourth step in the algorithmic description of
@@ -246,10 +231,10 @@ export class NodeRenderer {
      * illustration.
      */
     #onViewReady () {
+
         // remove the placeholder
         this.#elem
             .select(".view-placeholder")
-            .style("background", "red")
             .remove()
 
         // center the view again
@@ -264,27 +249,41 @@ export class NodeRenderer {
             .style("visibility", "visible")
     }
 
+    #onViewDrawError () {
+
+        this.#elem
+            .selectAll("*")
+            .remove()
+
+        this.#elem
+            .append("foreignObject")
+            .attr("class", "view-draw-error")
+            .attr("x", 0)
+            .attr("y", 0)
+            .attr("width", 25)
+            .attr("height", 25)
+            .append("xhtml:img")
+            .attr("src", "data:image/png;base64,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")
+            .style("width", "25px")
+            .style("height", "25px")
+
+        this.#updateTransform()
+    }
+
     #onSettingsChange (event) {
         const settings  = event.detail.values
         const view      = event.detail.view
 
-        const validator = new Validator(settings, this.view.rules)
-
-        if (validator.passes()) {
-
-            // TODO: implement safety check
-            if (this.view !== view) {
-                this.view = view
-            }
-
-            // update the setting for the new (or old) view
-            this.settings[this.view.name] = settings
-
-            // redraw the view
-            this.draw()
-        } else {
-            throw Error("Settings change passed invalid values")
+        // TODO: implement safety check
+        if (this.view !== view && event.detail.viewChange) {
+            this.view = view
         }
+
+        // update the setting for the new (or old) view
+        this.settings[this.view.name] = settings
+
+        // redraw the view
+        this.draw()
     }
 
     getCurrentSettings () {

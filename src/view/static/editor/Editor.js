@@ -5,7 +5,7 @@
  */
 
 import {TreeRenderer} from "./TreeRenderer.js";
-import * as Views from "../views/Views.js";
+import * as Views from "../views/View.js";
 import {FNode} from "../Node.js";
 import {Panzoom} from "../Panzoom.js";
 import Settings from "../Settings.js";

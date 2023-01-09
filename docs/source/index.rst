@@ -3,7 +3,8 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-.. js:autoclass:: SettingsDialog.js
-   :members:
-   :private-members:
 
+.. toctree::
+
+.. js:autoclass:: ./views/StackedBarView.js.StackedBarView
+   :members:

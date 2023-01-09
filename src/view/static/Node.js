@@ -4,7 +4,7 @@
  * Forester: Interactive human-in-the-loop web-based visualization of machine learning trees
  */
 
-import * as Views from "./views/Views.js";
+import * as Views from "./views/View.js";
 
 export class FNode extends d3.Node {
 

@@ -5,6 +5,7 @@
     <title>Title</title>
 
     <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://kit.fontawesome.com/0fd1c4c2d2.js" crossorigin="anonymous" async></script>
 
     <style>
 
@@ -24,14 +25,18 @@
 
         .settings-entry {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            margin: 0.2em 0;
+            grid: auto-flow / 1fr 1fr;
+            margin: 0.5em 0;
         }
 
         .settings-form > .settings-entry {
             margin: 0.5em;
             padding: 0.5em;
             border: 1px solid black;
+        }
+
+        .settings-entry-info {
+            grid-column: 1 / span 2;
         }
 
     </style>
@@ -47,6 +52,7 @@
             "layout.bspace":    "numeric|min:0|max:100|default:50",
             "path.style":       "in:Linear,Curved,Ragged|default:Linear",
             "path.flow":        "in:None,Linear,Autocontrast,Colorcoded|default:None",
+            "test":             "boolean|default:false"
         }
 
         let labels = {
@@ -64,7 +70,11 @@
             "path.style": "BLA"
         }
 
-        new SettingsDialog({}, rules).setLabelNames(labels).setGroupNames(groups)
+        const dialog = new SettingsDialog({}, rules).setLabelNames(labels).setGroupNames(groups)
+        dialog.addInputInformation({test: "This is only a test parameter.", path: {style: "Very Stylish!"}})
+
+        d3.select(document.body)
+          .on("settings-submit settings-change", event => console.log(event))
 
     </script>
 </body>

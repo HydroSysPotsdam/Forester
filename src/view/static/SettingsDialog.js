@@ -6,6 +6,100 @@
 
 import "../static/Validator.js";
 
+class SettingsEvent extends Event {
+
+    // the updated settings in flattened form
+    values
+
+    // the rules that constrain the settings
+    changed
+
+    // whether a setting was only changed and not
+    // all settings submitted
+    change
+
+    // whether the whole set of settings was submitted
+    submit
+
+    constructor (values, changed, rules, submit = false, bubbles = true) {
+        super(submit ? "settings-submit" : "settings-change", {bubbles: bubbles});
+
+        this.values  = values
+        this.changed = changed
+        this.rules   = rules
+
+        this.submit =  submit
+        this.change = !submit
+    }
+}
+
+Object.expand = function (object) {
+
+    let expanded = {}
+
+    // go through all the keys in the object
+    for (const key of Object.keys(object)) {
+
+        // the address is the split name of the field (e.g. "group1.group2.value")
+        let address  = key.split(".")
+        // the initial location is the object itself
+        let location = expanded
+
+        // go through all the address values, from start to end (e.g. "group1", "group2"
+        while (address.length > 1) {
+            // get the first part of the address (e.g. "group1")
+            const next_address = address.shift()
+
+            // if the object does not already have a field with the name of the
+            // address, add an empty object (e.g. for "group1")
+            if (!location.hasOwnProperty(next_address)) {
+                location[next_address] = {}
+            }
+
+            // update the location (now "group1" and "group2" will be next address
+            location = location[next_address]
+        }
+
+        // the last part of the address is the variable name (e.g. value)
+        // add this to the last location ("group2")
+        location[address[0]] = object[key]
+    }
+
+    return expanded
+}
+
+/**
+ * All credits to Mike Erickson's {@link https://github.com/mikeerickson/validatorjs Validator.js}
+ */
+Object.flatten = function (object) {
+
+    var flattened = {};
+
+    function recurse(current, property) {
+        if (!property && Object.getOwnPropertyNames(current).length === 0) {
+            return;
+        }
+        if (Object(current) !== current || Array.isArray(current)) {
+            flattened[property] = current;
+        } else {
+            var isEmpty = true;
+            for (var p in current) {
+                isEmpty = false;
+                recurse(current[p], property ? property + '.' + p : p);
+            }
+            if (isEmpty) {
+                flattened[property] = {};
+            }
+        }
+    }
+
+    if (object) {
+        recurse(object);
+    }
+
+    return flattened;
+}
+
 /**
  * Automatically generates a settings dialog from a list of string rules and
  * (optional) initial values.
@@ -55,11 +149,6 @@ export default class SettingsDialog {
     // the rules for this dialog
     #rules
 
-    #target
-
-    // the validator used to validate the input data
-    #inputValidator
-
     /**
      *
      * Instantiates a new {@link SettingsDialog}.
@@ -68,15 +157,15 @@ export default class SettingsDialog {
      * @param rules - The rules that constrain the data in extended or flattened form.
      * @param elem - The DOM element to which the dialog should be appended (default body).
      */
-    constructor(data, rules, elem = document.body, target = undefined) {
+    constructor(data, rules, elem = document.body) {
+
+        // TODO: what happens when no default value is given --> use undefined
 
         // save the datas
         this.#data = data
 
         // save the rules
         this.#rules = rules
-
-        this.#target = target
 
         // save a d3 selection of the element
         this.#elem =
@@ -86,13 +175,14 @@ export default class SettingsDialog {
 
         // set up validator
         let validator = new Validator(data, rules)
-        this.#inputValidator = validator
 
         // display error when validator fails
         if (validator.fails()) {
             // TODO: implement error display
             throw Error("Error display for initial validation needs to be implemented!")
         }
+
+        // TODO: try to move as much code as possible to own functions
 
         for (let rules of Object.entries(validator.rules)) {
 
@@ -150,15 +240,19 @@ export default class SettingsDialog {
                     const entry = this.#addEntry(group, option)
 
                     // call the function that adds the field
-                    SettingsDialog.#GeneratorFunctions[rule]["generator"].call(entry.node(), rules)
+                    const input = SettingsDialog.#GeneratorFunctions[rule]["generator"].call(entry.node(), rules)
 
-                    // add id and class to the newly added element
-                    if (entry.selectAll(".settings-entry > :not(label)").size() === 1) {
-                        let input = entry.select(".settings-entry > :not(label)")
-                                         .attr("id", option.for)
-                                         .attr("class", "settings-input")
-                                         .attr("rule", rule)
-                                         .node()
+                    if (d3.select(input).size() === 1) {
+                        d3.select(input)
+                          .attr("id", option.for)
+                          .attr("class", "settings-input")
+                          .attr("rule", rule)
+                          .node()
+
+                        // add the listener function
+                        const valueFn  = SettingsDialog.#GeneratorFunctions[rule]["value"]
+                        const changeFn = SettingsDialog.#GeneratorFunctions[rule]["change"]
+                        changeFn.call(input, event => this.#onInputChangeEvent(event))
 
                         // emit entry-added event
                         entry.node().dispatchEvent(new CustomEvent("entry-added", {bubbles: true}))
@@ -238,112 +332,89 @@ export default class SettingsDialog {
             .append("button")
             .attr("class", "settings-submit")
             .text("Submit")
-            .on("click", e => {
-                // prevent default, because otherwise the page will be reloaded
-                e.preventDefault()
-
-                // retrieve the values
-                let values = this.#getValues()
-
-                // set up a new validator with the values and the rules
-                let validator = new Validator(values, this.#rules)
-
-                // check values
-                if (validator.passes()) {
-
-                    // get the parameter names of the changed values
-                    const changed = this.#getChangedFields(values)
-
-                    // update the stored data
-                    this.#data = values
-
-                    // create a submit event
-                    const event = new CustomEvent("submit", {
-                        detail: {
-                            // the new values
-                            values:  values,
-                            // the target to which the settings should apply
-                            target:  this.#target,
-                            // the changed parameters
-                            changed: changed
-                        },
-                        bubbles: true
-                    })
-
-                    // dispatch the event
-                    this.#elem.node().dispatchEvent(event)
-
-                } else {
-                    this.#elem.node().dispatchEvent(new CustomEvent("error",  {detail: {target: this.#target}, bubbles: true}))
-                    // TODO: implement error display
-                    throw Error("Error display needs to be implemented")
-                }
-            })
+            .on("click", event => this.#onInputSubmitEvent(event))
     }
 
-    /**
-     * Retrieves the values from the DOM input elements.
-     *
-     * @return The values in an object whose structure is described by the rules.
-     */
-    #getValues() {
-        let values = {}
+    get values () {
+        // retrieve a list of variable and value pairs from all input elements
+        // the list is already flattened, as the variables are the flattened
+        // names of the rules
+        let values =
+            this.#elem
+                .selectAll(".settings-input")
+                .nodes()
+                .map(function (input) {
+                    const variable = input.getAttribute("id")
+                    const rule = input.getAttribute("rule")
+                    const valueFn = SettingsDialog.#GeneratorFunctions[rule]["value"]
+                    const value = valueFn.call(input)
+                    return [variable, value]
+                })
 
-        this.#elem
-            .selectAll(".settings-input")
-            .each(function (input) {
+        // create the dictionary
+        values = Object.expand(Object.fromEntries(values))
 
-                let address = d3.select(this).attr("id").split(".")
-                let location = values
+        // validate against the rules
+        const validator = new Validator(values, this.#rules)
 
-                while (address.length > 1) {
-                    const next_address = address.shift()
-
-                    // if the value does not exist, create an object with this name
-                    if (!location.hasOwnProperty(next_address)) {
-                        location[next_address] = {}
-                    }
-
-                    // if an object with the name exists, use it as the new location
-                    if (typeof (location[next_address]) === "object") {
-                        location = location[next_address]
-                    }
-                }
-
-                // get the rule name
-                let rule = d3.select(this).attr("rule")
-
-                // write the value
-                location[address[0]] = SettingsDialog.#GeneratorFunctions[rule]["value"].call(this)
-            })
-
-        const values_flat = this.#inputValidator._flattenObject(values)
-        // add an accessor to a flattened version of the returned values
-        values.flatten = () => values_flat
-
-        return values
-    }
-
-    #getChangedFields (newValues) {
-
-        const oldValues = this.#inputValidator._flattenObject(this.#data)
-              newValues = this.#inputValidator._flattenObject(newValues)
-
-        // array to hold the changed keys
-        let changed = []
-
-        for (const key of Object.keys(oldValues)) {
-            if (newValues[key] !== oldValues[key] && key !== "flatten") {
-                changed.push(key)
-            }
+        // return when the validation passes, throw error if not
+        if (validator.passes()) {
+            return values
+        } else {
+            throw Error("Validation of values failed")
         }
+    }
 
-        return changed
+    #onInputChangeEvent (event) {
+        const input = event.target
+        this.#dispatchChangeEvent(input)
+    }
+
+    #onInputSubmitEvent (event) {
+
+        // prevent the bubbling of the event so that
+        // the page is not reloaded
+        event.preventDefault()
+
+        // dispatch event
+        this.#dispatchSubmitEvent(this.#elem.node())
+    }
+
+    #dispatchChangeEvent (input) {
+
+        // retrieve all values and the changed variable
+        const values  = this.values
+        const changed = input.getAttribute("id")
+
+        // dispatch the event on the input element
+        const event = new SettingsEvent(values, changed, this.#rules)
+        input.dispatchEvent(event)
+    }
+
+    #dispatchSubmitEvent () {
+
+        // retrieve all values
+        const values = this.values
+
+        // check which values changed and set the "changed" variable
+        // TODO: changed values
+        const flatData   = Object.flatten(this.#data)
+        const flatValues = Object.flatten(values)
+
+        // remove the keys that have not changed
+        const changed    = Object.keys(flatData).filter(key => flatData[key] !== flatValues[key])
+
+        // update the data of the dialog
+        this.#data = values
+
+        // dispatch the event
+        const event = new SettingsEvent(values, changed, this.#rules, true)
+        this.#elem.node().dispatchEvent(event)
     }
 
     setLabelNames(labels) {
         // flatten the input
-        labels = this.#inputValidator._flattenObject(labels)
+        labels = Object.flatten(labels)
 
         // go through all labels and update the corresponding elements
         for (const label in labels) {
@@ -358,7 +429,7 @@ export default class SettingsDialog {
 
     setGroupNames(labels) {
         // flatten the input
-        labels = this.#inputValidator._flattenObject(labels)
+        labels = Object.flatten(labels)
 
         // go through all the group labels and update the corresponding elements
         for (const label in labels) {
@@ -371,8 +442,19 @@ export default class SettingsDialog {
         return this
     }
 
-    setTarget (target) {
-        this.#target = target
+    addInputInformation (labels) {
+
+        // flatten the labels to get the same variable names
+        labels = Object.flatten(labels)
+
+        for (const label in labels) {
+            d3.select(".settings-entry[for='" + label + "']")
+              .append("div")
+              .attr("class", "settings-entry-info")
+              .attr("for", label)
+              .text(labels[label])
+        }
+
     }
 
     /**
@@ -395,12 +477,13 @@ export default class SettingsDialog {
      * the input element. When no value function is given, the dialog uses the DOM elements `value` property.
      *
      * @param ruleName - The name of the rule for which a new input type is registered. For example `numeric`,
-     * `in` or `boolean`.
-     * @param generatorFn - Function that is called to add the DOM element. The `this` context is the DOM parent
-     * and the arguments are additional options.
+     *      `in` or `boolean`.
+     * @param generatorFn - Function that is called to add the DOM element. Should return the added element.
+     *      The `this` context is the DOM parent and the arguments are additional options.
      * @param valueFn - Function that is called to retrieve the value of the input. The `this` context is the DOM
-     * input element itself.
-     * @param changeFn
+     *      input element itself.
+     * @param changeFn - Function whose argument should be added as a listener for the `change` event of the
+     *      input element. The input element is passed as the context of the function.
      */
     static register(ruleName, generatorFn, valueFn, changeFn) {
 
@@ -420,6 +503,13 @@ export default class SettingsDialog {
             valueFn = function () {
                 return d3.select(this)
                          .property("value")
+            }
+        }
+
+        if (!changeFn) {
+            changeFn = function (listener) {
+                return d3.select(this)
+                         .on("change", listener)
             }
         }
 
@@ -443,13 +533,14 @@ export default class SettingsDialog {
 SettingsDialog.register(
     "numeric",
     function (options) {
-        d3.select(this)
-          .append("input")
-          .attr("type", "range")
-          .attr("min", options.min)
-          .attr("max", options.max)
-          .attr("step", (options.max - options.min)/100)
-          .attr("value", options.value)
+        return d3.select(this)
+                 .append("input")
+                 .attr("type", "range")
+                 .attr("min", options.min)
+                 .attr("max", options.max)
+                 .attr("step", (options.max - options.min) / 100)
+                 .attr("value", options.value)
+                 .node()
     },
     // the property value would return a string, therefore a value function needs to
     // be given that parses the property
@@ -467,15 +558,23 @@ SettingsDialog.register(
             values = values.split(",")
         }
 
-        d3.select(this)
-          .append("select")
-          .selectAll("option")
-          .data(values)
-          .enter()
-          .append("option")
-          .attr("value", value => value)
-          .text(value => value)
-          .property("selected", value => value === options.value)
+        // add a select input element and store for returning
+        const select = d3
+            .select(this)
+            .append("select")
+
+        // add all the options based on the values from the
+        // "in:" rule that was used to decide that a
+        // selection input should be added
+        select.selectAll("option")
+              .data(values)
+              .enter()
+              .append("option")
+              .attr("value", value => value)
+              .text(value => value)
+              .property("selected", value => value === options.value)
+
+        return select.node()
     }
     // no value function needs to be given, as the value property already
     // returns the selected entry
@@ -485,14 +584,16 @@ SettingsDialog.register(
 SettingsDialog.register(
     "boolean",
     function (options) {
-        d3.select(this)
-          .append("input")
-          .attr("type", "checkbox")
-          .attr("checked", options.value && true)
+        console.log(options)
+        return d3.select(this)
+                 .append("input")
+                 .attr("type", "checkbox")
+                 .property("checked", options.value && true)
+                 .node()
     },
     // value function needs to be given, as the value property returns the string
     // "on" or "off"
     function () {
-        return d3.select(this).property("value") === "on"
+        return d3.select(this).property("checked")
     }
 )

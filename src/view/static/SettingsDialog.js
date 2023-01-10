@@ -6,20 +6,43 @@
 
 import "../static/Validator.js";
 
+/**
+ * Custom event that is dispatched whenever the settings in a {@link SettingsDialog} are
+ * changed.
+ *
+ * It stores the updated values, which fields have changed and the rules that the
+ * values have been validated against.
+ *
+ * The event is triggered in two cases:
+ *
+ * - When the value of any parameter is updated, an event with type `"settings-change"` is
+ *   dispatched. It holds the values for all parameters and rules, but only the one parameter
+ *   that triggered the event counts as changed.
+ *
+ * - When the user clicks on the submit button, an event with type `"settings-submit"` is
+ *   dispatched. It equally holds the values for all parameters and rules, but now the changed
+ *   parameters are determined relative to the initial values. The inital values are updated
+ *   after submission, so that the changed parameter list is always relative to the last time
+ *   a submission event was triggered.
+ */
 class SettingsEvent extends Event {
 
     // the updated settings in flattened form
     values
 
-    // the rules that constrain the settings
+    // the parameters that changed relative to the initial values
+    // always a list, even when only one parameter changed
     changed
 
-    // whether a setting was only changed and not
-    // all settings submitted
-    change
+    // the rules that constrain the settings and from which the
+    // dialog was generated
+    rules
 
-    // whether the whole set of settings was submitted
-    submit
+    // whether only one setting was changed
+    #change
+
+    // whether the whole form was submitted
+    #submit
 
     constructor (values, changed, rules, submit = false, bubbles = true) {
         super(submit ? "settings-submit" : "settings-change", {bubbles: bubbles});
@@ -28,11 +51,45 @@ class SettingsEvent extends Event {
         this.changed = changed
         this.rules   = rules
 
-        this.submit =  submit
-        this.change = !submit
+        this.#submit =  submit
+        this.#change = !submit
     }
 }
 
+/**
+ *
+ * Recursively expands an object in flattened key notation into a nested form.
+ *
+ * Concider the flat object
+ *
+ * ```
+ * {"group1.group2.parameter": "value"}
+ * ```
+ *
+ * From this, a field with name `"group1"` is generated in the object.
+ * It itself holds the field `"group2"` which again has a field
+ * `"parameter` with value `"value"`.
+ *
+ * The result is thus
+ * ```
+ * {
+ *     "group1": {
+ *         "group2": {
+ *             "parameter": "value"
+ *         }
+ *     }
+ * }
+ * ```
+ *
+ * *Only a dot is used as a separator.* Dashes, underscores or other non-letter
+ * characters are incorporated into the field names.
+ *
+ * Fields that are not in flattened notation are not touched by the algorithm.
+ *
+ * @see {@link Object.flatten} for the inverse function.
+ * @param object - The object in flattened notation that should be expanded.
+ * @return The expanded version of the object.
+ */
 Object.expand = function (object) {
 
     let expanded = {}
@@ -69,7 +126,33 @@ Object.expand = function (object) {
 }
 
 /**
- * All credits to Mike Erickson's {@link https://github.com/mikeerickson/validatorjs Validator.js}
+ * Converts a nested object into its flattened version where subkeys are separated by dots.
+ *
+ * Concider the object
+ * ```
+ * {
+ *     "group1": {
+ *         "group2": {
+ *             "parameter": "value"
+ *         }
+ *     }
+ * }
+ * ```
+ * The algorithm recursively goes through all fields that are objects, *omitting functions or
+ * primite values*. Subkeys are combined using a dot, while other non-letter characters are
+ * incorporated into the string.
+ *
+ * The result is then
+ * ```
+ * {"group1.group2.parameter": "value"}
+ * ```
+ *
+ * All credits to Mike Erickson's {@link https://github.com/mikeerickson/validatorjs validator.js}
+ * for this implementation.
+ *
+ * @param object - The nested object that should be flattened.
+ * @returns A flattened version of the object.
+ * @see {@link Object.expand} for the inverse function.
  */
 Object.flatten = function (object) {
 
@@ -104,7 +187,7 @@ Object.flatten = function (object) {
  * Automatically generates a settings dialog from a list of string rules and
  * (optional) initial values.
  *
- * Rules follow the format described by {@link https://github.com/mikeerickson/validatorjs validator.js}
+ * Rules follow the format described in Mike Erickson's {@link https://github.com/mikeerickson/validatorjs validator.js}
  * from which the parsing library is taken in a slightly adapted manner.
  *
  * Three basic input types are supported, namely a numeric slider, a boolean checkbox and a selection menu.
@@ -128,15 +211,19 @@ Object.flatten = function (object) {
  * containing two numerical sliders. The first one is bound to the variable `a` and has an initial
  * value of 5 (because this is given in the data). It varies between `0` and `20`. The second slider
  * is bound to a variable `b` and varies equally. Because no value is given in the data, the default
- * value is used, which is `0`. In the `data` field, the flattened notation is used, where the dot
- * should be thought of accessing a sub-object.
+ * value is used, which is `0`.
+ *
+ * In the `data` field, the flattened notation is used, where the dot should be thought of accessing a
+ * sub-object. For both data and rules, the expanded or flattened version may be used.
  *
  * The whole flattened notation is here called address with the last section being the field or
  * variables name.
+ *
+ * @see {@link Object.expand} and {@link Object.flatten}
  */
 export default class SettingsDialog {
 
-    // register for the functions that are used to generate the DOM elements,
+    // registry for the functions that are used to generate the DOM elements,
     // retrieve their values and keep track of change events
     static #GeneratorFunctions = {}
 
@@ -153,9 +240,10 @@ export default class SettingsDialog {
      *
      * Instantiates a new {@link SettingsDialog}.
      *
-     * @param data - The initial data of the dialog in extended or flattened form.
+     * @param data  - The initial data of the dialog in extended or flattened form.
      * @param rules - The rules that constrain the data in extended or flattened form.
-     * @param elem - The DOM element to which the dialog should be appended (default body).
+     * @param elem  - The DOM element to which the dialog should be appended (default body).
+     * @see {@link SettingsDialog}
      */
     constructor(data, rules, elem = document.body) {
 
@@ -270,7 +358,7 @@ export default class SettingsDialog {
      * Adds a group to a dialog, containing a label with the group name (the object containing the fields)
      * and the input elements for the fields itself.
      *
-     * @param group - The group to add.
+     * @param group - The group to which the new group should be added.
      * @param address - The address of the group (the flattened object name).
      * @return A d3 selection of the element that is the added group
      */
@@ -297,8 +385,8 @@ export default class SettingsDialog {
      * registered in {@link SettingsDialog}.
      *
      * @param group - The group to add to.
-     * @param options - The options for this
-     * @return {*} - A d3 selection containing the DOM element that is the entry.
+     * @param options - The options for this entry.
+     * @return A d3 selection containing the DOM element that is the entry.
      */
     #addEntry(group, options) {
         // add an entry to the group for this option
@@ -335,6 +423,18 @@ export default class SettingsDialog {
             .on("click", event => this.#onInputSubmitEvent(event))
     }
 
+    /**
+     * Returns the settings values in expanded form.
+     *
+     * The values are always read from the DOM tree. For each input element,
+     * the value function is retrieved that was bound to a parameter using the
+     * function {@link SettingsDialog.register}. This function is called and
+     * returns the value of the input element. Values are collected and again
+     * validated against the rules of the dialog.
+     *
+     * When the validation fails (what should never happen as the input
+     * elements are generated by the rules) an error is thrown.
+     */
     get values () {
         // retrieve a list of variable and value pairs from all input elements
         // the list is already flattened, as the variables are the flattened
@@ -365,11 +465,38 @@ export default class SettingsDialog {
         }
     }
 
+    /**
+     * Called whenever the value of an input element is changed. The function
+     * dispatches a {@link SettingsEvent} with type `settings-change` on the
+     * input element that triggered the change.
+     *
+     * This function is passed to the `changeFn` that was registered
+     * for a parameter with the function {@link SettingsDialog.register}.
+     * This is done, because there is no general way to retrieve a
+     * **primite** value for all input events.
+     *
+     * The `changeFn` should add this function as a listener.
+     *
+     * @param event The event that was passed to the listener.
+     * @see {@link SettingsEvent} for further information on the information
+     * stored in the event.
+     */
     #onInputChangeEvent (event) {
         const input = event.target
         this.#dispatchChangeEvent(input)
     }
 
+    /**
+     * Called when the settings form is submitted, e.g. when the submit
+     * button is clicked. The function dispatches a {@link SettingsEvent}
+     * with type `settings-submit` on the elem to which the dialog was
+     * added.
+     *
+     * The default behaviour of the form is prevented, so that the page
+     * does not reload.
+     *
+     * @param event
+     */
     #onInputSubmitEvent (event) {
 
         // prevent the bubbling of the event so that
@@ -380,6 +507,15 @@ export default class SettingsDialog {
         this.#dispatchSubmitEvent(this.#elem.node())
     }
 
+    /**
+     * Retrieves the value of the input element and dispatches a {@link SettingsEvent}
+     * with type `settings-change` on the input element.
+     *
+     * For the event data, all values and rules are used, but only the parameter bound
+     * to the input is concidered to have changed.
+     *
+     * @param input The input element that changed.
+     */
     #dispatchChangeEvent (input) {
 
         // retrieve all values and the changed variable
@@ -391,6 +527,12 @@ export default class SettingsDialog {
         input.dispatchEvent(event)
     }
 
+    /**
+     * Retrieves all values from the form and dispatches a {@link SettingsEvent} with
+     * type `settings-submit` on the element to which the dialog was appended.
+     *
+     * What values are concidered changed is described in the documentation for the event.
+     */
     #dispatchSubmitEvent () {
 
         // retrieve all values
@@ -412,6 +554,15 @@ export default class SettingsDialog {
         this.#elem.node().dispatchEvent(event)
     }
 
+    /**
+     * From a dictionary of parameter names, the label text of the settings is
+     * updated.
+     *
+     * The labels may either be in flattened or in expanded form.
+     *
+     * @param labels - The labels that should be used for the parameters.
+     * @return {SettingsDialog} - The dialog so that calls can be chained.
+     */
     setLabelNames(labels) {
         // flatten the input
         labels = Object.flatten(labels)
@@ -427,6 +578,14 @@ export default class SettingsDialog {
         return this
     }
 
+     /**
+     * From a dictionary of group names, the group label is updated.
+     *
+     * The labels may either be in flattened or in expanded form.
+     *
+     * @param labels - The labels that should be used for the groups.
+     * @return {SettingsDialog} - The dialog so that calls can be chained.
+     */
     setGroupNames(labels) {
         // flatten the input
         labels = Object.flatten(labels)
@@ -442,6 +601,14 @@ export default class SettingsDialog {
         return this
     }
 
+    /**
+     * @deprecated
+     * From a dictionary, the value for each parameter name is added as an informational
+     * text to the settings entry.
+     *
+     * @param labels - An object of parameter names and their descriptions either in flattened
+     * or expanded form.
+     */
     addInputInformation (labels) {
 
         // flatten the labels to get the same variable names
@@ -468,22 +635,20 @@ export default class SettingsDialog {
      *
      * Rules are simply overwritten if they already exist.
      *
-     * The __generator__ function is called with the DOM element to which the input should be added as its
-     * `this` argument. As a parameter, additional rules are passed as name-value pairs. The function
-     * is called once when the input element is added.
-     *
-     * The __value__ function is called with the DOM element to which the input should be added as its
-     * `this` argument. It should return the parsed value (e.g. primitive like boolean, number, ...) of
-     * the input element. When no value function is given, the dialog uses the DOM elements `value` property.
-     *
      * @param ruleName - The name of the rule for which a new input type is registered. For example `numeric`,
      *      `in` or `boolean`.
-     * @param generatorFn - Function that is called to add the DOM element. Should return the added element.
-     *      The `this` context is the DOM parent and the arguments are additional options.
-     * @param valueFn - Function that is called to retrieve the value of the input. The `this` context is the DOM
-     *      input element itself.
-     * @param changeFn - Function whose argument should be added as a listener for the `change` event of the
-     *      input element. The input element is passed as the context of the function.
+     *
+     * @param generatorFN - The generator function is called when the input element should be added. Its context
+     *      is the DOM element to which the input element should be added. As a parameter, additional rules
+     *      are passed as name-value pairs. The function is called once when the input element is added.
+     *
+     * @param valueFn - The value function is called to retrieve the **primite** value of the input.
+     *      It should return the parsed value (e.g. primitive like boolean, number, ...) of
+     *      the input element. When no value function is given, the dialog uses the DOM elements `value` property.
+     *
+     * @param changeFn - Function with one argument. The argument should be added as a listener to the event that
+     *      triggered when the value of the input element changed. This needs to be done in the `changeFn`.
+     *      By default, the argument is bound to the `change` event.
      */
     static register(ruleName, generatorFn, valueFn, changeFn) {
 

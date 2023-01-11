@@ -43,7 +43,7 @@
 </head>
 <body>
     <script type="module">
-        import SettingsDialog from "../../static/SettingsDialog.js";
+        import SettingsForm from "../../static/settings/SettingsForm.js";
 
         let rules = {
             "colorscale":       "in:Brewer 1,Brewer 2, Brewer 3|default:Brewer 2",
@@ -70,11 +70,16 @@
             "path.style": "BLA"
         }
 
-        const dialog = new SettingsDialog({}, rules).setLabelNames(labels).setGroupNames(groups)
+        const dialog = new SettingsForm({}, rules).setLabelNames(labels).setGroupNames(groups)
         dialog.addInputInformation({test: "This is only a test parameter.", path: {style: "Very Stylish!"}})
 
         d3.select(document.body)
-          .on("settings-submit settings-change", event => console.log(event))
+          .on("settings-submit settings-change settings-reset", event => console.log(event))
+          .on("keypress", function (event) {
+              if (event.code === "Escape") {
+                  dialog.reset()
+              }
+          })
 
     </script>
 </body>

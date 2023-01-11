@@ -4,7 +4,7 @@
  * Forester: Interactive human-in-the-loop web-based visualization of machine learning trees
  */
 
-import SettingsDialog from "./SettingsDialog.js";
+import SettingsForm from "./settings/SettingsForm.js";
 
 export default class Settings {
 
@@ -28,7 +28,7 @@ export default class Settings {
         this.#toggle()
 
         // open and return the settings dialog
-        return new SettingsDialog(data, rules, this.#element.node())
+        return new SettingsForm(data, rules, this.#element.node())
     }
 
     #toggle (discard = true) {

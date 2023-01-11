@@ -5,7 +5,7 @@
  */
 
 import {Tree} from "../editor/Editor.js"
-import {Legend} from "../Legend.js";
+import {Legend} from "../editor/Legend.js";
 import Validator from "../Validator.js";
 
 /**

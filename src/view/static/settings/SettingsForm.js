@@ -1,13 +1,19 @@
 /*
+ * CC-0 2023.
+ * David Strahl, University of Potsdam
+ * Forester: Interactive human-in-the-loop web-based visualization of machine learning trees
+ */
+
+/*
  * CC-0 2022.
  * David Strahl, University of Potsdam
  * Forester: Interactive human-in-the-loop web-based visualization of machine learning trees
  */
 
-import "../static/Validator.js";
+import "../Validator.js";
 
 /**
- * Custom event that is dispatched whenever the settings in a {@link SettingsDialog} are
+ * Custom event that is dispatched whenever the settings in a {@link SettingsForm} are
  * changed.
  *
  * It stores the updated values, which fields have changed and the rules that the
@@ -38,21 +44,26 @@ class SettingsEvent extends Event {
     // dialog was generated
     rules
 
-    // whether only one setting was changed
-    #change
+    constructor (values, changed, rules, type = "change", bubbles = true) {
 
-    // whether the whole form was submitted
-    #submit
-
-    constructor (values, changed, rules, submit = false, bubbles = true) {
-        super(submit ? "settings-submit" : "settings-change", {bubbles: bubbles});
+        switch (type) {
+            case "submit":
+                super("settings-submit", {bubbles: bubbles})
+                break
+            case "update":
+            case "change":
+                super("settings-change", {bubbles: bubbles})
+                break
+            case "reset":
+                super("settings-reset", {bubbles: bubbles})
+                break
+            default:
+                throw Error("Only types submit, change and reset are supported.")
+        }
 
         this.values  = values
         this.changed = changed
         this.rules   = rules
-
-        this.#submit =  submit
-        this.#change = !submit
     }
 }
 
@@ -221,7 +232,7 @@ Object.flatten = function (object) {
  *
  * @see {@link Object.expand} and {@link Object.flatten}
  */
-export default class SettingsDialog {
+export default class SettingsForm {
 
     // registry for the functions that are used to generate the DOM elements,
     // retrieve their values and keep track of change events
@@ -238,7 +249,7 @@ export default class SettingsDialog {
 
     /**
      *
-     * Instantiates a new {@link SettingsDialog}.
+     * Instantiates a new {@link SettingsForm}.
      *
      * @param data  - The initial data of the dialog in extended or flattened form.
      * @param rules - The rules that constrain the data in extended or flattened form.
@@ -284,7 +295,7 @@ export default class SettingsDialog {
             for (let rule of Object.keys(rules)) {
 
                 // check if the rule should add an input element
-                if (SettingsDialog.#GeneratorFunctions.hasOwnProperty(rule)) {
+                if (SettingsForm.#GeneratorFunctions.hasOwnProperty(rule)) {
 
                     // the variable name is stored in flattened form
                     let address = attribute.split(".")
@@ -328,7 +339,7 @@ export default class SettingsDialog {
                     const entry = this.#addEntry(group, option)
 
                     // call the function that adds the field
-                    const input = SettingsDialog.#GeneratorFunctions[rule]["generator"].call(entry.node(), rules)
+                    const input = SettingsForm.#GeneratorFunctions[rule]["generator"].call(entry.node(), rules)
 
                     if (d3.select(input).size() === 1) {
                         d3.select(input)
@@ -338,8 +349,8 @@ export default class SettingsDialog {
                           .node()
 
                         // add the listener function
-                        const valueFn  = SettingsDialog.#GeneratorFunctions[rule]["value"]
-                        const changeFn = SettingsDialog.#GeneratorFunctions[rule]["change"]
+                        const valueFn  = SettingsForm.#GeneratorFunctions[rule]["value"]
+                        const changeFn = SettingsForm.#GeneratorFunctions[rule]["change"]
                         changeFn.call(input, event => this.#onInputChangeEvent(event))
 
                         // emit entry-added event
@@ -382,7 +393,7 @@ export default class SettingsDialog {
     /**
      * Adds and empty entry and its field name as a label to a group. The content,
      * e.g. the input DOM element is not added here, but depends on what functions are
-     * registered in {@link SettingsDialog}.
+     * registered in {@link SettingsForm}.
      *
      * @param group - The group to add to.
      * @param options - The options for this entry.
@@ -407,7 +418,7 @@ export default class SettingsDialog {
     /**
      * Adds the submit button to the dialog. When the button is clicked,
      * values are retrieved from the input elements based on the registered
-     * value functions for {@link SettingsDialog}. The result is again
+     * value functions for {@link SettingsForm}. The result is again
      * validated using the specified rules.
      *
      * When the validation passes, a `submit` event is fired with the
@@ -428,7 +439,7 @@ export default class SettingsDialog {
      *
      * The values are always read from the DOM tree. For each input element,
      * the value function is retrieved that was bound to a parameter using the
-     * function {@link SettingsDialog.register}. This function is called and
+     * function {@link SettingsForm.register}. This function is called and
      * returns the value of the input element. Values are collected and again
      * validated against the rules of the dialog.
      *
@@ -446,7 +457,7 @@ export default class SettingsDialog {
                 .map(function (input) {
                     const variable = input.getAttribute("id")
                     const rule = input.getAttribute("rule")
-                    const valueFn = SettingsDialog.#GeneratorFunctions[rule]["value"]
+                    const valueFn = SettingsForm.#GeneratorFunctions[rule]["value"]
                     const value = valueFn.call(input)
                     return [variable, value]
                 })
@@ -466,12 +477,34 @@ export default class SettingsDialog {
     }
 
     /**
+     * Resets the form and dispatches a `settings-reset` event with the values of
+     * the last submit. If the form never submitted values, the initial values are
+     * used.
+     *
+     * The list of changed parameters is always empty, as it is relative to the
+     * inital or latest submitted values. Because of the different event type,
+     * the event can still be distinguished from a submit event with unchanged
+     * values for all parameters.
+     *
+     * **The values of the input elements are currently not reset.**
+     *
+     * @return The settings form for chained calls.
+     */
+    reset () {
+        const values = Object.expand(this.#data)
+        const event  = new SettingsEvent(values, [], this.#rules, "reset")
+        this.#elem.node().dispatchEvent(event)
+        // TODO: reset the input fields -> this would necessitate a way to write the values or regenerate the form
+        return this
+    }
+
+    /**
      * Called whenever the value of an input element is changed. The function
      * dispatches a {@link SettingsEvent} with type `settings-change` on the
      * input element that triggered the change.
      *
      * This function is passed to the `changeFn` that was registered
-     * for a parameter with the function {@link SettingsDialog.register}.
+     * for a parameter with the function {@link SettingsForm.register}.
      * This is done, because there is no general way to retrieve a
      * **primite** value for all input events.
      *
@@ -504,7 +537,7 @@ export default class SettingsDialog {
         event.preventDefault()
 
         // dispatch event
-        this.#dispatchSubmitEvent(this.#elem.node())
+        this.#dispatchSubmitEvent()
     }
 
     /**
@@ -523,7 +556,7 @@ export default class SettingsDialog {
         const changed = input.getAttribute("id")
 
         // dispatch the event on the input element
-        const event = new SettingsEvent(values, changed, this.#rules)
+        const event = new SettingsEvent(values, changed, this.#rules, "change")
         input.dispatchEvent(event)
     }
 
@@ -550,7 +583,7 @@ export default class SettingsDialog {
         this.#data = values
 
         // dispatch the event
-        const event = new SettingsEvent(values, changed, this.#rules, true)
+        const event = new SettingsEvent(values, changed, this.#rules, "submit")
         this.#elem.node().dispatchEvent(event)
     }
 
@@ -561,7 +594,7 @@ export default class SettingsDialog {
      * The labels may either be in flattened or in expanded form.
      *
      * @param labels - The labels that should be used for the parameters.
-     * @return {SettingsDialog} - The dialog so that calls can be chained.
+     * @return {SettingsForm} - The dialog so that calls can be chained.
      */
     setLabelNames(labels) {
         // flatten the input
@@ -584,7 +617,7 @@ export default class SettingsDialog {
      * The labels may either be in flattened or in expanded form.
      *
      * @param labels - The labels that should be used for the groups.
-     * @return {SettingsDialog} - The dialog so that calls can be chained.
+     * @return {SettingsForm} - The dialog so that calls can be chained.
      */
     setGroupNames(labels) {
         // flatten the input
@@ -625,7 +658,7 @@ export default class SettingsDialog {
     }
 
     /**
-     * Registers a new element type for the {@link SettingsDialog}. Any rule
+     * Registers a new element type for the {@link SettingsForm}. Any rule
      * from {@link https://github.com/mikeerickson/validatorjs validator.js} may be used. So can be
      * custom rules.
      *
@@ -678,7 +711,7 @@ export default class SettingsDialog {
             }
         }
 
-        SettingsDialog.#GeneratorFunctions[ruleName] = {
+        SettingsForm.#GeneratorFunctions[ruleName] = {
             "generator": generatorFn,
             "value": valueFn,
             "change": changeFn
@@ -690,12 +723,12 @@ export default class SettingsDialog {
      * @param ruleName The name of the rule.
      */
     static remove(ruleName) {
-        delete SettingsDialog[ruleName]
+        delete SettingsForm[ruleName]
     }
 }
 
 // register a slider for the rule numeric
-SettingsDialog.register(
+SettingsForm.register(
     "numeric",
     function (options) {
         return d3.select(this)
@@ -715,7 +748,7 @@ SettingsDialog.register(
 )
 
 // register a dropdown for the rule in
-SettingsDialog.register(
+SettingsForm.register(
     "in",
     function (options) {
         let values = options.in
@@ -746,10 +779,9 @@ SettingsDialog.register(
 )
 
 // register a checkbox for the rule boolean
-SettingsDialog.register(
+SettingsForm.register(
     "boolean",
     function (options) {
-        console.log(options)
         return d3.select(this)
                  .append("input")
                  .attr("type", "checkbox")

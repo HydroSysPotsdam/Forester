@@ -244,30 +244,32 @@ export default {
         // get the current node renderer (holding view, position, ...) from the tree
         const nodeRenderer = Editor.Tree.renderers.get(id)
 
-        console.log("Shift clicked on node ", id)
+        Editor.openNodeSettings(nodeRenderer.node)
 
-        // check whether there are settings that can be changed
-        if (!_.isEmpty(nodeRenderer.getCurrentRules())) {
-
-            // retrieve the current settings and the rules from which the settings
-            // dialog can be generated
-            let settings  = nodeRenderer.getCurrentSettings()
-            let rules     = nodeRenderer.getCurrentRules()
-
-            // add a field so that the user can decide for which nodes the settings should be applied
-            rules.applyTo = "in:this,view,similar,all|default:this"
-
-            // open the dialog
-            const dialog = Editor.Settings.openDialog("Node Settings", settings, rules)
-
-            // set the label names, TODO: this should happend automatically based on a language settings
-            dialog.setLabelNames(LANGUAGE_QUICKFIX)
-            dialog.setGroupNames(LANGUAGE_QUICKFIX)
-
-            // the target property is part of the event details and can be
-            // used to find the node for which the settings should be updated
-            dialog.setTarget({type: "node-settings", id: id})
-        }
+        // console.log("Shift clicked on node ", id)
+        //
+        // // check whether there are settings that can be changed
+        // if (!_.isEmpty(nodeRenderer.getCurrentRules())) {
+        //
+        //     // retrieve the current settings and the rules from which the settings
+        //     // dialog can be generated
+        //     let settings  = nodeRenderer.getCurrentSettings()
+        //     let rules     = nodeRenderer.getCurrentRules()
+        //
+        //     // add a field so that the user can decide for which nodes the settings should be applied
+        //     rules.applyTo = "in:this,view,similar,all|default:this"
+        //
+        //     // open the dialog
+        //     const dialog = Editor.Settings.openDialog("Node Settings", settings, rules)
+        //
+        //     // set the label names, TODO: this should happend automatically based on a language settings
+        //     dialog.setLabelNames(LANGUAGE_QUICKFIX)
+        //     dialog.setGroupNames(LANGUAGE_QUICKFIX)
+        //
+        //     // the target property is part of the event details and can be
+        //     // used to find the node for which the settings should be updated
+        //     dialog.setTarget({type: "node-settings", id: id})
+        // }
     },
 
     onNodeHover: function (event) {
@@ -299,6 +301,69 @@ export default {
     //
     //     this.Tree.redrawLinks(settings)
     // }
+
+    SeTTings: {
+
+        currentForm: new SettingsForm(),
+
+        isOpen: function () {
+            // return whether a settings panel is open
+            return Editor.SeTTings.currentForm !== undefined
+        },
+
+        openSettings: function (data, rules, callback) {
+            // check if a settings panel is already open
+            // if yes: closeSettings()
+
+            // clear the settings panel and the listeners
+
+            // generate the settings form
+            // store the settings form object
+
+            // bind the callback to the settings panel
+
+            // transition in
+            // TODO: this should be done mostly with css or enter transition
+        },
+
+        closeSettings: function () {
+            // reset the settings to the initial values of the form
+            // TODO: add a reset function to the settings form that resets to initial values and dispatches a submit event
+            // TODO: rename data to initialValues
+
+            Editor.seTTings.currentFrom.values
+        },
+
+        openNodeSettings: function (node) {
+            // retrieve the current settings and rules for a node
+
+            // add a input element for the applyTo parameter
+            // this should at best not be part of the rules!
+
+            // open the settings with them
+            // callback function is onNodeSettingsChange
+        },
+
+        openGlobalSettings: function () {
+            // retrieve the global settings and rules
+            // open the settings with them
+            // callback function is onGlobalSettingsChange
+        },
+
+        onNodeSettingsChange: function (event) {
+            // get the value of the applyTo variable
+
+            // select all nodes to which the settings should be applied
+
+            // set the settings for all nodes
+        },
+
+        onGlobalSettingsChange: function (event) {
+            // store the settings
+
+            // set the settings for the tree and legend
+        }
+    }
 }
 
 // export let Tree

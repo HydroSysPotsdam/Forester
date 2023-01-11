@@ -8,7 +8,7 @@ import Views from "../views/Views.js"
 
 import {NodeRenderer} from "./NodeRenderer.js";
 import {BasicLinkRenderer, FlowLinkRenderer} from "./LinkRenderer.js";
-import {Legend} from "../Legend.js";
+import {Legend} from "./Legend.js";
 
 export class TreeRenderer {
 

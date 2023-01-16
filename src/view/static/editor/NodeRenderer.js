@@ -5,7 +5,7 @@
  */
 
 import Editor from "./Editor.js";
-import Validator from "../Validator.js";
+import Validator from "../ruleset/Validator.js";
 
 /**
  * Wrapper around a node that keeps track of the used view for illustration and
@@ -271,19 +271,21 @@ export class NodeRenderer {
     }
 
     #onSettingsChange (event) {
-        const settings  = event.detail.values
-        const view      = event.detail.view
-
-        // TODO: implement safety check
-        if (this.view !== view && event.detail.viewChange) {
-            this.view = view
-        }
-
-        // update the setting for the new (or old) view
-        this.settings[this.view.name] = settings
-
-        // redraw the view
-        this.draw()
+        console.log(event)
+        //
+        // const settings  = event.detail.values
+        // const view      = event.detail.view
+        //
+        // // TODO: implement safety check
+        // if (this.view !== view && event.detail.viewChange) {
+        //     this.view = view
+        // }
+        //
+        // // update the setting for the new (or old) view
+        // this.settings[this.view.name] = settings
+        //
+        // // redraw the view
+        // this.draw()
     }
 
     getCurrentSettings () {
@@ -292,5 +294,19 @@ export class NodeRenderer {
 
     getCurrentRules () {
         return this.view.rules
+    }
+
+    async updateSettings (settings, view = undefined) {
+
+        // change the view, if another view is specified
+        if (view && this.view != view) {
+            this.view = view
+        }
+
+        // update the settings for the current view
+        this.settings[this.view.name] = settings
+
+        // redraw the node
+        this.draw()
     }
 }

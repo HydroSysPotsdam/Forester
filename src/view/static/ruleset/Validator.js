@@ -1,10 +1,16 @@
 /*
+ * CC-0 2023.
+ * David Strahl, University of Potsdam
+ * Forester: Interactive human-in-the-loop web-based visualization of machine learning trees
+ */
+
+/*
  * CC-0 2022.
  * David Strahl, University of Potsdam
  * Forester: Interactive human-in-the-loop web-based visualization of machine learning trees
  */
 
-import "./lib/validator.js"
+import "../lib/validator.js"
 
 // register the default function
 Validator.registerImplicit("default", function (value, requirement, attribute) {

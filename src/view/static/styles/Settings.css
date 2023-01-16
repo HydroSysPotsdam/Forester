@@ -11,11 +11,6 @@
     width: 300px;
     height: 90%;
 
-    visibility: hidden;
-    transform: translate(100%, 0);
-    transition: ease-out;
-    transition-duration: 200ms;
-
     padding: 2em;
     margin: 10px;
 
@@ -24,6 +19,18 @@
 
     display: flex;
     flex-direction: column;
+
+    visibility: hidden;
+    transform: translate(100%, 0);
+    transition: ease-in-out;
+    transition-duration: 200ms;
+}
+
+#settings.settings-open {
+    visibility: visible;
+    transform: translate(0, 0);
+    transition: ease-in-out;
+    transition-duration: 200ms;
 }
 
 .settings-form {
@@ -54,14 +61,6 @@
     margin: 0.5em 0;
     display: grid;
     grid-template-columns: 1fr 1fr;
-}
-
-.settings-form > .settings-entry {
-    margin: 0;
-}
-
-.settings-submit {
-    margin-top: 2em;
 }
 
 .settings-entry[for=applyTo] {

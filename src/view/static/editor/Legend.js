@@ -10,8 +10,7 @@
  * Forester: Interactive human-in-the-loop web-based visualization of machine learning trees
  */
 
-import {Tree} from "./Editor.js";
-import {GlobalSettings} from "../Settings_old.js";
+import Editor from "./Editor.js";
 
 $("#legend").ready(function () {
 
@@ -342,9 +341,9 @@ export let Legend = {
     generate: function () {
         Legend.clear()
 
-        const n_classes  = Tree.classNames().length
-        const n_features = Tree.featureNames().length
-        let colors = Array.from(GlobalSettings.get("color.scale"))
+        const n_classes  = Editor.Tree.classNames().length
+        const n_features = Editor.Tree.featureNames().length
+        let colors = Array.from(chroma.brewer.Pastel1)
 
         if (n_classes + n_features > colors.length) {
             // numer of colored classes
@@ -361,12 +360,12 @@ export let Legend = {
         }
 
         // add the legend entries for the classes
-        let class_entries = Tree.classNames().map(label => new LegendEntry(label, colors.shift(), "C"))
+        let class_entries = Editor.Tree.classNames().map(label => new LegendEntry(label, colors.shift(), "C"))
         let classes = new LegendGroup("Classes")
         classes.addEntries(class_entries)
 
         // add the legend entries for the classes
-        let feature_entries = Tree.featureNames().map(label => new LegendEntry(label, colors.shift(), "F"))
+        let feature_entries = Editor.Tree.featureNames().map(label => new LegendEntry(label, colors.shift(), "F"))
         let features = new LegendGroup("Features")
         features.addEntries(feature_entries)
 

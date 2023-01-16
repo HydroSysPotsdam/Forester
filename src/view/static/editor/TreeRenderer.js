@@ -28,8 +28,8 @@ export class TreeRenderer {
 
         // go through all the nodes and assign a node renderer
         for (const node of this.nodes) {
-            // const view = [Views.BasicView, Views.CCircleIconView, Views.TextView, Views.BarChartView][Math.floor(Math.random() * 4)]
-            const view = Views.StackedBarView
+            const view = [Views.BasicView, Views.PieChartView, Views.TextView, Views.StackedBarView][Math.floor(Math.random() * 4)]
+            // const view = Views.StackedBarView
             let renderer = new NodeRenderer(node, view)
             this.renderers.set(node.id, renderer)
         }
@@ -186,15 +186,15 @@ export class TreeRenderer {
     updateSettings(settings, changed) {
         if (changed && changed.length > 0) {
 
-            if (changed.contains("layout.direction") || changed.contains("layout.lspace") || changed.contains("layout.bspace")) {
+            if (changed.includes("layout.direction") || changed.includes("layout.lspace") || changed.includes("layout.bspace")) {
                 this.layout(settings)
             }
 
-            if (changed.contains("path.style")) {
+            if (changed.includes("path.style")) {
                 this.redrawLinks(settings)
             }
 
-            if (changed.contains("path.flow")) {
+            if (changed.includes("path.flow")) {
                 const flow = settings.path.flow
                 if (flow != "None") {
                     this.linkRenderer = new FlowLinkRenderer(this.#ui_elem.select(".tree-links").node())

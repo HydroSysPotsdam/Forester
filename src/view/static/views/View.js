@@ -4,9 +4,8 @@
  * Forester: Interactive human-in-the-loop web-based visualization of machine learning trees
  */
 
-import {Tree} from "../editor/Editor.js"
 import {Legend} from "../editor/Legend.js";
-import Validator from "../Validator.js";
+import Validator from "../ruleset/Validator.js";
 
 /**
  * Views generate modular illustrations for nodes. They are similar to

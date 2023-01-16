@@ -10,7 +10,7 @@
  * Forester: Interactive human-in-the-loop web-based visualization of machine learning trees
  */
 
-import "../Validator.js";
+import "./Validator.js";
 
 /**
  * Custom event that is dispatched whenever the settings in a {@link SettingsForm} are
@@ -476,6 +476,10 @@ export default class SettingsForm {
         }
     }
 
+    get rules () {
+        return this.#rules
+    }
+
     /**
      * Resets the form and dispatches a `settings-reset` event with the values of
      * the last submit. If the form never submitted values, the initial values are
@@ -494,7 +498,10 @@ export default class SettingsForm {
         const values = Object.expand(this.#data)
         const event  = new SettingsEvent(values, [], this.#rules, "reset")
         this.#elem.node().dispatchEvent(event)
+
         // TODO: reset the input fields -> this would necessitate a way to write the values or regenerate the form
+        console.warn("Currently, resetting the form does not change the values of the input events!")
+
         return this
     }
 
@@ -553,7 +560,7 @@ export default class SettingsForm {
 
         // retrieve all values and the changed variable
         const values  = this.values
-        const changed = input.getAttribute("id")
+        const changed = [input.getAttribute("id")]
 
         // dispatch the event on the input element
         const event = new SettingsEvent(values, changed, this.#rules, "change")
@@ -744,6 +751,9 @@ SettingsForm.register(
     // be given that parses the property
     function () {
         return parseFloat(d3.select(this).property("value"))
+    },
+    function (callback) {
+        d3.select(this).on("input", callback)
     }
 )
 

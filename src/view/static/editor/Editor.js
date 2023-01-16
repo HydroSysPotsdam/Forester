@@ -8,70 +8,34 @@ import {TreeRenderer} from "./TreeRenderer.js";
 import * as Views from "../views/View.js";
 import {FNode} from "../Node.js";
 import {Panzoom} from "../Panzoom.js";
-import Settings from "../Settings.js";
 import {BasicLinkRenderer, FlowLinkRenderer} from "./LinkRenderer.js";
-
-// TODO: remove this variable
-export let Tree = {}
-
-let LANGUAGE_QUICKFIX = {
-    "bar": "Style",
-    "class": "Class Distribution",
-    "bar.axis": "Direction",
-    "bar.width":  "Width",
-    "bar.height": "Height",
-    "class.aggregate":  "Collect Small Classes",
-    "class.sort":       "Sort Distribution",
-    "radius": "Radius",
-    "scale": "Radius Scaling",
-    "scale.scaleBySamples": "Scale by Samples",
-    "scale.scaleMethod":    "Scaling Method",
-    "applyTo": "Apply To",
-    "colorscale": "Colors",
-    "layout": "Tree Layout",
-    "layout.direction": "Direction",
-    "layout.lspace": "Level Extend",
-    "layout.bspace": "Branch Extend",
-    "path": "Node Links",
-    "path.style": "Style",
-    "path.flow": "Indicate Sample Flow"
-}
+import SettingsForm from "../ruleset/SettingsForm.js";
 
 export default {
 
-    Events: new EventEmitter(),
+    Legend: undefined,
 
-    // the current tree renderer
-    Tree,
+    Tree: undefined,
 
-    // handle to the editors legend
-    Legend,
-
-    // the current panzoom handler
-    Panzoom,
-
-    // the settings panel
-    Settings,
+    Panzoom: undefined,
 
     GlobalSettingRules: {
-        "colorscale":       "in:Brewer 1,Brewer 2, Brewer 3|default:Brewer 2",
-        "layout.direction": "in:top-bottom,left-right|default:top-bottom",
-        "layout.lspace":    "numeric|min:0.5|max:2|default:1",
-        "layout.bspace":    "numeric|min:0.5|max:2|default:1",
-        "path.style":       "in:linear,curved,ragged|default:linear",
-        "path.flow":        "in:none,linear,autocontrast,colorcoded|default:none",
+        "legend.colorscale": "in:Brewer 1,Brewer 2, Brewer 3|default:Brewer 2",
+        "legend.distribute": "in:Classes,Features,Between|default:Between",
+        "layout.direction":  "in:top-bottom,left-right|default:top-bottom",
+        "layout.lspace":     "numeric|min:0.5|max:2|default:1",
+        "layout.bspace":     "numeric|min:0.5|max:2|default:1",
+        "path.style":        "in:linear,curved,ragged|default:linear",
+        "path.flow":         "in:none,linear,autocontrast,colorcoded|default:none",
     },
 
     openFromData: async function (data) {
 
+        // add a handle to the window
+        window.Editor = this
+
         // load the nodes from the data
         let nodes = new FNode(d3.hierarchy(data.tree), data.meta)
-
-        // register the settings handles
-        // this.registerEventListeners()
-
-        // create the Settings panel
-        this.Settings = new Settings("#settings")
 
         // prepare the initial settings
         const initialSettings = {}
@@ -79,17 +43,13 @@ export default {
 
         this.Tree = new TreeRenderer(nodes, "#tree")
         this.Tree.draw(initialSettings)
-        Tree = this.Tree
 
         // generate the legend
         Legend.generate()
         this.Legend = Legend
 
         // add pan and zoom funcionality
-        this.Panzoom = new Panzoom(document.getElementById(Tree.id))
-
-        // add a handle to the window
-        window.Editor = this
+        this.Panzoom = new Panzoom(document.getElementById(Editor.Tree.id))
 
         // add all the listeners that are needed for interaction
         d3.selectAll(".tree-node")
@@ -99,287 +59,154 @@ export default {
 
               // shift click opens settings, click would hide the node
               if (event.shiftKey) {
-                  Editor.onNodeShiftClick.call(this, event)
-              } else {
-                  Editor.onNodeClick.call(this, event)
+                  const nodeID = d3.select(this).attr("forID")
+                  Editor.Settings.openNodeSettings(nodeID)
               }
           })
-          .on("mouseenter mouseleave", Editor.onNodeHover)
-
-        d3.select("#settings")
-          .on("submit", Editor.onSettingsSubmit)
 
         d3.select(document)
             .on("keydown", function (event) {
-                if (event.key === "M") {
-                    const dialog = Editor.Settings.openDialog("Global Settings", {}, Editor.GlobalSettingRules)
-                    dialog.setTarget({type: "global-settings"})
-                    dialog.setLabelNames(LANGUAGE_QUICKFIX)
-                    dialog.setGroupNames(LANGUAGE_QUICKFIX)
+                if (event.code === "Escape") {
+                    if (Editor.Settings.isOpen()) {
+                        Editor.Settings.closeSettings()
+                    } else {
+                        Editor.Settings.openGlobalSettings()
+                    }
                 }
             })
     },
 
-    /**
-     * Called whenever the settings page submits a new set of values.
-     *
-     * Upon submission an `submit` event is fired from the settings form. This
-     * event bubbles to the settings element and is collected by the Editor.
-     *
-     * Based on the target parameter in the event's details, the editor decides
-     * whether the dispatched event corresponds with changing the global settings
-     * or just node settings. In the first case, the function
-     * {@link onGlobalSettingsChange} is called. In the latter, the event is
-     * delegated to {@link onNodeSettingsChange}
-     *
-     * This multiple use of the `submit` event allows a more
-     * modular approach, where other code listens for all setting changes regardless
-     * of where the settings apply.
-     *
-     * @param event - A custom event with type `submit` and a detail object containing
-     * at least a value field with the updated settings and a target field containing
-     * either `"node-settings"` or `"global-settings"`.
-     */
-    onSettingsSubmit: function (event) {
-        const target = event.detail.target
-
-        if (target.type === "global-settings") {
-            Editor.onGlobalSettingsChange(event)
-        }
-
-        if (target.type === "node-settings") {
-            const id = target.id
-            if (Editor.Tree.renderers.has(id)) {
-                Editor.onNodeSettingsChange(event)
-            } else {
-                throw new Error("Unknown node with id " + id)
-            }
-        }
+    highlightNodes (...nodeIDs) {
+        d3.selectAll(".tree-node")
+          .classed("highlighted", renderer => nodeIDs.includes(renderer.node.id))
     },
 
-    onGlobalSettingsChange: function (event) {
-        Tree.updateSettings(event.detail.settings, event.detail.changed)
-    },
+    Settings: {
 
-    /**
-     * Called whenever the settings page submits a new set of values for a node.
-     *
-     * Based on the value of the "Apply To" field, the settings are either applied
-     * to just the selected node, all nodes with the same view, similar nodes or
-     * all nodes. With the same view or similar nodes, the settings are changed
-     * also in nodes which do not currently use the same view.
-     *
-     * @param event - A custom event with type `submit` and the following details:
-     * `values` containing the updated settings and `target.id` containing the node id
-     * of the selected node.
-     */
-    onNodeSettingsChange: function (event) {
-
-        // get the node id from the event
-        const id = event.detail.target.id
-
-        // get the settings values
-        const settings = event.detail.values
-
-        // to what nodes should the setting change be applied?
-        const applyTo = settings.applyTo
-        delete settings.applyTo
-
-        // add the view to the event details
-        const view = Editor.Tree.renderers.get(id).view
-        event.detail.view = view
-
-        const nodeEvent = new CustomEvent("settings-change", {detail: event.detail})
-
-        switch (applyTo) {
-            // settings should only be applied to this node
-            case "this":
-                // select node based on ID and dispatch event
-                const elem = d3.select(".tree-node[forID='" + id + "']").node()
-                elem.dispatchEvent(nodeEvent)
-            break;
-
-            // settings should be applied to all nodes but view should not change
-            case "view":
-                for (const elem of d3.selectAll(".tree-node." + view.name)) {
-                    nodeEvent.detail.viewChange = false
-                    elem.dispatchEvent(nodeEvent)
-                }
-            break;
-
-            // settings should be applied to all nodes and view should change
-            case "all":
-                for (const elem of d3.selectAll(".tree-node")) {
-                    nodeEvent.detail.viewChange = true
-                    elem.dispatchEvent(nodeEvent)
-                }
-            break;
-        }
-    },
-
-    onNodeClick: function (event) {
-        const id = d3.select(this).attr("forID")
-        console.log("Clicked on node ", id)
-    },
-
-    /**
-     * Called when the node settings dialog should be opened.
-     *
-     * The event should have been dispatched from a `.tree-node` element holding an
-     * attribute `forID` that contains the node ID. From this ID, the corresponding {@link NodeRenderer}
-     * can be found and its settings can be updated.
-     *
-     * To update the settings, a {@link SettingsDialog} is generated from the renderers current settings and
-     * the rules specified by the current view. This dialog is regenerated every time.
-     *
-     * Settings are changed whenever a `submit` event is dispatched from the settings dialog.
-     * This event is collected by the editor and processed in {@link onSettingsSubmit}.
-     *
-     * @param event - The event that was dispatched. The context of the function should be a `.tree-node`.
-     */
-    onNodeShiftClick: function (event) {
-        // get the id of the node
-        const id = d3.select(this).attr("forID")
-
-        // get the current node renderer (holding view, position, ...) from the tree
-        const nodeRenderer = Editor.Tree.renderers.get(id)
-
-        Editor.openNodeSettings(nodeRenderer.node)
-
-        // console.log("Shift clicked on node ", id)
-        //
-        // // check whether there are settings that can be changed
-        // if (!_.isEmpty(nodeRenderer.getCurrentRules())) {
-        //
-        //     // retrieve the current settings and the rules from which the settings
-        //     // dialog can be generated
-        //     let settings  = nodeRenderer.getCurrentSettings()
-        //     let rules     = nodeRenderer.getCurrentRules()
-        //
-        //     // add a field so that the user can decide for which nodes the settings should be applied
-        //     rules.applyTo = "in:this,view,similar,all|default:this"
-        //
-        //     // open the dialog
-        //     const dialog = Editor.Settings.openDialog("Node Settings", settings, rules)
-        //
-        //     // set the label names, TODO: this should happend automatically based on a language settings
-        //     dialog.setLabelNames(LANGUAGE_QUICKFIX)
-        //     dialog.setGroupNames(LANGUAGE_QUICKFIX)
-        //
-        //     // the target property is part of the event details and can be
-        //     // used to find the node for which the settings should be updated
-        //     dialog.setTarget({type: "node-settings", id: id})
-        // }
-    },
-
-    onNodeHover: function (event) {
-        const id = d3.select(this).attr("forID")
-
-        if (event.type == "mouseenter") {
-            console.log("Entered node ", id)
-        } else if (event.type === "mouseleave") {
-            console.log("Left node", id)
-        }
-    },
-
-    // registerEventListeners: function () {
-    //     GlobalSettings.addChangeListeners(() => this.onLayoutSettingChange.call(this, GlobalSettings.entries()), "layout.direction", "layout.lspace", "layout.bspace")
-    //     GlobalSettings.addChangeListeners(() => this.onLinkSettingChange.call(this, GlobalSettings.entries()), "path.style", "path.flow")
-    // },
-    //
-    // onLayoutSettingChange: function (settings) {
-    //     this.Tree.layout(settings)
-    // },
-    //
-    // onLinkSettingChange: function (settings) {
-    //
-    //     if (settings.get("path.style") === "none") {
-    //         Tree.linkRenderer = new BasicLinkRenderer(d3.select(".tree-links").node())
-    //     } else {
-    //         Tree.linkRenderer = new FlowLinkRenderer(d3.select(".tree-links").node())
-    //     }
-    //
-    //     this.Tree.redrawLinks(settings)
-    // }
-
-    SeTTings: {
-
-        currentForm: new SettingsForm(),
+        currentForm: undefined,
 
         isOpen: function () {
             // return whether a settings panel is open
-            return Editor.SeTTings.currentForm !== undefined
+            return typeof Editor.Settings.currentForm !== "undefined"
         },
 
-        openSettings: function (data, rules, callback) {
-            // check if a settings panel is already open
-            // if yes: closeSettings()
+        openSettings: function (data, rules, callbackFn) {
+
+            // check if a different settings panel is already open and close if so
+            if (Editor.Settings.isOpen()) {
+                Editor.Settings.closeSettings()
+            }
 
             // clear the settings panel and the listeners
+            d3.select("#settings")
+              .selectAll("*")
+              .remove()
 
             // generate the settings form
             // store the settings form object
+            Editor.Settings.currentForm = new SettingsForm(data, rules, d3.select("#settings").node())
 
             // bind the callback to the settings panel
+            d3.select("#settings")
+              .on("settings-submit settings-reset settings-change", callbackFn)
 
             // transition in
-            // TODO: this should be done mostly with css or enter transition
+            d3.select("#settings")
+              .classed("settings-open", true)
         },
 
         closeSettings: function () {
-            // reset the settings to the initial values of the form
             // TODO: add a reset function to the settings form that resets to initial values and dispatches a submit event
             // TODO: rename data to initialValues
 
-            Editor.seTTings.currentFrom.values
+            // reset the settings to the initial values of the form
+            Editor.Settings.currentForm.reset()
+
+            // transition out the settings panel
+            d3.select("#settings")
+              .classed("settings-open", false)
+
+            // remove the parameter
+            Editor.Settings.currentForm = undefined
         },
 
-        openNodeSettings: function (node) {
+        openNodeSettings: function (nodeID) {
             // retrieve the current settings and rules for a node
+            const nodeRenderer = Editor.Tree.renderers.get(nodeID)
+            const rules  = nodeRenderer.getCurrentRules()
+            const values = nodeRenderer.getCurrentSettings()
+
+            // do not open settings when there are no rules for the node
+            if (Object.keys(Object.flatten(rules)).length === 0) return
+
+            // get the node for which the settings were opened
+            // this will be the content of the onNodeSettingsChange function
+            const srcNode = d3.select(".tree-node[forID='" + nodeRenderer.node.id + "']").node()
 
             // add a input element for the applyTo parameter
-            // this should at best not be part of the rules!
+            rules.applyTo = "in:this,view,similar,all|default:this"
 
             // open the settings with them
             // callback function is onNodeSettingsChange
+            Editor.Settings.openSettings(values, rules, event => Editor.Settings.onNodeSettingsChange.call(srcNode, event))
+
+            // use the nodes view name as a title
+            d3.select("#settings")
+              .insert("h3", ":first-child")
+              .text("Node Settings")
         },
 
         openGlobalSettings: function () {
             // retrieve the global settings and rules
             // open the settings with them
             // callback function is onGlobalSettingsChange
+            Editor.Settings.openSettings({}, Editor.GlobalSettingRules, Editor.Settings.onGlobalSettingsChange)
+
+            // add a title to the settings panel
+            d3.select("#settings")
+              .insert("h3", ":first-child")
+              .text("Global Settings")
         },
 
         onNodeSettingsChange: function (event) {
+            // when only the applyTo parameter changed, do not process the event
+            // the applyTo parameter is only used for finding the nodes to
+            // which the settings should be applied
+            if (event.changed.length === 1 && event.changed.includes("applyTo")) return
+
+            // get information on the node
+            const nodeID  = d3.select(this).attr("forID")
+            const view    = Editor.Tree.renderers.get(nodeID).view
+
             // get the value of the applyTo variable
+            let applyTo = event.values.applyTo
 
-            // select all nodes to which the settings should be applied
+            // when the user has selected only this node or the event is not a submission event
+            // update only the given node
+            if (applyTo === "this" || event.type !== "settings-submit") {
+                applyTo = [Editor.Tree.renderers.get(nodeID)]
+            }
 
-            // set the settings for all nodes
+            // with view and submit events, update all nodes that use the same view
+            if (applyTo === "view") {
+                applyTo = Array.from(Editor.Tree.renderers.values()).filter(renderer => renderer.view === view)
+            }
+
+            // with all and submit events, update all nodes and change the view
+            if (applyTo === "all") {
+                applyTo = Array.from(Editor.Tree.renderers.values())
+            }
+
+            // update settings and view for the nodes to which the settings are applied
+            applyTo.map(renderer => renderer.updateSettings(event.values, view))
         },
 
         onGlobalSettingsChange: function (event) {
-            // store the settings
-
             // set the settings for the tree and legend
+            Editor.Tree.updateSettings(event.values, event.changed)
         }
     }
 }
-
-// export let Tree
-//
-// window.Forester = {}
-//
-// Forester.loadTree = function (fgts) {
-//     // Tree = new TreeInstance(fgts, "#tree")
-//     // window.Tree = Tree
-//     // window.Views = Views
-//     //
-//     // Legend.generate()
-//     //
-//     // Tree.draw()
-//     console.log("Ready!")
-// }
 
 // $('document').ready(function () {
 //

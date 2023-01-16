@@ -28,7 +28,13 @@ class TextView extends View {
      * Singleton constructor used to export the instance of {@link PieChartView}
      */
     constructor () {
-        super("TextView", {})
+        const rules = {
+            "show.feature":      "boolean|default:true",
+            "show.vote":         "boolean|default:true",
+            "show.samples":      "boolean|default:true"
+        }
+
+        super("TextView", rules)
     }
 
     /**
@@ -49,7 +55,7 @@ class TextView extends View {
           .style("font-size", "0.5em")
           .style("transform", "scale(1.2)")
 
-        if (data.splitFeature) {
+        if (data.splitFeature && settings.show.feature) {
             d3.select(this)
               .append("text")
               .attr("class", "label")
@@ -60,23 +66,29 @@ class TextView extends View {
               .html("<tspan class='colorcoded'>" + data.splitFeature + "</tspan> " + data.splitOperator + " " + numeral(data.splitLocation).format("0.00a"))
         }
 
-        d3.select(this)
-          .append("text")
-          .attr("class", "label")
-          .text("V:")
-        d3.select(this)
-          .append("text")
-          .attr("class", "value")
-          .html("<tspan class='colorcoded'>" + data.vote + "</tspan>" + " (" + numeral(data.voteFraction).format("0%") + ")")
+        if (settings.show.vote) {
+            d3.select(this)
+              .append("text")
+              .attr("class", "label")
+              .text("V:")
+            d3.select(this)
+              .append("text")
+              .attr("class", "value")
+              .html("<tspan class='colorcoded'>" + data.vote + "</tspan>" + " (" + numeral(data.voteFraction)
+                  .format("0%") + ")")
+        }
 
-        d3.select(this)
-          .append("text")
-          .attr("class", "label")
-          .text("S:")
-        d3.select(this)
-          .append("text")
-          .attr("class", "value")
-          .text(numeral(data.samples).format("0a"))
+
+        if (settings.show.samples) {
+            d3.select(this)
+              .append("text")
+              .attr("class", "label")
+              .text("S:")
+            d3.select(this)
+              .append("text")
+              .attr("class", "value")
+              .text(numeral(data.samples).format("0a"))
+        }
 
         d3.select(this)
           .selectAll(".label")

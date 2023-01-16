@@ -19,6 +19,8 @@ export default {
 
     Panzoom: undefined,
 
+    GlobalSettings: {},
+
     GlobalSettingRules: {
         "legend.colorscale": "in:Brewer 1,Brewer 2, Brewer 3|default:Brewer 2",
         "legend.distribute": "in:Classes,Features,Between|default:Between",
@@ -160,7 +162,7 @@ export default {
             // retrieve the global settings and rules
             // open the settings with them
             // callback function is onGlobalSettingsChange
-            Editor.Settings.openSettings({}, Editor.GlobalSettingRules, Editor.Settings.onGlobalSettingsChange)
+            Editor.Settings.openSettings(Editor.GlobalSettings, Editor.GlobalSettingRules, Editor.Settings.onGlobalSettingsChange)
 
             // add a title to the settings panel
             d3.select("#settings")
@@ -202,6 +204,12 @@ export default {
         },
 
         onGlobalSettingsChange: function (event) {
+
+            // store the settings
+            Editor.GlobalSettings = event.values
+
+            console.log(event)
+
             // set the settings for the tree and legend
             Editor.Tree.updateSettings(event.values, event.changed)
         }

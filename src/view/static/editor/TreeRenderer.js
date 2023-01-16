@@ -114,6 +114,15 @@ export class TreeRenderer {
         xmin = -Math.min(...this.nodes.descendants().map(node => node.x)) + 50
         ymin = 40
 
+        // add the minimum values to the coordinates
+        this.nodes.descendants().forEach(node => {node.x += xmin; node.y += ymin})
+
+        // with left-right direction, swap the coordinate axes
+        if (direction === "left-right") {
+            [width, height] = [height, width]
+            this.nodes.descendants().forEach(node => {[node.x, node.y] = [node.y, node.x]})
+        }
+
         // update the size of the svg image
         this.#ui_elem
             .select("svg")
@@ -124,7 +133,7 @@ export class TreeRenderer {
             let renderer = this.renderers.get(node.id)
 
             // update the renderers position
-            renderer.updatePosition(node.x + xmin, node.y + ymin)
+            renderer.updatePosition(node.x, node.y)
 
             // remove the fields from the nodes after usage
             delete node.x

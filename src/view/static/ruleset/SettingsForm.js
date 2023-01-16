@@ -495,11 +495,24 @@ export default class SettingsForm {
      * @return The settings form for chained calls.
      */
     reset () {
+        // take values from the last submit
         const values = Object.expand(this.#data)
-        const event  = new SettingsEvent(values, [], this.#rules, "reset")
-        this.#elem.node().dispatchEvent(event)
+
+        // old values are the current values, new values are the last submitted ones
+        const flatOld = Object.flatten(this.values)
+        const flatNew = Object.flatten(values)
+
+        // remove the keys that have not changed
+        const changed = Object.keys(flatNew).filter(key => flatNew[key] !== flatOld[key])
+
+        // dispatch the event if a value changed back
+        if (changed.length > 0) {
+            const event  = new SettingsEvent(values, changed, this.#rules, "reset")
+            this.#elem.node().dispatchEvent(event)
+        }
 
         // TODO: reset the input fields -> this would necessitate a way to write the values or regenerate the form
+
         console.warn("Currently, resetting the form does not change the values of the input events!")
 
         return this
@@ -560,7 +573,13 @@ export default class SettingsForm {
 
         // retrieve all values and the changed variable
         const values  = this.values
-        const changed = [input.getAttribute("id")]
+
+        // check which values changed and set the "changed" variable
+        const flatOld = Object.flatten(this.#data)
+        const flatNew = Object.flatten(values)
+
+        // remove the keys that have not changed
+        const changed = Object.keys(flatNew).filter(key => flatNew[key] !== flatOld[key])
 
         // dispatch the event on the input element
         const event = new SettingsEvent(values, changed, this.#rules, "change")
@@ -579,12 +598,11 @@ export default class SettingsForm {
         const values = this.values
 
         // check which values changed and set the "changed" variable
-        // TODO: changed values
-        const flatData   = Object.flatten(this.#data)
-        const flatValues = Object.flatten(values)
+        const flatOld = Object.flatten(this.#data)
+        const flatNew = Object.flatten(values)
 
         // remove the keys that have not changed
-        const changed    = Object.keys(flatData).filter(key => flatData[key] !== flatValues[key])
+        const changed = Object.keys(flatNew).filter(key => flatNew[key] !== flatOld[key])
 
         // update the data of the dialog
         this.#data = values

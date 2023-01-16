@@ -119,3 +119,30 @@ export class FNode extends d3.Node {
 }
 
 window.FNode = FNode
+
+//     // CALCULATE the scaled node index
+//     // grab all the samples and scale
+//     let samples = this.nodes.descendants().map(node => node.samples)
+//     // bin samples and count
+//     let bins = d3.bin().thresholds(flow_path_samples)(samples)
+//     let counts = bins.map(bin => bin.length)
+//     // cumulative count function
+//     let sum = 0
+//     let ccf = counts.map(count => sum += count)
+//     // for each note, find the bin index and invert the normalized ccf
+//     this.nodes.descendants().forEach(
+//         function (node) {
+//             let index = bins.map(bin => bin.indexOf(node.samples) >= 0).indexOf(true)
+//             node.flow = {}
+//             node.flow.samples_scaled = (ccf[index] - ccf[0]) / (ccf.slice(-1)[0] - ccf[0])
+//
+//             let distribution_sorted = [...node.distribution].sort((a, b) => a < b)
+//             let distribution_flow = distribution_sorted.slice(0, flow_shown_classes)
+//             let distribution_other = distribution_sorted.slice(flow_shown_classes)
+//             if (distribution_other.length == 0) {
+//                 node.flow.distribution = distribution_flow
+//             } else {
+//                 node.flow.distribution = [...distribution_flow, distribution_other.reduce((a, b) => a + b)]
+//             }
+//         })
+// }

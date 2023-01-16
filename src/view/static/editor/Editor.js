@@ -28,7 +28,8 @@ export default {
         "layout.lspace":     "numeric|min:0.5|max:2|default:1",
         "layout.bspace":     "numeric|min:0.5|max:2|default:1",
         "path.style":        "in:linear,curved,ragged|default:linear",
-        "path.flow":         "in:none,linear,autocontrast,colorcoded|default:none",
+        "path.flow":         "in:none,linear,scaled|default:none",
+        "path.colorcoded":   "boolean|default:false"
     },
 
     openFromData: async function (data) {
@@ -38,6 +39,11 @@ export default {
 
         // load the nodes from the data
         let nodes = new FNode(d3.hierarchy(data.tree), data.meta)
+
+        nodes.descendants().forEach(function (node) {
+            const n = nodes.descendants().filter(n => n.data.samplesFraction <= node.data.samplesFraction).length
+            node.data.samplesFractionScaled = n/nodes.descendants().length
+        })
 
         // prepare the initial settings
         const initialSettings = {}
@@ -207,8 +213,6 @@ export default {
 
             // store the settings
             Editor.GlobalSettings = event.values
-
-            console.log(event)
 
             // set the settings for the tree and legend
             Editor.Tree.updateSettings(event.values, event.changed)

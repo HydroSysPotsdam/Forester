@@ -111,7 +111,7 @@ export class FlowLinkRenderer extends BasicLinkRenderer {
      */
     async draw(source, target, settings) {
 
-        let data = await target.node.query("samplesFraction", "samples", "distribution", "classes")
+        let data = await target.node.query("samplesFraction", "samplesFractionScaled", "samples", "distribution", "classes")
 
         // draw the link, so that the flow curve can be generated
         let path = await super.draw(source, target, settings)
@@ -126,10 +126,10 @@ export class FlowLinkRenderer extends BasicLinkRenderer {
                     .classed("flow-link", true)
                     .style("stroke-width", ((stroke_max_width - 1) * data.samplesFraction + 1))
                 break;
-            case "auto": //TODO: there is no auto-contrast happening at the moment
+            case "scaled":
                 path.classed("basic-link", false)
                     .classed("flow-link", true)
-                    .style("stroke-width", ((stroke_max_width - 1) * data.samplesFraction + 1))
+                    .style("stroke-width", ((stroke_max_width - 1) * data.samplesFractionScaled + 1))
                 break;
             case "colorcoded": //TODO: the coloring follows the order in the distribution but should be from largest to smallest
                 let curve = path.node()

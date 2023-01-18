@@ -15,7 +15,13 @@ the [Forester](https://github.com/HydroSysPotsdam/Forester) project and still un
 - form can easily be extended using any DOM manipulation library (d3, jquery, ...)
 - event based approach
 
+Rulesett generates an unstyled form that employs the browsers native input elements. By adding a custom stylesheet and post-processing to add further information, the form can be streamlined to the users requirements.
+
+Rulesett employs an event-based approach. This completely separates the code to generate and maintain the settings form from user-written code. This makes keeping tack of changes in the settings easy and transparent.
+
 JavaScript is a typeless language. This can lead to problems, when methods require optional values from the user. Often this is solved by checking the arguments for missing fields and manually introducing default values. This process is tedious and is error-prone when requirements change half-way through the code and are not updated everywhere. Rulesett tries to solve this problem.
+
+Rulesett is build fully extendable and allows both custom rules (inherited from Validator.js) and input elements.
 
 
 ## Quickstart
@@ -62,30 +68,23 @@ Creating a settings form is equally easy and requires only one line of code. Wit
 
   let data = {a: 50, b:0}
 
-  let form = new SettingsForms(rules, data[, elem])
+  let form = new SettingsForm(rules, data[, elem])
 
 ```
 
 The following HTML is created and can be styled.
 
 
-<center>
-  <div>
-    <form class="settings-form">
-        <div class="settings-entry" for="a">
-            <label for="a" class="settings-entry-label">a</label>
-            <input type="range" min="0" max="100" step="1" value="50" id="a" class="settings-input" rule="numeric">
-        </div><div class="settings-entry" for="b">
-            <label for="b" class="settings-entry-label">b</label>
-            <input type="range" min="0" max="200" step="2" value="0" id="b" class="settings-input" rule="numeric">
-        </div><button class="settings-submit">Submit</button>
-    </form>
-  </div>
-</center>
-
-
 #### Keeping Track of Changes
 
+Changes can now be tracked by adding a listener to the DOM:
+
+```js
+
+d3.select(document.body)
+  .on("settings-change settings-submit settings-reset", event => console.log(event))
+
+```
 
 
 ## Rules
@@ -106,6 +105,56 @@ The following HTML is created and can be styled.
 ### Binary
 
 ### Adding Custom Rules
+
+Custom input elements can be bound to rules using the static `SettingsForm.register` method. This additionally allows the definition of custom rules, as described in the Validator.js documentation. 
+
+To bind an input element to a `rule`, three functions need to be defined. They correspond to appending the input, retrieving its value and keeping track of changes. 
+
+```js
+
+SettingsForm.register(rule, generatorFn[, valueFn, changeFn])
+
+```
+
+- `rule` 
+
+  The name of the rule which should be used with this generator. For example `numeric`, `in` or `boolean`. 
+  
+  An input element is added for the first rule that is registered with Rulesett. 
+
+  Reregistering a rule with Rulesett overwrites the default functionality. 
+
+
+- `generatorFn(options)`
+
+  The generator function is called once per parameter and should add the input element to the form. Generator functions are registered for certain rules, for example `numeric` for sliders, `in` for dropdowns or `boolean` for checkboxes.
+
+  The context is the DOM element to which the function should append the input.  
+
+
+- `valueFn(value)`
+
+  The value function is called whenever the **parsed** value of an input element should be retrieved or changed. When no argument is given, the function should return the value. Otherwise, the input element should be updated.
+
+  The context is the input element that should be updated.
+
+  The `valueFn` argument is optional, as the following function is used by default:
+
+  ```js
+    let valueFn = value => d3.select(this).property("value", value)
+  ```
+
+- `changeFn(listener)`  
+  
+  The change function should add its argument as a change listener to the input element. There is no general way to 
+  do this for custom input elements.  
+  
+  The context is the input element to which the change listener should be added.  
+  
+  The `changeFn` argument is optional, as the following function is used by default:
+  ```js
+    let changeFn = listener => d3.select(this).on("change", listener)
+  ```
 
 ## Events
 

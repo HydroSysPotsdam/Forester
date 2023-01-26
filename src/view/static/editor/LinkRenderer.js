@@ -61,7 +61,9 @@ export class BasicLinkRenderer {
         return this.elem
             .append("path")
             .attr("class", "link basic-link")
-            .attr("d", node => d3.link(curve)({source: [source.x, source.y], target: [target.x, target.y]}))
+            .attr("sourceID", source.node.id)
+            .attr("targetID", target.node.id)
+            .attr("d", node => d3.link(curve)({source: source.position, target: target.position}))
             .style("stroke", "black")
     }
 }

@@ -27,6 +27,7 @@ export default {
         "layout.direction":  "in:top-bottom,left-right|default:top-bottom",
         "layout.lspace":     "numeric|min:0.5|max:2|default:1",
         "layout.bspace":     "numeric|min:0.5|max:2|default:1",
+        "layout.dendrogram": "boolean|default:false",
         "path.style":        "in:linear,curved,ragged|default:linear",
         "path.flow":         "in:none,linear,scaled|default:none",
         "path.colorcoded":   "boolean|default:false"
@@ -65,11 +66,16 @@ export default {
               // prevent default
               event.preventDefault()
 
+              // get the id of the node
+              const nodeID = d3.select(this).attr("forID")
+
               // shift click opens settings, click would hide the node
               if (event.shiftKey) {
-                  const nodeID = d3.select(this).attr("forID")
                   Editor.Settings.openNodeSettings(nodeID)
+                  return
               }
+
+              Editor.collapseNode(nodeID)
           })
 
         d3.select(document)
@@ -87,6 +93,58 @@ export default {
     highlightNodes (...nodeIDs) {
         d3.selectAll(".tree-node")
           .classed("highlighted", renderer => nodeIDs.includes(renderer.node.id))
+    },
+
+    async collapseNode(nodeID, duration = 1000) {
+
+        let hide = async function (nodeID, targetID) {
+            const renderer       = Editor.Tree.renderers.get(nodeID)
+            const targetRenderer = Editor.Tree.renderers.get(targetID)
+
+            d3.select(`.tree-node[forID='${renderer.node.id}']`)
+              .transition("opacity")
+              .duration(duration)
+              .attr("opacity", 0)
+              .on("end", function () {
+                  d3.select(this).attr("display", "none")
+              })
+
+            const position = targetRenderer.layoutPosition
+            renderer.smoothTranslateTo(position[0], position[1], duration)
+
+            renderer.collapsed = true
+        }
+
+        let show = async function (nodeID, targetID) {
+            const renderer       = Editor.Tree.renderers.get(nodeID)
+            const targetRenderer = Editor.Tree.renderers.get(targetID)
+
+            d3.select(`.tree-node[forID='${renderer.node.id}']`)
+              .attr("display", null)
+              .transition("opacity")
+              .duration(duration)
+              .attr("opacity", 1)
+              .on("end")
+
+            const position = renderer.layoutPosition
+            renderer.smoothTranslateTo(position[0], position[1], duration)
+
+            renderer.collapsed = false
+        }
+
+        const renderer = Editor.Tree.renderers.get(nodeID)
+
+        // toggle collapse for all child nodes
+        for (const node of renderer.node.descendants().slice(1)) {
+            if (renderer.collapsed) {
+                show(node.id, nodeID)
+            } else {
+                hide(node.id, nodeID)
+            }
+        }
+
+        // indicate collapse of
+        renderer.collapsed = !renderer.collapsed
     },
 
     Settings: {

@@ -20,7 +20,7 @@
             flex-direction: column;
             margin:  0.5em;
             padding: 0.5em;
-            border: 1px solid black;
+            /*border: 1px solid black;*/
         }
 
         .settings-entry {
@@ -32,7 +32,7 @@
         .settings-form > .settings-entry {
             margin: 0.5em;
             padding: 0.5em;
-            border: 1px solid black;
+            /*border: 1px solid black;*/
         }
 
         .settings-entry-info {
@@ -46,40 +46,14 @@
         import SettingsForm from "../../static/ruleset/SettingsForm.js";
 
         let rules = {
-            "colorscale":       "in:Brewer 1,Brewer 2, Brewer 3|default:Brewer 2",
-            "layout.direction": "in:top-bottom,left-right|default:top-bottom",
-            "layout.lspace":    "numeric|min:0|max:100|default:50",
-            "layout.bspace":    "numeric|min:0|max:100|default:50",
-            "path.style":       "in:Linear,Curved,Ragged|default:Linear",
-            "path.flow":        "in:None,Linear,Autocontrast,Colorcoded|default:None",
-            "test":             "boolean|default:false"
+            "a": "numeric|min:0|max:100|default:50",
+            "b": "numeric|min:0|max:200|default:100"
         }
 
-        let labels = {
-            "colorscale":       "Farbskala",
-            "layout.direction": "Richtung",
-            "layout.lspace":    "Breite",
-            "layout.bspace":    "Höhe",
-            "path.style":       "Stil",
-            "path.flow":        "Fluss",
-        }
-
-        let groups = {
-            "layout": "Layout",
-            "path": "Pfade",
-            "path.style": "BLA"
-        }
-
-        const dialog = new SettingsForm({}, rules).setLabelNames(labels).setGroupNames(groups)
-        dialog.addInputInformation({test: "This is only a test parameter.", path: {style: "Very Stylish!"}})
+        const dialog = new SettingsForm({a:50, b:0}, rules)
 
         d3.select(document.body)
           .on("settings-submit settings-change settings-reset", event => console.log(event))
-          .on("keypress", function (event) {
-              if (event.code === "Escape") {
-                  dialog.reset()
-              }
-          })
 
     </script>
 </body>

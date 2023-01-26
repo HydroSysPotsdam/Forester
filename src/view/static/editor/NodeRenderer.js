@@ -36,8 +36,8 @@ export class NodeRenderer {
     // The displayed position. The coordinate system is relative to the svg element
     // holding all node and link illustrations. By default, it is equal to the original
     // position defined by the layout algorithm but may vary due to f.e. animations.
-    x
-    y
+    #x
+    #y
 
     // The node that is linked to this NodeRenderer. It holds all the data that is used
     // for illustration. See FNode for more information.
@@ -81,6 +81,7 @@ export class NodeRenderer {
         this.#elem
             .attr("class", "tree-node")
             .attr("forID", this.node.id)
+            .attr("opacity", 1)
 
         // fire a ready event
         // this.#ee.emit("ready", {context: this})
@@ -154,73 +155,93 @@ export class NodeRenderer {
     }
 
     /**
-     * Updates the position of the illustration.
-     *
-     * A renderer holds two different positions for each illustration. One displayed
-     * position at which the illustration is displayed and one original position
-     * that was calculated by the layout algorithm. The latter one is not affected
-     * by animations, such as the node transition.
-     *
-     * When the illustration was already renderer and a size can be determined, the svg
-     * group is already translated so that the illustration is centered with regard to
-     * the displayed position.
-     *
-     * @param x - The x position relative the parent svg element (in pixels).
-     * @param y - The x position relative the parent svg element (in pixels).
-     * @param keepOriginal - Whether the original position should be kept and
-     *      only the displayed position should be updated.
-     * @param animate - Whether the position change should happen smoothly.
+     * Returns the current position of the node's center. This position is affected by animations.
      */
-    updatePosition (x, y, keepOriginal=true, animate=false) {
-        // TODO: include the animation
+    get position () {
+        const bbox = this.#elem.node().getBBox()
+        const transform = this.#elem.node().transform.baseVal[0].matrix
 
-        // check whether the original position should be updated
-        if (keepOriginal) {
-            this.#xo = x
-            this.#yo = y
+        if (bbox.width > 0 & bbox.height > 0) {
+            return [transform.e + bbox.x + 0.5*bbox.width, transform.f + bbox.y + 0.5*bbox.height]
+        } else {
+            return [this.#x, this.#y]
         }
+    }
 
-        // update the current position
-        this.x  = x
-        this.y  = y
-
-        // update transformation of svg group and center
-        this.#updateTransform()
-
-        // fire a position update event
-        //this.#ee.emit("position-update", {context: this, keepOriginal: keepOriginal, animate: animate})
+    set position (position) {
+        const x = Array.isArray(position) ? position[0] : position.x
+        const y = Array.isArray(position) ? position[1] : position.x
+        this.#updateTransform(x, y)
     }
 
     /**
-     * Updates the transformation of the svg group, implementing the position update
-     * from `NodeRenderer.updatePosition()`.
-     *
-     * The positioning of the svg groups is solved using the transformation attribute.
-     * Therefore, each renderer has its own coordinate system with an origin at the
-     * displayed position.
-     *
-     * When the illustration was already renderer and a size can be determined, the svg
-     * group is already translated so that the illustration is centered with regard to
-     * the displayed position.
+     * Returns the position that the layout assigned to the node.
      */
-    #updateTransform() {
+    get layoutPosition () {
+        return [this.#xo, this.#yo]
+    }
 
-        // get the bounding box to center the view around (x, y)
-        // if the element is not ready, e.g. no bbox exists do not
-        // center the view
+    /**
+     * Sets the layout position of the node
+     * @param position
+     */
+    set layoutPosition (position) {
+        const x = Array.isArray(position) ? position[0] : position.x
+        const y = Array.isArray(position) ? position[1] : position.x
+        this.#xo = x
+        this.#yo = y
+        this.#updateTransform(this.#xo, this.#yo)
+    }
+
+    /**
+     * Updates the transform attribute of the node so that position changes become
+     * visible. By default, the layout position is used and no animation is done.
+     *
+     * @param x
+     * @param y
+     * @param animate
+     */
+    #updateTransform (x = this.#xo, y = this.#yo, animate = false) {
+
+        // update the current position
+        this.#x = x
+        this.#y = y
+
+        // get the coordinate of the center relative to the origin
         const bbox = this.#elem.node().getBBox()
-        let x, y
-        if (bbox) {
-            x = this.x - (bbox.x + 0.5*bbox.width)
-            y = this.y - (bbox.y + 0.5*bbox.height)
-        } else {
-            x = this.x
-            y = this.y
-        }
 
-        // update the transform matrix
-        this.#elem
-            .attr("transform", "translate(" + x + ", " + y + ")")
+        // the coordinate system in which the view is drawn is arbitrary
+        // calculate it's center point
+        let cx = bbox.x + 0.5*bbox.width
+        let cy = bbox.y + 0.5*bbox.height
+
+        return this.#elem
+            // transition always but use a duration of zero
+            .transition()
+            .duration(animate > 0 ? animate : 0)
+            .ease(d3.easeLinear)
+            // translate the node coordinate system to x, y and center the view's
+            // coordinate system by subtracting the center of the bounding box
+            .attr("transform", `translate(${x - cx}, ${y - cy})`)
+            .end()
+    }
+
+     /**
+     * Resets the current position of the node to the layout position.
+     */
+    resetPosition(animate = false) {
+        this.position = this.layoutPosition
+        this.#updateTransform(this.#xo, this.#yo, animate)
+    }
+
+    /**
+     * Smoothly translates the node to the specified position.
+     * @param x
+     * @param y
+     * @param duration
+     */
+    smoothTranslateTo(x, y, duration = 1000) {
+        return this.#updateTransform(x, y, duration)
     }
 
     /**

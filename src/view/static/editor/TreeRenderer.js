@@ -17,6 +17,8 @@ export class TreeRenderer {
     nodes
     renderers = new Map()
 
+    observer
+
     #ui_elem
 
     constructor (nodes, elem) {
@@ -33,6 +35,8 @@ export class TreeRenderer {
             let renderer = new NodeRenderer(node, view)
             this.renderers.set(node.id, renderer)
         }
+
+        this.observer = new MutationObserver((mutations, observer) => this.onNodePositionUpdate.call(this, mutations, observer))
     }
 
     #initializeContainer (elem) {
@@ -56,6 +60,10 @@ export class TreeRenderer {
             .each(function (renderer) {
                 renderer.bind(this)
             })
+
+        d3.selectAll(".tree-node")
+          .nodes()
+          .forEach(node => this.observer.observe(node, {attributes: true, attributeFilter: ["transform", "display"]}))
     }
 
     clear () {
@@ -96,13 +104,16 @@ export class TreeRenderer {
         let direction = settings.layout.direction
         let lspace    = settings.layout.lspace
         let bspace    = settings.layout.bspace
+        let dendro    = settings.layout.dendrogram
         let layout, width, height, xmin, ymin;
 
         // helper function
         const range = x => Math.max(...x) - Math.min(...x)
 
+        const algorithm = dendro ? d3.cluster() : d3.tree()
+
         // calculate the tree layout
-        layout = d3.tree().nodeSize([bspace * 100, lspace * 80])(this.nodes)
+        layout = algorithm.nodeSize([bspace * 100, lspace * 80])(this.nodes)
 
         // find range of x and y coordinates
         // TODO: include the view sizes so that there is padding
@@ -123,6 +134,14 @@ export class TreeRenderer {
             this.nodes.descendants().forEach(node => {[node.x, node.y] = [node.y, node.x]})
         }
 
+        // place same levels
+        if (dendro) {
+            this.nodes.descendants().filter(node => node.data.type !== "leaf").forEach(node => {
+                const y = this.nodes.descendants().filter(n => n.depth === node.depth).map(n => n.y)
+                node.y = Math.min(...y)
+            })
+        }
+
         // update the size of the svg image
         this.#ui_elem
             .select("svg")
@@ -133,14 +152,14 @@ export class TreeRenderer {
             let renderer = this.renderers.get(node.id)
 
             // update the renderers position
-            renderer.updatePosition(node.x, node.y)
+            renderer.layoutPosition = [node.x, node.y]
 
             // remove the fields from the nodes after usage
             delete node.x
             delete node.y
         }
 
-        this.redrawLinks(settings)
+        // this.redrawLinks(settings)
     }
 
     /**
@@ -149,6 +168,8 @@ export class TreeRenderer {
      */
     draw (settings) {
         // TODO: what should happen if settings is undefined -> use global settings
+
+        this.settings = settings
 
         this.clear()
         this.layout(settings)
@@ -168,7 +189,7 @@ export class TreeRenderer {
         renderer.draw()
     }
 
-    redrawLinks (settings) {
+    redrawLinks (...nodeID) {
 
         // clear the links before redraw
         this.linkRenderer.clear()
@@ -181,7 +202,27 @@ export class TreeRenderer {
     redrawLink (link, settings) {
         const source = this.renderers.get(link.source.id)
         const target = this.renderers.get(link.target.id)
+
+        // remove the old link
+        d3.select(".link[sourceID='" + link.source.id + "'][targetID='" + link.target.id + "']")
+          .remove()
+
         this.linkRenderer.draw(source, target, settings)
+    }
+
+    onNodePositionUpdate (mutations, observer) {
+
+        // get a set of the unique id's that are included in the mutations
+        let nodeIDs = [...new Set(mutations.map(record => record.target.getAttribute("forID")))]
+
+        // for all links in the tree, check if either the source or target node was
+        // mutated and update the links that need to change
+        this.nodes.links()
+            .forEach(link => {
+                if (nodeIDs.includes(link.source.id) | nodeIDs.includes(link.target.id)) {
+                    this.redrawLink(link, this.settings)
+                }
+            })
     }
 
     classNames() {
@@ -217,6 +258,10 @@ export class TreeRenderer {
 
     #setLinkRenderer (renderer) {
 
+    }
+
+    getNode(nodeID) {
+        return this.renderers.get(nodeID).node
     }
 
     saveSVG() {

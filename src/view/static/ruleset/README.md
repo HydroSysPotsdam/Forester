@@ -89,20 +89,63 @@ d3.select(document.body)
 
 ## Rules
 
-- Each entry in the object is counted as a parameter-rule pair. For each entry Rulesett generates one input element 
-  in the form.
-- Parameters can be nested or names can contain string, yielding groupings in the form.
-- Rules always have a unique name. Optional values can be passed behind a colon. The rule is treated as a flag if no 
-  optional values are passed.
-- Rules can be combined using a vertical bars.
-- Additional rules for further input elements may be registered with Rulesett.
+For each parameter, Rulesett requires a list of rules as a string. Rulesett then generates one input element per parameter based on the first found rule that is registered for an input element.
 
+Each list of rules consists of individual rules separated by vertical bars. Each rule has a unique name, followed by optional values that are passed behind a colon.
+
+Some rules are conditional and only show an effect when other rules are present. These rules do not correspond to input element, but certain features of these input elements like limits or scales.
+
+```js
+  let rules = {
+    a: "rule1|rule2:optionsForRule2"
+  }
+```
+
+The rules that are passed to Rulesett can either be nested or flat. Nested parameters are themselves dictionaries containing parameter-rule pairs. Flattened parameters share prefixes that are separated by dots. Both nested parameters and prefixes are treated as groups by Rulesett and are used to organize input elements in the form.
+
+```js
+  # nested version
+  let rules = {
+    group: {
+        a: "...",
+        b: "..."
+    }
+  }
+
+  # flattened version
+  let rules = {
+    "group.a": "...",
+    "group.b": "..."
+  }
+```
+
+**Note**, that both the validation against rules and the generation of a form work exactly the same way, regardless of your choice of format.
 
 ### Numerical
 
+The rule `numeric` is used to verify that a parameter has a numeric value. It corresponds with a slider as an input element.
+
+Numerical parameters may be further limited by using the rules `min` and `max`. They directly translate to the limits of the slider.
+
+Values for numerical parameters are given as floating point numbers.
+
 ### Categorical
 
+The rule `in` is used to allow a parameter to only take on categorical values. It corresponds with a dropdown as an input element.
+
+The categories are given as rule options, where options are separated by colons. 
+
+Categories are treated as given. They are case-sensitive and are not trimmed.
+
 ### Binary
+
+The rule `boolean` is used to allow a parameter to take on a truth value. It corresponds with a checkbox as an input element.
+
+### Default
+
+Default values for parameters may be added using the rule `default`. 
+
+Default values are equally checked against other rules. If a range is specified, the default value needs to fall within this range.
 
 ### Adding Custom Rules
 

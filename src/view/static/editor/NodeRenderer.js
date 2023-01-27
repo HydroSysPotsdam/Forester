@@ -154,20 +154,41 @@ export class NodeRenderer {
         }
     }
 
+    get element () {
+        return this.#elem.node()
+    }
+
     /**
-     * Returns the current position of the node's center. This position is affected by animations.
+     * Returns the current position of the node.
+     *
+     * The position is relative to the upper left of the svg element and references
+     * the nodes center. This position is calculated from the transform and the
+     * bounding box. It is thus affected by animations.
+     *
+     * @returns [x, y] The position of the node's center.
      */
     get position () {
+
+        // get the bounding box of the node
+        // the coordinate system is relative to the group, not the svg element
         const bbox = this.#elem.node().getBBox()
-        const transform = this.#elem.node().transform.baseVal[0].matrix
 
         if (bbox.width > 0 & bbox.height > 0) {
+            // when the node is renderer, recalculate the position of the center
+            const transform = this.#elem.node().transform.baseVal[0].matrix
             return [transform.e + bbox.x + 0.5*bbox.width, transform.f + bbox.y + 0.5*bbox.height]
         } else {
+            // otherwise return the last set position
             return [this.#x, this.#y]
         }
     }
 
+    /**
+     * Updates the position of the node instantaneously.
+     *
+     * @param position [x, y] or {x, y}: The new position to which
+     * the nodes center should be displaced.
+     */
     set position (position) {
         const x = Array.isArray(position) ? position[0] : position.x
         const y = Array.isArray(position) ? position[1] : position.x
@@ -176,14 +197,17 @@ export class NodeRenderer {
 
     /**
      * Returns the position that the layout assigned to the node.
+     *
+     * The layout position is not touched by setting the `position` attribute.
      */
     get layoutPosition () {
         return [this.#xo, this.#yo]
     }
 
     /**
-     * Sets the layout position of the node
-     * @param position
+     * Reassigns a new layout position and instantaneously displaces the node.
+     *
+     * @param position [x, y] or {x, y}: The new layout position.
      */
     set layoutPosition (position) {
         const x = Array.isArray(position) ? position[0] : position.x
@@ -197,9 +221,21 @@ export class NodeRenderer {
      * Updates the transform attribute of the node so that position changes become
      * visible. By default, the layout position is used and no animation is done.
      *
-     * @param x
-     * @param y
-     * @param animate
+     * The node svg group is placed at the given coordinates. The view is rendered
+     * in the groups coordinate system. Therefore, it may be arbitrarily displaced
+     * from the origin and not centered. This displacement is calculated from the
+     * bounding box and subtracted from the position that is used for the
+     * transformation.
+     *
+     * The position update can be animated by passing a transition duration to the
+     * `animate` argument. The transition is done using liner easing.
+     *
+     * @param x Horizontal coordinate of the node's center.
+     * @param y Vertical coordinate of the node's center.
+     * @param animate Either false or a number. The duration for transitioning
+     * transform.
+     *
+     * @returns The d3 transition that was used to transition the transform attribute.
      */
     #updateTransform (x = this.#xo, y = this.#yo, animate = false) {
 
@@ -223,25 +259,41 @@ export class NodeRenderer {
             // translate the node coordinate system to x, y and center the view's
             // coordinate system by subtracting the center of the bounding box
             .attr("transform", `translate(${x - cx}, ${y - cy})`)
-            .end()
     }
 
-     /**
+    /**
      * Resets the current position of the node to the layout position.
+     *
+     * The position update can be animated by passing a transition duration to the
+     * `animate` argument. The transition is done using liner easing.
+     *
+     * @param animate Either false or a number. The duration for transitioning
+     * transform.
+     *
+     * @returns The d3 transition that was used to transition the transform attribute.
      */
     resetPosition(animate = false) {
         this.position = this.layoutPosition
-        this.#updateTransform(this.#xo, this.#yo, animate)
+        return this.#updateTransform(this.#xo, this.#yo, animate)
     }
 
     /**
      * Smoothly translates the node to the specified position.
-     * @param x
-     * @param y
-     * @param duration
+     *
+     * The position update can be animated by passing a transition duration to the
+     * `animate` argument. The transition is done using liner easing.
+     *
+     * This does not affect the layout position.
+     *
+     * @param x Horizontal coordinate of the node's center.
+     * @param y Vertical coordinate of the node's center.
+     * @param animate Either false or a number. The duration for transitioning
+     * transform.
+     *
+     * @returns The d3 transition that was used to transition the transform attribute.
      */
-    smoothTranslateTo(x, y, duration = 1000) {
-        return this.#updateTransform(x, y, duration)
+    smoothTranslateTo(x, y, animate = 1000) {
+        return this.#updateTransform(x, y, animate)
     }
 
     /**

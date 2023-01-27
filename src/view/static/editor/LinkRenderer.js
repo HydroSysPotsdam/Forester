@@ -10,30 +10,11 @@
  */
 export class BasicLinkRenderer {
 
-    // the element on which this link renderer draws
-    elem
-
-    /**
-     * Creates a new basic link renderer instance and binds it to the selected element.
-     * @param elem - CSS selector to which the renderer is bound. Passed to d3's select. The first matching element is used.
-     */
-    constructor(elem) {
-        this.elem = d3.select(elem)
-    }
-
-    /**
-     * Clears already drawn links from the renderer.
-     * This simply removes all child nodes from the bound element.
-     */
-    clear() {
-        this.elem
-            .selectAll("*")
-            .remove()
-    }
-
     /**
      * Renders the link for one set of source and target nodes. Based on the values in settings,
      * either a straight line, a curved line or a ragged (stepped) line is used.
+     *
+     * The element to which the link should be added is passed as the context of the function.
      *
      * For source and target nodes the respective {@link NodeRenderer} is passed. This is because the raw
      * {@link FNode} does not save any information on the layout in the tree. A clear separation between
@@ -58,11 +39,9 @@ export class BasicLinkRenderer {
         if (curve === "curved") curve = d3.curveBumpY
         if (curve === "ragged") curve = d3.curveStepAfter
 
-        return this.elem
+        return d3.select(this)
             .append("path")
-            .attr("class", "link basic-link")
-            .attr("sourceID", source.node.id)
-            .attr("targetID", target.node.id)
+            .attr("class", "basic-link")
             .attr("d", node => d3.link(curve)({source: source.position, target: target.position}))
             .style("stroke", "black")
     }
@@ -79,16 +58,10 @@ export class BasicLinkRenderer {
 export class FlowLinkRenderer extends BasicLinkRenderer {
 
     /**
-     * Instantiates a new flow link renderer and binds it to the selected element.
-     * @param elem - CSS selector to which the renderer is bound. Passed to d3's select. The first matching element is used.
-     */
-    constructor(elem) {
-        super(elem)
-    }
-
-    /**
      * Renders the link for one set of source and target nodes. Based on the values in settings,
      * either a straight line, a curved line or a ragged (stepped) line is used.
+     *
+     * The element to which the link should be added is passed as the context of the function.
      *
      * For source and target nodes the respective {@link NodeRenderer} is passed. This is because the raw
      * {@link FNode} does not save any information on the layout in the tree. A clear separation between

@@ -95,41 +95,78 @@ export default {
           .classed("highlighted", renderer => nodeIDs.includes(renderer.node.id))
     },
 
-    async collapseNode(nodeID, duration = 1000) {
+    async collapseNode(nodeID, duration = 200) {
 
         let hide = async function (nodeID, targetID) {
+
             const renderer       = Editor.Tree.renderers.get(nodeID)
             const targetRenderer = Editor.Tree.renderers.get(targetID)
+            const position       = targetRenderer.layoutPosition
 
-            d3.select(`.tree-node[forID='${renderer.node.id}']`)
-              .transition("opacity")
-              .duration(duration)
-              .attr("opacity", 0)
-              .on("end", function () {
-                  d3.select(this).attr("display", "none")
-              })
+            // indictate node to be toggling
+            d3.select(renderer.element)
+              .classed("toggling", true)
 
-            const position = targetRenderer.layoutPosition
+            // transition to the target position
             renderer.smoothTranslateTo(position[0], position[1], duration)
+                    // fade out the node at the same time
+                    .style("opacity", 0)
+                    // tween to fade out the link at the same time
+                    .tween("link-fadeout", function () {
+                        const nodeID = d3.select(this).attr("forID")
+                        return t => d3.select(`.link[targetID='${nodeID}']`).style("opacity", 1 - t)
+                    })
+                    // called when the transition ends
+                    .on("end", function () {
+                        d3.select(this)
+                          // indicate node to be collapsed and no longer toggling
+                          .classed("toggling", false)
+                          .classed("collapsed", true)
+                          // do not (svg) render the node
+                          .attr("display", "none")
 
-            renderer.collapsed = true
+                        // hide the link
+                        const nodeID = d3.select(this).attr("forID")
+                        d3.select(`.link[targetID='${nodeID}']`)
+                          .attr("display", "none")
+
+                        // indicate the renderer to be fully collapsed
+                        renderer.collapsed = true
+                    })
         }
 
         let show = async function (nodeID, targetID) {
             const renderer       = Editor.Tree.renderers.get(nodeID)
             const targetRenderer = Editor.Tree.renderers.get(targetID)
-
-            d3.select(`.tree-node[forID='${renderer.node.id}']`)
-              .attr("display", null)
-              .transition("opacity")
-              .duration(duration)
-              .attr("opacity", 1)
-              .on("end")
-
             const position = renderer.layoutPosition
-            renderer.smoothTranslateTo(position[0], position[1], duration)
 
-            renderer.collapsed = false
+            // set node visible again and indicate toggling
+            d3.select(renderer.element)
+              .attr("display", "visible")
+              .classed("toggling", true)
+
+            // show the link again
+            d3.select(`.link[targetID='${nodeID}']`)
+              .attr("display", "visible")
+
+            renderer.smoothTranslateTo(position[0], position[1], duration)
+                    // fade in the node at the same time
+                    .style("opacity", 1)
+                    // tween to fade in the link at the same time
+                    .tween("link-fadein", function () {
+                        const nodeID = d3.select(this).attr("forID")
+                        return t => d3.select(`.link[targetID='${nodeID}']`).style("opacity", t)
+                    })
+                    // called when the transition ends
+                    .on("end", function () {
+
+                        // indicate toggling is finished
+                        d3.select(this)
+                          .classed("toggling", false)
+
+                        // indicate the renderer to be shown again
+                        renderer.collapsed = false
+                    })
         }
 
         const renderer = Editor.Tree.renderers.get(nodeID)

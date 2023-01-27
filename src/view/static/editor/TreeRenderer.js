@@ -36,7 +36,7 @@ export class TreeRenderer {
             this.renderers.set(node.id, renderer)
         }
 
-        this.observer = new MutationObserver((mutations, observer) => this.onNodePositionUpdate.call(this, mutations, observer))
+        this.observer = new MutationObserver((mutations, observer) => this.#onNodePositionUpdate.call(this, mutations, observer))
     }
 
     #initializeContainer (elem) {
@@ -84,6 +84,17 @@ export class TreeRenderer {
             .select(".canvas")
             .append("g")
             .attr("class", "tree-links")
+
+        // append the link groups
+        this.#ui_elem
+            .select(".tree-links")
+            .selectAll("g")
+            .data(this.nodes.links())
+            .enter()
+            .append("g")
+            .attr("class", "link")
+            .attr("sourceID", link => link.source.id)
+            .attr("targetID", link => link.target.id)
 
         // append the node group
         this.#ui_elem
@@ -189,40 +200,72 @@ export class TreeRenderer {
         renderer.draw()
     }
 
-    redrawLinks (...nodeID) {
+    /**
+     * Redraws the links that originate or terminate at any of the nodes identified
+     * by the given IDs.
+     *
+     * When no IDs are passed, all links are redrawn.
+     *
+     * Links need to re-drawn, whenever a node's position changes. This is because for
+     * example curved links can not simply be rescaled to fit the new positions. The
+     * algorithm therefore removes the old link and adds a new one based on the
+     * updated positions.
+     *
+     * @param nodeIDs An array of touched node IDs for which the links should be updated.
+     *
+     * @returns A list of the links that have been updated.
+     */
+    async redrawLinks (...nodeIDs) {
 
-        // clear the links before redraw
-        this.linkRenderer.clear()
+        let links = []
 
         for (const link of this.nodes.links()) {
-            this.redrawLink(link, settings)
+
+            if (nodeIDs.length == 0 | nodeIDs.includes(link.source.id) | nodeIDs.includes(link.target.id)) {
+
+                const source = this.renderers.get(link.source.id)
+                const target = this.renderers.get(link.target.id)
+
+                // retrieve the svg group to which the link should be added
+                const group = d3.select(".link[sourceID='" + link.source.id + "'][targetID='" + link.target.id + "']")
+
+                // remove previous drawings of the links
+                group
+                  .selectAll("*")
+                  .remove()
+
+                // redraw the original link
+                await this.linkRenderer.draw.call(group.node(), source, target, this.settings)
+
+                links.push(group.node())
+            }
         }
+
+        return links
     }
 
-    redrawLink (link, settings) {
-        const source = this.renderers.get(link.source.id)
-        const target = this.renderers.get(link.target.id)
-
-        // remove the old link
-        d3.select(".link[sourceID='" + link.source.id + "'][targetID='" + link.target.id + "']")
-          .remove()
-
-        this.linkRenderer.draw(source, target, settings)
-    }
-
-    onNodePositionUpdate (mutations, observer) {
+    /**
+     * Whenever any node's transform attribute changes, the affected links are updated.
+     *
+     * The transform attribute is tracked using an instance of {@see MutationObserver}.
+     * It exclusively observes the `transform` attribute of the nodes.
+     *
+     * From a list of mutations, the unique ids of the affected nodes are retrieved.
+     * This list is then used to find all links that need to be redrawn (up to three
+     * per node).
+     *
+     * **This method should only be called as the mutation observer callback.**
+     *
+     * @param mutations Array of mutations on the elements
+     * @param observer The watching observer
+     */
+    #onNodePositionUpdate (mutations, observer) {
 
         // get a set of the unique id's that are included in the mutations
         let nodeIDs = [...new Set(mutations.map(record => record.target.getAttribute("forID")))]
 
-        // for all links in the tree, check if either the source or target node was
-        // mutated and update the links that need to change
-        this.nodes.links()
-            .forEach(link => {
-                if (nodeIDs.includes(link.source.id) | nodeIDs.includes(link.target.id)) {
-                    this.redrawLink(link, this.settings)
-                }
-            })
+        // redraw links for the nodes whose positions changed
+        this.redrawLinks(...nodeIDs)
     }
 
     classNames() {
@@ -234,14 +277,16 @@ export class TreeRenderer {
     }
 
     updateSettings(settings, changed) {
+
         if (changed && changed.length > 0) {
+            this.settings = settings
 
             if (changed.includes("layout.direction") || changed.includes("layout.lspace") || changed.includes("layout.bspace")) {
                 this.layout(settings)
             }
 
             if (changed.includes("path.style")) {
-                this.redrawLinks(settings)
+                this.redrawLinks()
             }
 
             if (changed.includes("path.flow")) {
@@ -251,7 +296,7 @@ export class TreeRenderer {
                 } else {
                     this.linkRenderer = new BasicLinkRenderer(this.#ui_elem.select(".tree-links").node())
                 }
-                this.redrawLinks(settings)
+                this.redrawLinks()
             }
         }
     }

@@ -1,10 +1,12 @@
 #  CC-0 2022.
 #  David Strahl, University of Potsdam
 #  Forester: Interactive human-in-the-loop web-based visualization of machine learning trees
+
 import os
+import shutil
 import unittest
 
-from src.forester.database.database import *
+from src.forester.database import *
 
 
 class DatabaseTest(unittest.TestCase):
@@ -13,7 +15,7 @@ class DatabaseTest(unittest.TestCase):
         super().__init__(methodName)
 
         # remove old directory
-        if os.path.isdir("./instance"):
+        if os.path.isdir("instance"):
             shutil.rmtree("./instance", ignore_errors=True)
 
         # copy the test directory

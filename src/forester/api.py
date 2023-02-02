@@ -4,9 +4,11 @@
 
 import os
 
-from . import database, PACKAGE_PATH
-from src.forester.database.database import *
+from . import PACKAGE_PATH
+
 from flask import Blueprint, render_template, current_app, jsonify, request, Response, make_response
+
+from .database import *
 
 API = Blueprint("api", __name__, url_prefix="/api", template_folder="./api_templates", static_folder="./api_static")
 

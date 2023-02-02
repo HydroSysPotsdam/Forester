@@ -309,6 +309,16 @@ export class TreeRenderer {
         return this.renderers.get(nodeID).node
     }
 
+    save () {
+        let saveNode = node => {
+            let save = this.renderers.get(node.id).save()
+            if (node.children) save.children = node.children.map(child => saveNode(child))
+            return save
+        }
+
+        return saveNode(this.nodes)
+    }
+
     saveSVG() {
 
         // const createStyleElementFromCSS = () => {

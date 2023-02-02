@@ -58,6 +58,7 @@
 
             // open the editor
             await Editor.openFromData(data)
+            Editor.project_id = "{{ uuid }}"
 
             // remove the loading screen after the editor is done loading
             console.log("Removing loading screen")

@@ -2,11 +2,9 @@
 #  David Strahl, University of Potsdam
 #  Forester: Interactive human-in-the-loop web-based visualization of machine learning trees
 import os
-import shutil
 import unittest
-from distutils.dir_util import copy_tree
 
-from src.forester.database import *
+from src.forester.database.database import *
 
 
 class DatabaseTest(unittest.TestCase):

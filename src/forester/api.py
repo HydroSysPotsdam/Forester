@@ -3,15 +3,10 @@
 #  Forester: Interactive human-in-the-loop web-based visualization of machine learning trees
 
 import os
-import json
-import shutil
-import traceback
-import uuid
 
-from . import database, PACKAGE_PATH, parser
-from .database import *
-from loguru import logger
-from flask import Blueprint, render_template, abort, current_app, url_for, jsonify, request, Response, make_response
+from . import database, PACKAGE_PATH
+from src.forester.database.database import *
+from flask import Blueprint, render_template, current_app, jsonify, request, Response, make_response
 
 API = Blueprint("api", __name__, url_prefix="/api", template_folder="./api_templates", static_folder="./api_static")
 
@@ -101,6 +96,37 @@ def remove_project(uuid):
     except DatabaseException as e:
         e.with_traceback()
         return Response(status=400)
+
+
+@API.route("/project/<uuid>", methods=["POST"])
+def save_project(uuid):
+
+    kind = request.form['kind']
+    save = request.form['save']
+
+    # path where the file will be saved
+    file_path = os.path.join(database.temp_path, f"{kind}_{uuid}.json")
+
+    try:
+        # save the file
+        # TODO: maybe it would be best to compress file
+        # TODO: should happen in another thread
+        with open(file_path, "w") as file:
+            file.write(save)
+            file.close()
+
+        # store the file for the project
+        database.get_project(uuid).store_file(file_path)
+
+    except DatabaseException as e:
+        e.with_traceback()
+        return Response(status=400)
+
+    finally:
+        # os.remove(file_path)
+        pass
+
+    return Response(status=200)
 
 
 @API.route("/formats")

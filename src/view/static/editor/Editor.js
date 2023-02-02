@@ -24,16 +24,19 @@ export default {
     GlobalSettingRules: {
         "legend.colorscale": "in:Brewer 1,Brewer 2, Brewer 3|default:Brewer 2",
         "legend.distribute": "in:Classes,Features,Between|default:Between",
-        "layout.direction":  "in:top-bottom,left-right|default:top-bottom",
-        "layout.lspace":     "numeric|min:0.5|max:2|default:1",
-        "layout.bspace":     "numeric|min:0.5|max:2|default:1",
+        "layout.direction": "in:top-bottom,left-right|default:top-bottom",
+        "layout.lspace": "numeric|min:0.5|max:2|default:1",
+        "layout.bspace": "numeric|min:0.5|max:2|default:1",
         "layout.dendrogram": "boolean|default:false",
-        "path.style":        "in:linear,curved,ragged|default:linear",
-        "path.flow":         "in:none,linear,scaled|default:none",
-        "path.colorcoded":   "boolean|default:false"
+        "path.style": "in:linear,curved,ragged|default:linear",
+        "path.flow": "in:none,linear,scaled|default:none",
+        "path.colorcoded": "boolean|default:false"
     },
 
     openFromData: async function (data) {
+
+        const observer = new MutationObserver(this.Hints.onElementAdded)
+        observer.observe(d3.select(".forester-content").node(), {childList: true, subtree: true})
 
         // add a handle to the window
         window.Editor = this
@@ -43,12 +46,13 @@ export default {
 
         nodes.descendants().forEach(function (node) {
             const n = nodes.descendants().filter(n => n.data.samplesFraction <= node.data.samplesFraction).length
-            node.data.samplesFractionScaled = n/nodes.descendants().length
+            node.data.samplesFractionScaled = n / nodes.descendants().length
         })
 
         // prepare the initial settings
         const initialSettings = {}
         new Validator(initialSettings, this.GlobalSettingRules).passes()
+        Editor.GlobalSettings = initialSettings
 
         this.Tree = new TreeRenderer(nodes, "#tree")
         this.Tree.draw(initialSettings)
@@ -79,18 +83,22 @@ export default {
           })
 
         d3.select(document)
-            .on("keydown", function (event) {
-                if (event.code === "Escape") {
-                    if (Editor.Settings.isOpen()) {
-                        Editor.Settings.closeSettings()
-                    } else {
-                        Editor.Settings.openGlobalSettings()
-                    }
-                }
-            })
+          .on("keydown", function (event) {
+              if (event.code === "Escape") {
+                  if (Editor.Settings.isOpen()) {
+                      Editor.Settings.closeSettings()
+                  } else {
+                      Editor.Settings.openGlobalSettings()
+                  }
+              }
+
+              if (event.code === "KeyS") {
+                  Editor.save()
+              }
+          })
     },
 
-    highlightNodes (...nodeIDs) {
+    highlightNodes(...nodeIDs) {
         d3.selectAll(".tree-node")
           .classed("highlighted", renderer => nodeIDs.includes(renderer.node.id))
     },
@@ -99,9 +107,9 @@ export default {
 
         let hide = async function (nodeID, targetID) {
 
-            const renderer       = Editor.Tree.renderers.get(nodeID)
+            const renderer = Editor.Tree.renderers.get(nodeID)
             const targetRenderer = Editor.Tree.renderers.get(targetID)
-            const position       = targetRenderer.layoutPosition
+            const position = targetRenderer.layoutPosition
 
             // indictate node to be toggling
             d3.select(renderer.element)
@@ -109,20 +117,20 @@ export default {
 
             // transition to the target position
             renderer.smoothTranslateTo(position[0], position[1], duration)
-                    // fade out the node at the same time
+                // fade out the node at the same time
                     .style("opacity", 0)
-                    // tween to fade out the link at the same time
+                // tween to fade out the link at the same time
                     .tween("link-fadeout", function () {
                         const nodeID = d3.select(this).attr("forID")
                         return t => d3.select(`.link[targetID='${nodeID}']`).style("opacity", 1 - t)
                     })
-                    // called when the transition ends
+                // called when the transition ends
                     .on("end", function () {
                         d3.select(this)
-                          // indicate node to be collapsed and no longer toggling
+                            // indicate node to be collapsed and no longer toggling
                           .classed("toggling", false)
                           .classed("collapsed", true)
-                          // do not (svg) render the node
+                            // do not (svg) render the node
                           .attr("display", "none")
 
                         // hide the link
@@ -136,7 +144,7 @@ export default {
         }
 
         let show = async function (nodeID, targetID) {
-            const renderer       = Editor.Tree.renderers.get(nodeID)
+            const renderer = Editor.Tree.renderers.get(nodeID)
             const targetRenderer = Editor.Tree.renderers.get(targetID)
             const position = renderer.layoutPosition
 
@@ -150,14 +158,14 @@ export default {
               .attr("display", "visible")
 
             renderer.smoothTranslateTo(position[0], position[1], duration)
-                    // fade in the node at the same time
+                // fade in the node at the same time
                     .style("opacity", 1)
-                    // tween to fade in the link at the same time
+                // tween to fade in the link at the same time
                     .tween("link-fadein", function () {
                         const nodeID = d3.select(this).attr("forID")
                         return t => d3.select(`.link[targetID='${nodeID}']`).style("opacity", t)
                     })
-                    // called when the transition ends
+                // called when the transition ends
                     .on("end", function () {
 
                         // indicate toggling is finished
@@ -236,7 +244,7 @@ export default {
         openNodeSettings: function (nodeID) {
             // retrieve the current settings and rules for a node
             const nodeRenderer = Editor.Tree.renderers.get(nodeID)
-            const rules  = nodeRenderer.getCurrentRules()
+            const rules = nodeRenderer.getCurrentRules()
             const values = nodeRenderer.getCurrentSettings()
 
             // do not open settings when there are no rules for the node
@@ -278,8 +286,8 @@ export default {
             if (event.changed.length === 1 && event.changed.includes("applyTo")) return
 
             // get information on the node
-            const nodeID  = d3.select(this).attr("forID")
-            const view    = Editor.Tree.renderers.get(nodeID).view
+            const nodeID = d3.select(this).attr("forID")
+            const view = Editor.Tree.renderers.get(nodeID).view
 
             // get the value of the applyTo variable
             let applyTo = event.values.applyTo
@@ -312,6 +320,103 @@ export default {
             // set the settings for the tree and legend
             Editor.Tree.updateSettings(event.values, event.changed)
         }
+    },
+
+    Hints: {
+
+        hints: [
+            {
+                "selector": ".group-header",
+                "title": "Legend Grouping",
+                "hint": "Legend entries may be grouped. This helps the user to clean up the legend and maintain an overview over all features and classes.<p>Right-clicking the group header allows the user to delete or rename the group. Here, the group entries can also be linked, to have the same color.</p>"
+            },
+            {
+                "selector": ".entry",
+                "title": "Legend Entries",
+                "hint": "Each legend entry represents one class or feature.<p>Its color may be changed by clicking the colored panel.</p>"
+            },
+            {
+                "selector": ".group-toggle",
+                "title": "Hiding a Group",
+                "hint": "By clicking the little eye icon, the user is able to hide groups from the legend.<p>Entries that are inside a hidden group have their colorcoding removed. In the tree visualization they appear without a color.</p>"
+            },
+            {
+                "selector": ".entry-toggle-mono",
+                "title": "Highlighting Entries",
+                "hint": "By clicking the little M icon, the user can highlight any one class or feature in the visualization. <p>For the selected entry, the color is changed to a bright red, while the colorcoding of all other entries is removed. Only one entry can be highlighted at all times.</p>"
+            },
+            {
+                "selector": ".TextView",
+                "title": "Node: Basic Info",
+                "hint": "The most basic node visualization gives some information on the split's feature and location (Sp), the voted class and class distribution (V) and the sample number (S). <p>Note, how class and feature names are colored according to the legend entries.</p>"
+            },
+            {
+                "selector": ".CCircleIconView",
+                "title": "Node: Pie Charts",
+                "hint": "This node visualization illustrates the class distribution at this node as a pie chart. For the sake of simplicity, only the five most abundand classes are shown. <p>Note, how class colors are related to the legend.</p>"
+            },
+            {
+                "selector": "#group-new",
+                "title": "Adding a Group",
+                "hint": "By clicking the \"New group\" button, the user can add an empty group to the legend. A popup menu requests the groups name so make sure that you browser does not block Forester."
+            }
+        ],
+
+        onMouseOver: function (event) {
+            const hintID = d3.select(this).attr("hintID")
+            console.log(Editor.Hints.hints[hintID].title, Editor.Hints.hints[hintID].hint)
+        },
+
+        onElementAdded: function (mutations, observer) {
+
+            for (const i in Editor.Hints.hints) {
+                d3.selectAll(Editor.Hints.hints[i].selector + ":not(.hinted)")
+                  .classed("hinted", true)
+                  .attr("hintID", i)
+                  .on("mouseover", Editor.Hints.onMouseOver)
+            }
+        }
+    },
+
+    save: function () {
+
+        let save = {
+            "global-settings": Editor.GlobalSettings,
+            "legend": Legend.save(),
+            "tree": Editor.Tree.save()
+        }
+
+        // prepare request
+        let uri = window.location.href.replace("editor", "api/project")
+        let req = new XMLHttpRequest()
+        req.open("POST", uri)
+
+        // add the information from the upload dialog
+        let formData = new FormData();
+        formData.set("kind", "save")
+        formData.set("save", JSON.stringify(save))
+
+        req.onload = function () {
+
+            // parse the response string
+            let response = this.responseType === "json" ? JSON.parse(this.response) : this.response
+
+            switch (this.status) {
+                case 200:
+                    console.log("Sucessfully saved")
+                    break;
+                case 500:
+                    console.log("Error during save")
+                    break;
+                default:
+                    response = {message: this.status + " - unknown response from the server"}
+                    console.log(response)
+                    break;
+            }
+        }
+
+        // send request
+        req.send(formData);
     }
 }
 

@@ -214,7 +214,7 @@ class LegendGroup {
         }
     }
 
-    link() {
+    link () {
         // make jquery selections
         const ui_group     = $(this._ui_group.node())
         const ui_link_icon = ui_group.find(".group-link")
@@ -231,6 +231,12 @@ class LegendGroup {
         ui_link_icon.toggleClass("fa-fw fa-link")
 
         Legend.update()
+    }
+
+    save () {
+        let save = _.pick(this, "label", "accept", "linked", "color", "collapsed")
+        save.entries = this.entries.map(entry => entry.save())
+        return save
     }
 }
 
@@ -292,6 +298,10 @@ class LegendEntry {
 
         // group color overwrites entry color
         return group.linked ? group.color : this.color
+    }
+
+    save () {
+        return _.pick(this, "label", "color", "origin", "mono")
     }
 }
 
@@ -406,6 +416,10 @@ export let Legend = {
         Legend.entries.forEach(entry => entry.mono = false)
         d3.selectAll(".entry-toggle-mono")
           .style("color", "black")
+    },
+
+    save () {
+        return Legend.groups.map(group => group.save())
     }
 }
 

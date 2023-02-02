@@ -382,4 +382,10 @@ export class NodeRenderer {
         // redraw the node
         this.draw()
     }
+
+    save () {
+        let save = _.pick(this, "view", "settings", "collapsed")
+        save.view = this.view.name
+        return save
+    }
 }

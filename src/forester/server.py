@@ -28,4 +28,4 @@ def create_app():
         print(f"Opening editor for project {uuid}")
         return render_template("editor.html", uuid=uuid)
 
-    return app;
+    return app

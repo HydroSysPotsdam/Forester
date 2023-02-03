@@ -72,6 +72,48 @@ class MethodTest(DatabaseTest):
         project = self.database.create_project_from_vendor("R Iris", "./instance/examples/R Iris/input.RData", type="RData", vendor="R", origin="rpart")
         self.assertEqual(1, self.database.size())
 
+    def test_add_file(self):
+        """
+            Checks whether a file is properly added to a project. This includes copying into
+            the project directory and recording in the file dictionary.
+        """
+
+        # set up the target of the file copy
+        target_path = os.path.join(self.database.data_path, "R Iris/test.json")
+
+        # add file to project
+        project = self.database.get_project("R Iris")
+        self.database.add_file_to_project("./instance/test.json", project, name="add_file_test")
+
+        # test that the file is included in the file dict and exists on disk
+        self.assertDictEqual(project.files, {"tree": "tree.json", "add_file_test": "test.json"})
+        self.assertTrue(os.path.isfile(target_path))
+
+    def test_add_file_exists(self):
+        """
+            Checks whether a file is properly added to a project. This includes copying into
+            the project directory and recording in the file dictionary.
+        """
+
+        # set up the target of the file copy
+        target_path = os.path.join(self.database.data_path, "R Iris/test.json")
+
+        # add file to project
+        project = self.database.get_project("R Iris")
+        self.database.add_file_to_project("./instance/test.json", project, name="add_file_test")
+
+        # test file exists
+        self.assertRaises(DatabaseException, self.database.add_file_to_project,
+                          "./instance/test.json", project, name="add_file_test_2", overwrite=False)
+
+        # test name used
+        self.assertRaises(DatabaseException, self.database.add_file_to_project,
+                          "./instance/test2.json", project, name="add_file_test", overwrite=False)
+
+        # test file with another name
+        self.assertRaises(DatabaseException, self.database.add_file_to_project,
+                          "./instance/test.json", project, name="add_file_test_2", overwrite=True)
+
 
 if __name__ == '__main__':
     unittest.main()

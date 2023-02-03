@@ -7,7 +7,7 @@ import shutil
 import uuid
 
 from loguru import logger
-from tinydb import TinyDB, where
+from tinydb import TinyDB, where, Query
 
 from .project import Project
 from .errors import *
@@ -15,8 +15,13 @@ from .errors import *
 
 class Database:
 
+	# methods to validate the file system
 	from .validate import _cross_validate, _validate_directory
+
+	# method to load the examples
 	from .examples import load_examples
+
+	# methods to create projects from files
 	from .projects import create_project_from_files, create_project_from_vendor
 
 	root_path = None
@@ -226,3 +231,16 @@ class Database:
 
 		# return the project wrapper
 		return project
+
+	def update(self, project: Project):
+		self.database.update(project.to_dict(), Query().uuid == project.uuid)
+
+	def add_file_to_project(self, path, project, **kwargs):
+
+		# copy the file into the project folder and add it to the file list
+		project.add_file(path, **kwargs)
+
+		# update the database
+		self.update(project)
+
+		logger.info(f"Added file {path} to {project}")

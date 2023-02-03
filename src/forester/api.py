@@ -3,11 +3,13 @@
 #  Forester: Interactive human-in-the-loop web-based visualization of machine learning trees
 
 import os
-
-from . import PACKAGE_PATH
+import json
 
 from flask import Blueprint, render_template, current_app, jsonify, request, Response, make_response
 
+from datetime import datetime
+
+from . import PACKAGE_PATH
 from .database import *
 
 API = Blueprint("api", __name__, url_prefix="/api", template_folder="./api_templates", static_folder="./api_static")
@@ -107,18 +109,16 @@ def save_project(uuid):
     save = request.form['save']
 
     # path where the file will be saved
-    file_path = os.path.join(database.temp_path, f"{kind}_{uuid}.json")
+    file_path = os.path.join(database.temp_path, f"{kind}_{datetime.now().strftime('%Y%m%d-%H%M%S')}.json")
 
     try:
         # save the file
-        # TODO: maybe it would be best to compress file
-        # TODO: should happen in another thread
         with open(file_path, "w") as file:
             file.write(save)
             file.close()
 
         # store the file for the project
-        database.get_project(uuid).store_file(file_path)
+        database.add_file_to_project(file_path, database.get_project(uuid), name=kind)
 
     except DatabaseException as e:
         e.with_traceback()

@@ -11,6 +11,7 @@ from dataclasses_json import dataclass_json
 from datetime import datetime
 from loguru import logger
 
+from .errors import *
 
 @dataclass_json
 @dataclass
@@ -62,3 +63,56 @@ class Project:
 
         # use tree as a default name for the tree path
         self.files = {'tree': os.path.join(self.path, "tree.json")}
+
+    def add_file(self, path, name="unnamed", overwrite=True):
+        """
+
+        Adds a file to the project directory and records it in the list
+        of project files.
+
+        Raises an exception when (1) the file already exists and should
+        not overwrite (2) the name is already used and should not overwrite
+        and (3) when two different names are used for the same file.
+
+        Parameters
+        ----------
+        path: str
+            The source path from which the file should be copied.
+        name: str
+            The name under which the file should be registered.
+        overwrite:
+            Whether files and names should be overwritten if they
+            already exist.
+        """
+
+        # where to save the new file (in the project directory)
+        new_path = os.path.join(self.path, os.path.basename(path))
+
+        # whether the file already exists in the project directory
+        exists = os.path.isfile(new_path)
+
+        # whether a file is already registered with this name
+        has_name = name in self.files
+
+        # when the file already exists
+        if exists and not overwrite:
+            raise DatabaseException(f"{new_path} already exists and should not be overwritten")
+
+        # when the name is already used
+        if has_name and not overwrite:
+            raise DatabaseException(f"A file with name {name} already exists")
+
+        # when a similar file is registered under another name
+        if exists and name != [key for key, value in self.files.items() if value == os.path.basename(path)][0]:
+            raise DatabaseException(f"{new_path} already exists with other name")
+
+        # remove the file under the name
+        if has_name:
+            os.remove(os.path.join(self.path, self.files[name]))
+            del self.files[name]
+
+        # copy file into project directory
+        shutil.copy(path, new_path)
+
+        # add file to project's file list
+        self.files[name] = os.path.basename(path)

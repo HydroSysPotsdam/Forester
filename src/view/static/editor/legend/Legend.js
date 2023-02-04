@@ -5,12 +5,18 @@
  */
 
 /*
+ * CC-0 2023.
+ * David Strahl, University of Potsdam
+ * Forester: Interactive human-in-the-loop web-based visualization of machine learning trees
+ */
+
+/*
  * CC-0 2022.
  * David Strahl, University of Potsdam
  * Forester: Interactive human-in-the-loop web-based visualization of machine learning trees
  */
 
-import Editor from "./Editor.js";
+import Editor from "../Editor.js";
 
 $("#legend").ready(function () {
 
@@ -54,14 +60,14 @@ $("#legend").ready(function () {
 
 class LegendGroup {
 
-    constructor(label) {
+    constructor(label, accept="all", linked=false, color=undefined, collapsed=false) {
         this.key = uuid.v4()
         this.label = label
-        this.accept = "all"
-        this.linked = false
-        this.color = undefined
+        this.accept = accept
+        this.linked = linked
+        this.color = color
         this.entries = []
-        this.collapsed = false
+        this.collapsed = collapsed
         Legend.groups.push(this)
 
         // add the ui elements
@@ -242,13 +248,13 @@ class LegendGroup {
 
 class LegendEntry {
 
-    constructor(label, color, origin) {
+    constructor(label, color, origin, group=undefined, mono=false) {
         this.key = uuid.v4()
         this.label = label
         this.color = color
         this.origin = origin
-        this.group = undefined
-        this.mono = false
+        this.group = group
+        this.mono = mono
         Legend.entries.push(this)
     }
 
@@ -348,8 +354,14 @@ export let Legend = {
           .remove()
     },
 
-    generate: function () {
+    generate: function (save) {
         Legend.clear()
+
+        if (save) {
+            Legend.generateFromSave(save)
+            Legend.update()
+            return
+        }
 
         const n_classes  = Editor.Tree.classNames().length
         const n_features = Editor.Tree.featureNames().length
@@ -380,6 +392,19 @@ export let Legend = {
         features.addEntries(feature_entries)
 
         Legend.update()
+    },
+
+    generateFromSave: function (save) {
+        let groups = save.legend
+        for (const group of groups) {
+
+            const legendGroup   = new LegendGroup(group.label, group.accept, group.linked, group.color, group.collapsed)
+
+            const legendEntries = group.entries.map(entry => new LegendEntry(entry.label, entry.color, entry.origin, undefined, entry.mono))
+            legendGroup.addEntries(legendEntries)
+
+            if (legendGroup.collapsed) legendGroup.hide()
+        }
     },
 
     update: function () {

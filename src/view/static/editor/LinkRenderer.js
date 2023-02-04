@@ -92,6 +92,7 @@ export class FlowLinkRenderer extends BasicLinkRenderer {
         let path = await super.draw(source, target, settings)
 
         let flow = settings.path.flow
+        let colorcode = settings.path.colorcoding
         let stroke_max_width = 10;
         let flow_sample_dist = 10;
 
@@ -158,7 +159,7 @@ export class FlowLinkRenderer extends BasicLinkRenderer {
                 path.remove()
 
                 // add colorcoded flow
-                let group = this.elem
+                let group = d3.select(this)
                     .append("g")
                     .attr("class", "link flow-link")
 

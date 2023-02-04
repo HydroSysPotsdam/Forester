@@ -56,12 +56,12 @@ export class NodeRenderer {
      * @param node - The node that is mapped to this renderer.
      * @param view - The initial view used for illustration.
      */
-    constructor (node, view) {
+    constructor (node, view, settings = {}) {
         this.node     = node
-
         this.view     = view
-        this.settings = {}
-        this.settings[view.name] = {}
+        this.settings = settings
+
+        if (!this.settings[view.name]) this.settings[view.name] = {}
     }
 
     /**

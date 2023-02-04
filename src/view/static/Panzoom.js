@@ -241,17 +241,14 @@ export class Panzoom {
         // zoom level based on available space
         let dz = Math.min(padding*rect.width/elem_rect.width, padding*rect.height/elem_rect.height)
 
-        console.log(dz, this.#zoom)
-
         // only change the zoom level, when the element is too large for the rectangle
         // zoom works incrementally, therefore subtract the current level
         dz = dz < this.#zoom ? dz - this.#zoom : 0
 
-
         this.smoothPan(dx, dy, dz)
     }
 
-    centerOnStage (occlusion_threshold = 0.05, debug=true) {
+    centerOnStage (occlusion_threshold = 0.05, debug=false) {
 
         if (debug) {
             d3.select("#panzoom-debug")

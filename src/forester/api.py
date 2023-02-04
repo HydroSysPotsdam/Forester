@@ -54,12 +54,18 @@ def projects():
 
 @API.route("/project/<uuid>", methods=["GET"])
 def project(uuid):
+
+    # retrieve the project for this uuid
     project = database.get_project(uuid)
-    if project is not None:
-        path_to_load = os.path.join(project.path, project.files['tree'])
-        if os.path.exists(path_to_load):
-            file = open(path_to_load)
-            return jsonify(json.load(file))
+
+    # prepare the data to send to the editor
+    data = {
+        "tree": project.open_as_json("tree"),
+        "save": project.open_as_json("save")
+    }
+
+    # return json encoded data
+    return data, 200
 
 
 @API.route("/projects", methods=["POST"])

@@ -29,37 +29,49 @@ export default {
         "layout.bspace": "numeric|min:0.5|max:2|default:1",
         "layout.dendrogram": "boolean|default:false",
         "path.style": "in:linear,curved,ragged|default:linear",
-        "path.flow": "in:none,linear,scaled|default:none",
-        "path.colorcoded": "boolean|default:false"
+        "path.flow": "in:none,linear,scaled,colorcoded|default:none"
+        // "path.colorcoding": "boolean|default:false"
     },
 
     openFromData: async function (data) {
 
-        const observer = new MutationObserver(this.Hints.onElementAdded)
-        observer.observe(d3.select(".forester-content").node(), {childList: true, subtree: true})
+        console.log(data)
 
         // add a handle to the window
         window.Editor = this
 
+        const observer = new MutationObserver(this.Hints.onElementAdded)
+        observer.observe(d3.select(".forester-content").node(), {childList: true, subtree: true})
+
+        // load the global settings
+        this.loadGlobalSettings(data.save)
+
         // load the nodes from the data
-        let nodes = new FNode(d3.hierarchy(data.tree), data.meta)
+        let nodes = new FNode(d3.hierarchy(data.tree.tree), data.tree.meta)
 
         nodes.descendants().forEach(function (node) {
             const n = nodes.descendants().filter(n => n.data.samplesFraction <= node.data.samplesFraction).length
             node.data.samplesFractionScaled = n / nodes.descendants().length
         })
 
-        // prepare the initial settings
-        const initialSettings = {}
-        new Validator(initialSettings, this.GlobalSettingRules).passes()
-        Editor.GlobalSettings = initialSettings
-
-        this.Tree = new TreeRenderer(nodes, "#tree")
-        this.Tree.draw(initialSettings)
+        this.Tree = new TreeRenderer(nodes, data.save)
+        this.Tree.draw(Editor.GlobalSettings)
 
         // generate the legend
-        Legend.generate()
+        Legend.generate(data.save)
         this.Legend = Legend
+
+        this.setupInteractivity()
+    },
+
+    loadGlobalSettings: function (save) {
+        // prepare the initial settings
+        const initialSettings = save ? save["global-settings"] : {}
+        new Validator(initialSettings, this.GlobalSettingRules).passes()
+        Editor.GlobalSettings = initialSettings
+    },
+
+    setupInteractivity: function () {
 
         // add pan and zoom funcionality
         this.Panzoom = new Panzoom(document.getElementById(Editor.Tree.id))
@@ -319,6 +331,11 @@ export default {
 
             // set the settings for the tree and legend
             Editor.Tree.updateSettings(event.values, event.changed)
+
+            // collapse if the event type submit
+            if (event.type === "settings-submit") {
+                Editor.Settings.closeSettings()
+            }
         }
     },
 
@@ -369,6 +386,7 @@ export default {
 
         onElementAdded: function (mutations, observer) {
 
+            // update the hints
             for (const i in Editor.Hints.hints) {
                 d3.selectAll(Editor.Hints.hints[i].selector + ":not(.hinted)")
                   .classed("hinted", true)
@@ -383,7 +401,7 @@ export default {
         let save = {
             "global-settings": Editor.GlobalSettings,
             "legend": Legend.save(),
-            "tree": Editor.Tree.save()
+            "renderers": Editor.Tree.save()
         }
 
         // prepare request
@@ -416,7 +434,56 @@ export default {
         }
 
         // send request
-        req.send(formData);
+        req.send(formData)
+
+        // try to render the view
+        // Editor.saveSVG()
+    },
+
+    saveSVG: async function () {
+
+        console.log("Attempting to save svg")
+
+        // get the bounding box of the svg element
+        var svgElement = document.getElementById(Editor.Tree.id).querySelector(".canvas");
+        let {width, height} = svgElement.getBBox();
+
+        // clone the svg elemetn
+        let clonedSvgElement = svgElement.cloneNode(true);
+
+        // create a blow from the svg html
+        let outerHTML = clonedSvgElement.outerHTML
+        let blob = new Blob([outerHTML],{type:'image/svg+xml;charset=utf-8'});
+
+        // create url for blob
+        let URL = window.URL || window.webkitURL || window;
+        let blobURL = URL.createObjectURL(blob);
+
+        d3.select(document.body)
+            .append("img")
+            .attr("src", blobURL)
+            .attr("onload", function () {
+                let canvas = document.createElement('canvas');
+
+                console.log(width, height)
+                canvas.widht = width;
+                canvas.height = height;
+
+                let context = canvas.getContext('2d');
+                // draw image in canvas starting left-0 , top - 0
+                context.drawImage(this, 0, 0, width, height);
+
+                console.log("Downloading image")
+
+                // download the image
+                var link = document.createElement('a');
+                link.download = "tree.png";
+                link.style.opacity = "0";
+                document.body.append(link);
+                link.href = canvas.toDataURL();
+                link.click();
+                link.remove();
+            })
     }
 }
 

@@ -5,6 +5,7 @@
 import os
 import shutil
 import uuid
+import json
 
 from dataclasses import dataclass, field
 from dataclasses_json import dataclass_json
@@ -116,3 +117,12 @@ class Project:
 
         # add file to project's file list
         self.files[name] = os.path.basename(path)
+
+    def open_as_json(self, name):
+        if name in self.files:
+            file = open(os.path.join(self.path, self.files[name]))
+            data = json.load(file)
+            file.close()
+            return data
+        else:
+            return None

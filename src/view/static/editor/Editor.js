@@ -5,11 +5,13 @@
  */
 
 import {TreeRenderer} from "./TreeRenderer.js";
-import * as Views from "../views/View.js";
+import "../views/Views.js";
 import {FNode} from "../Node.js";
 import {Panzoom} from "../Panzoom.js";
 import {BasicLinkRenderer, FlowLinkRenderer} from "./LinkRenderer.js";
 import SettingsForm from "../ruleset/SettingsForm.js";
+
+import * as FloatingUI from 'https://cdn.jsdelivr.net/npm/@floating-ui/dom@1.2.0/+esm';
 
 export default {
 
@@ -92,6 +94,11 @@ export default {
               }
 
               Editor.collapseNode(nodeID)
+          })
+          .on("mouseenter", function (event) {
+              // get the id of the node
+              const nodeID = d3.select(this).attr("forID")
+              Editor.Lens.openNodeLens(nodeID)
           })
 
         d3.select(document)
@@ -202,6 +209,81 @@ export default {
 
         // indicate collapse of
         renderer.collapsed = !renderer.collapsed
+    },
+
+    Lens: {
+
+        Buttons: [
+            {
+                id: "lens-left",
+                icon: "fa-circle-arrow-left",
+                placement: "left"
+            },
+            {
+                id: "lens-right",
+                icon: "fa-circle-arrow-right",
+                placement: "right"
+            }
+        ],
+
+        openNodeLens: function (nodeID) {
+            const renderer = Editor.Tree.renderers.get(nodeID)
+            const node = renderer.node
+            const views = Object.values(Views).filter(view => view.isApplicable(node))
+
+            const circleView = function (right=true) {
+
+                // get the current index of the renderer in the view list
+                let index = views.indexOf(renderer.view)
+
+                // advance the index
+                if (right) {
+                    index = (index + 1) % views.length
+                } else {
+                    index = (views.length + index - 1) % views.length
+                }
+
+                renderer.updateView(views[index])
+
+            }
+
+            // remove old buttons
+            Editor.Lens.closeNodeLens()
+
+            d3.select(".forester-content")
+              .selectAll("i")
+              .data(Editor.Lens.Buttons)
+              .enter()
+              .append("i")
+              .attr("id", d => d.id)
+              .attr("class", d => `lens-button fa-solid ${d.icon}`)
+              .each(function (d) {
+                  const anchor = d3.select(`.tree-node[forID='${node.id}']`).node()
+                  const button = d3.select(this).node()
+
+                  FloatingUI.computePosition(anchor, button, {
+                      placement: d.placement,
+                      middleware: [FloatingUI.offset(6)]
+                  }).then(pos => {
+                      d3.select(button)
+                        .style("left", pos.x + "px")
+                        .style("top",  pos.y + "px")
+                  })
+              })
+
+            d3.select("#lens-left")
+              .on("click", event => circleView(false))
+
+            d3.select("#lens-right")
+              .on("click", event => circleView(true))
+        },
+
+        closeNodeLens: function () {
+            d3.select(".forester-content")
+              .selectAll(".lens-button")
+              .remove()
+        }
+
     },
 
     Settings: {

@@ -54,14 +54,9 @@ export default class View {
      * distribution that can be illustrated.
      *
      * @param node - The node to be checked
-     * @param meta - The metadata that is linked to the node for easy access
      * @returns {boolean} - Whether the node illustration can be used
      */
-    applicable(node, meta) {
-        // TODO: view applicability is not yet implemented
-        // TODO: metadata should be part of the node
-
-        throw Error("View does not implement function \'applicable\'")
+    isApplicable(node) {
         return true
     }
 

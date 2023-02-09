@@ -6,6 +6,7 @@
 
 import Editor from "./Editor.js";
 import Validator from "../ruleset/Validator.js";
+import View from "../views/View.js";
 
 /**
  * Wrapper around a node that keeps track of the used view for illustration and
@@ -156,6 +157,22 @@ export class NodeRenderer {
 
     get element () {
         return this.#elem.node()
+    }
+
+    /**
+     * Changes the currently used view.
+     * @param view The new view that should be used
+     */
+    //TODO: remove in favor of setter, event dispatch and private view variable
+    updateView (view) {
+
+        // check if the argument is a view
+        if (!(view instanceof View)) throw Error(`${view} is not of instance 'View'`)
+
+        this.view = view
+        if (!this.settings[view.name]) this.settings[view.name] = {}
+
+        this.draw()
     }
 
     /**
@@ -361,14 +378,17 @@ export class NodeRenderer {
         // this.draw()
     }
 
+    // TODO: remove in favor of get accessor
     getCurrentSettings () {
         return this.settings[this.view.name]
     }
 
+    // TODO: remove in favor of get accessor
     getCurrentRules () {
         return this.view.rules
     }
 
+    // TODO: remove in favor of set accessor and dispatch event
     async updateSettings (settings, view = undefined) {
 
         // change the view, if another view is specified

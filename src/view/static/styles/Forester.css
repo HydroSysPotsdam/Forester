@@ -90,14 +90,3 @@ html, body {
   filter: invert(100)
 }
 
-.lens-button {
-  width: max-content;
-  position: absolute;
-  transform: scale(1.25);
-  color: darkgray;
-}
-
-.lens-button:hover {
-  transform: scale(1.3);
-  color: var(--forester_highlight);
-}

@@ -8,9 +8,10 @@
 @import "Legend.css";
 @import "Panzoom.css";
 @import "Settings.css";
+@import "Hints.css";
 
 .forester-editor-loading {
-    width:  100%;
+    width: 100%;
     height: 100%;
     /* flex layout for loading bar and text */
     display: flex;
@@ -156,47 +157,46 @@
     transform: translate(-50%, 0%);
 }
 
-#hint {
-    position: fixed;
-    width: 25px;
-    height: 25px;
-    margin: 10px;
-    bottom: 0%;
-    left: 0%;
-    background: #ddddddee;
-    border: solid 1px rgb(221, 221, 221);
-    border-radius: 3px;
-    font-family: Verdana;
-    overflow: hidden;
-}
-
-#hint .fa-info {
-    position: absolute;
-    width: 25px;
-    height: 25px;
-    text-align: center;
-    line-height: 25px;
-    bottom: 0%;
-}
-
-#hint .hint-title {
-    position: absolute;
-    margin: 10px;
-    line-height: 25px;
-    font-weight: bold;
-}
-
-#hint .hint-text {
-    position: absolute;
-    top: 15%;
-    margin: 10px;
-    height: 75%;
-    overflow: scroll;
-    font-size: 12px;
-    text-align: justify;
-}
-
 label {
     display: block;
     margin: 0 0 5px 5px;
+}
+
+.lens {
+    width: max-content;
+    height: max-content;
+
+    position: absolute;
+    transform: translate(-50%);
+
+    background: var(--forester_background);
+    border: 1px solid black;
+    border-radius: 5px;
+
+    padding: 0.2em;
+
+    /* disable text selection */
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.lens-button {
+    transform: scale(1.25);
+    color: rgb(51, 51, 51);
+    padding: 0.2em;
+
+    transition: scale 200ms linear;
+}
+
+.lens-button:hover {
+    transform: scale(1.5);
+    color: var(--forester_highlight);
+}
+
+.lens-button:active {
+    transform: scale(1)
 }

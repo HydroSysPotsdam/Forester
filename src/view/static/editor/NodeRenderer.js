@@ -5,8 +5,17 @@
  */
 
 import Editor from "./Editor.js";
-import Validator from "../ruleset/Validator.js";
 import View from "../views/View.js";
+import Views from "../views/Views.js";
+
+class NodeRendererEvent extends CustomEvent {
+
+    constructor(type, renderer, bubbles=true) {
+        super(type, {bubbles: bubbles})
+        this.renderer = renderer
+    }
+
+}
 
 /**
  * Wrapper around a node that keeps track of the used view for illustration and
@@ -19,6 +28,16 @@ import View from "../views/View.js";
  *
  * Views are simply adapters that extend the NodeRenderer with the real illustration
  * capabilities. In the future, they could be integrated into subclasses of NodeRenderer.
+ *
+ * The following bubbling events are dispatched by the NodeRenderer on it's DOM element:
+ *
+ * 1. `view-change`: When the view is updated. By default, this triggers a redrawing of
+ * the renderer.
+ * 2. `view-ready`:  When the view finished drawing and is ready to be shown. By default,
+ * this triggers a removal of the loading icon.
+ * 3. `view-draw-error`:  When an error occurred during the drawing process. By default,
+ * an error icon is then shown instead of the view.
+ * 4. `position-change`: When a new layout position is assigned to the renderer.
  */
 export class NodeRenderer {
     //TODO: implement safety check for selection
@@ -45,12 +64,12 @@ export class NodeRenderer {
     node
 
     // The current view that is used to illustrate the node.
-    view
+    #view
 
     // Node specific settings for the illustration. The settings are organized as a map of
     // dictionaries where the key is a view name. Settings therefore persist at the node, even
     // when the view changes.
-    settings
+    #settings
 
     /**
      * Creates a new NodeRenderer for the given node with an initial view.
@@ -59,10 +78,8 @@ export class NodeRenderer {
      */
     constructor (node, view, settings = {}) {
         this.node     = node
-        this.view     = view
-        this.settings = settings
-
-        if (!this.settings[view.name]) this.settings[view.name] = {}
+        this.#settings = settings
+        this.#view    = view
     }
 
     /**
@@ -91,12 +108,13 @@ export class NodeRenderer {
             .on("settings-change", event => this.#onSettingsChange(event))
             .on("view-ready", event => this.#onViewReady())
             .on("view-draw-error", event => this.#onViewDrawError())
+            .on("view-change", event => this.#onViewChange())
     }
 
     /**
      * Clears the illustration by removing all elements from the svg group.
      */
-    clear() {
+    #clear() {
         // remove all children
         this.#elem
             .selectAll("*")
@@ -117,7 +135,7 @@ export class NodeRenderer {
      */
     draw() {
         // clear the svg group
-        this.clear()
+        this.#clear()
 
         // append the view placeholder
         this.#elem
@@ -146,12 +164,15 @@ export class NodeRenderer {
         const canvas = this.#elem.select(".node-view").node()
 
         try {
+            // use empty settings when none are stored for this view
+            if (!this.#settings[this.view.name]) this.#settings[this.view.name] = {}
+
             // illustrate the node with the current view
-            this.view.draw(canvas, this.node, this.settings[this.view.name])
-                .then(() => this.#elem.node().dispatchEvent(new CustomEvent("view-ready")))
+            this.view.draw(canvas, this.node, this.#settings[this.view.name])
+                .then(() => this.element.dispatchEvent(new NodeRendererEvent("view-ready", this)))
         } catch(e) {
             console.log(e)
-            this.#elem.node().dispatchEvent(new CustomEvent("view-draw-error"))
+            this.element.dispatchEvent(new NodeRendererEvent("view-draw-error", this))
         }
     }
 
@@ -159,20 +180,34 @@ export class NodeRenderer {
         return this.#elem.node()
     }
 
+    get view () {
+        return this.#view
+    }
+
     /**
-     * Changes the currently used view.
-     * @param view The new view that should be used
+     * Changes the renderers view.
+     *
+     * Changing the view triggers an `view-change` event that is dispatched on the
+     * renderer's DOM element. The event holds the new view in its detail dictionary.
+     *
+     * @param view The view that should be used.
+     *
+     * @throws Error - When the argument is not an instance of `View`.
+     * @throws Error - When the given view is not applicable to the node.
      */
-    //TODO: remove in favor of setter, event dispatch and private view variable
-    updateView (view) {
+    set view (view) {
 
-        // check if the argument is a view
-        if (!(view instanceof View)) throw Error(`${view} is not of instance 'View'`)
+        // check that argument is a view
+        if (!(view instanceof View)) throw Error(`${view} is not an instance of 'View'.`)
 
-        this.view = view
-        if (!this.settings[view.name]) this.settings[view.name] = {}
+        // check if view is applicable
+        if (!view.isApplicable(this.node)) throw Error(`${view.name} is not applicable to this node.`)
 
-        this.draw()
+        // update the view
+        this.#view = view
+
+        // dispatch a view change event
+        this.element.dispatchEvent(new NodeRendererEvent("view-change", this))
     }
 
     /**
@@ -232,6 +267,50 @@ export class NodeRenderer {
         this.#xo = x
         this.#yo = y
         this.#updateTransform(this.#xo, this.#yo)
+
+        // dispatch a layout-position-change event
+        this.element.dispatchEvent(new NodeRendererEvent("position-change", this))
+    }
+
+    /**
+     * Returns the currently used settings. They depend on the view that is
+     * used. When no settings are used, an empty dictionary is returned.
+     *
+     * TODO: return default settings for missing values
+     */
+    get settings () {
+        let settings = this.#settings[this.view.name]
+        settings = settings ? settings : {}
+        return settings
+    }
+
+    /**
+     * Updates the settings **for the current view**. The function does not check,
+     * if the settings fit the view.
+     *
+     * @param settings The new settings for this view.
+     */
+    set settings (settings) {
+
+        // update the settings
+        this.#settings[this.view.name] = settings
+
+        // dispatch a settings-change event
+        this.element.dispatchEvent(new NodeRendererEvent("settings-change", this))
+    }
+
+    nextApplicableView (direction="left") {
+
+        // find all applicable views
+        const views = Object.values(Views).filter(view => view.isApplicable(this.node))
+
+        // get the index of the current view
+        let index = views.indexOf(this.view)
+        // advance the index
+        index = (direction === "left" ? (index + views.length - 1) : (index + 1)) % views.length
+
+        // update the renderer's view
+        this.view = views[index]
     }
 
     /**
@@ -313,6 +392,25 @@ export class NodeRenderer {
         return this.#updateTransform(x, y, animate)
     }
 
+    // TODO: remove in favor of set accessor and dispatch event
+    async updateSettings (settings, view = undefined) {
+
+        // change the view, if another view is specified
+        if (view && this.view != view) {
+            this.view = view
+        }
+
+        // update the settings for the current view
+        this.#settings[this.view.name] = settings
+
+        // redraw the node
+        this.draw()
+    }
+
+    #onViewChange () {
+        this.draw()
+    }
+
     /**
      * Called when the asynchronous illustration function of the view completed.
      *
@@ -361,46 +459,7 @@ export class NodeRenderer {
     }
 
     #onSettingsChange (event) {
-        console.log(event)
-        //
-        // const settings  = event.detail.values
-        // const view      = event.detail.view
-        //
-        // // TODO: implement safety check
-        // if (this.view !== view && event.detail.viewChange) {
-        //     this.view = view
-        // }
-        //
-        // // update the setting for the new (or old) view
-        // this.settings[this.view.name] = settings
-        //
-        // // redraw the view
-        // this.draw()
-    }
-
-    // TODO: remove in favor of get accessor
-    getCurrentSettings () {
-        return this.settings[this.view.name]
-    }
-
-    // TODO: remove in favor of get accessor
-    getCurrentRules () {
-        return this.view.rules
-    }
-
-    // TODO: remove in favor of set accessor and dispatch event
-    async updateSettings (settings, view = undefined) {
-
-        // change the view, if another view is specified
-        if (view && this.view != view) {
-            this.view = view
-        }
-
-        // update the settings for the current view
-        this.settings[this.view.name] = settings
-
-        // redraw the node
-        this.draw()
+        // TODO: implement
     }
 
     save () {

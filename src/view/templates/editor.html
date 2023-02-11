@@ -19,10 +19,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore.js"></script>
     <script src="../static/lib/quicksettings.js"></script>
 
-    <!-- Floating UI -->
-<!--    <script src="https://cdn.jsdelivr.net/npm/@floating-ui/core@1.2.0"></script>-->
-<!--    <script src="https://cdn.jsdelivr.net/npm/@floating-ui/dom@1.2.0"></script>-->
-
     <!-- JQuery extensions -->
     <script src="https://code.jquery.com/ui/1.13.1/jquery-ui.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-contextmenu/2.7.1/jquery.contextMenu.min.js"></script>
@@ -75,12 +71,22 @@
         </div>
 
         <div id="hint" open="false">
-            <span class="fa fa-info"></span>
-            <div class="hint-content" style="visibility: hidden">
+<!--            <div class="hint-icon fa fa-info"></div>-->
+            <div class="hint-content">
+<!--                <img class="hint-image" src="https://images.pexels.com/photos/45201/kitty-cat-kitten-pet-45201.jpeg?cs=srgb&dl=pexels-pixabay-45201.jpg&fm=jpg">-->
+                <span class="hint-image">Blablabla</span>
                 <span class="hint-title">Hints</span>
-                <div class="hint-text">Try hovering over different elements of Editor to learn about their usage.</div>
+                <div class="hint-text">Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. <br><br> Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.</div>
             </div>
         </div>
 
         <div id="settings" class="settings-close forester-ui-panel"></div>
+
+        <div class="lens">
+            <div class="lens-button lens-left  fa-solid fa-long-arrow-left"></div>
+            <div class="lens-button lens-settings fa-solid fa-gear"></div>
+            <div class="lens-button lens-right fa-solid fa-long-arrow-right"></div>
+        </div>
+
+
 {% endblock %}

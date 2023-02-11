@@ -11,6 +11,8 @@ import {Panzoom} from "../Panzoom.js";
 import {BasicLinkRenderer, FlowLinkRenderer} from "./LinkRenderer.js";
 import SettingsForm from "../ruleset/SettingsForm.js";
 
+import Hints from "./Hints.js";
+
 import * as FloatingUI from 'https://cdn.jsdelivr.net/npm/@floating-ui/dom@1.2.0/+esm';
 
 export default {
@@ -42,8 +44,8 @@ export default {
         // add a handle to the window
         window.Editor = this
 
-        const observer = new MutationObserver(this.Hints.onElementAdded)
-        observer.observe(d3.select(".forester-content").node(), {childList: true, subtree: true})
+        // const observer = new MutationObserver(this.Hints.onElementAdded)
+        // observer.observe(d3.select(".forester-content").node(), {childList: true, subtree: true})
 
         // load the global settings
         this.loadGlobalSettings(data.save)
@@ -98,7 +100,10 @@ export default {
           .on("mouseenter", function (event) {
               // get the id of the node
               const nodeID = d3.select(this).attr("forID")
-              Editor.Lens.openNodeLens(nodeID)
+              Editor.Lens.open(nodeID)
+          })
+          .on("mouseleave", function (event){
+              Editor.Lens.close()
           })
 
         d3.select(document)
@@ -115,6 +120,17 @@ export default {
                   Editor.save()
               }
           })
+
+        // update the currently used settings form, when the view changes
+        d3.select("#" + Editor.Tree.id)
+          .on("view-change", function (event) {
+              // TODO: update the settings panel
+              // updating would need the panel to keep track of the node from which the settings
+              // come from. Otherwise you change the view of another node, but the settings panel
+              // still works for the old one.
+              Editor.Settings.closeSettings()
+          })
+
     },
 
     highlightNodes(...nodeIDs) {
@@ -213,75 +229,77 @@ export default {
 
     Lens: {
 
-        Buttons: [
-            {
-                id: "lens-left",
-                icon: "fa-circle-arrow-left",
-                placement: "left"
-            },
-            {
-                id: "lens-right",
-                icon: "fa-circle-arrow-right",
-                placement: "right"
-            }
-        ],
+        onMouseLeave: function (event) {
 
-        openNodeLens: function (nodeID) {
-            const renderer = Editor.Tree.renderers.get(nodeID)
-            const node = renderer.node
-            const views = Object.values(Views).filter(view => view.isApplicable(node))
+            const lens = d3.select(".lens").node()
+            const node = d3.select(`.tree-node[forID='${lens.getAttribute("forID")}']`).node()
 
-            const circleView = function (right=true) {
+            if (lens.contains(event.toElement) || node.contains(event.toElement)) return
 
-                // get the current index of the renderer in the view list
-                let index = views.indexOf(renderer.view)
-
-                // advance the index
-                if (right) {
-                    index = (index + 1) % views.length
-                } else {
-                    index = (views.length + index - 1) % views.length
-                }
-
-                renderer.updateView(views[index])
-
-            }
-
-            // remove old buttons
-            Editor.Lens.closeNodeLens()
-
-            d3.select(".forester-content")
-              .selectAll("i")
-              .data(Editor.Lens.Buttons)
-              .enter()
-              .append("i")
-              .attr("id", d => d.id)
-              .attr("class", d => `lens-button fa-solid ${d.icon}`)
-              .each(function (d) {
-                  const anchor = d3.select(`.tree-node[forID='${node.id}']`).node()
-                  const button = d3.select(this).node()
-
-                  FloatingUI.computePosition(anchor, button, {
-                      placement: d.placement,
-                      middleware: [FloatingUI.offset(6)]
-                  }).then(pos => {
-                      d3.select(button)
-                        .style("left", pos.x + "px")
-                        .style("top",  pos.y + "px")
-                  })
-              })
-
-            d3.select("#lens-left")
-              .on("click", event => circleView(false))
-
-            d3.select("#lens-right")
-              .on("click", event => circleView(true))
+            Editor.Lens.close()
         },
 
-        closeNodeLens: function () {
-            d3.select(".forester-content")
-              .selectAll(".lens-button")
-              .remove()
+        open: function (nodeID) {
+
+            // do not open lens again for the same node
+            if (d3.select(".lens").attr("forID") === nodeID && Editor.Lens.isOpen()) return
+
+            // close the old lense
+            Editor.Lens.close()
+
+            const renderer = Editor.Tree.renderers.get(nodeID)
+            const node = renderer.node
+
+            // relocate lens
+            const bbox = d3.select(`.tree-node[forID='${node.id}']`).node().getBoundingClientRect()
+            d3.select(".lens")
+              .attr("forID", node.id)
+              .style("visibility", "visible")
+              .style("left", bbox.left + bbox.width/2 + "px")
+              .style("top",  bbox.bottom - 0.2*bbox.height + "px")
+
+            // when the mouse leaves the lens or node
+            d3.select(".lens")
+              .on("mouseleave", Editor.Lens.onMouseLeave)
+            d3.select(`.tree-node[forID='${node.id}']`)
+              .on("mouseleave", Editor.Lens.onMouseLeave)
+
+            // when one of the buttons is pressed
+            d3.select(".lens-left")
+              .on("click", event => renderer.nextApplicableView("left"))
+            d3.select(".lens-right")
+              .on("click", event => renderer.nextApplicableView("right"))
+            d3.select(".lens-settings")
+              .on("click", function (event) {
+
+                  if (Editor.Settings.isOpen()) {
+                      Editor.Settings.closeSettings()
+                  } else {
+                      const opened = Editor.Settings.openNodeSettings(node.id)
+                      if (!opened) {
+                          d3.select(this)
+                            .classed("fa-shake", true)
+                            .style("color", "red")
+                            .transition()
+                            .duration(200)
+                            .on("end", function (event) {
+                                d3.select(this)
+                                  .classed("fa-shake", false)
+                                  .style("color", undefined)
+                            })
+                      }
+                  }
+              })
+        },
+
+        close: function () {
+            // TODO: remove the listener from the current node
+            d3.select(".lens")
+              .style("visibility", "hidden")
+        },
+
+        isOpen: function () {
+            return d3.select(".lens").style("visibility") === "visible"
         }
 
     },
@@ -295,10 +313,10 @@ export default {
             return typeof Editor.Settings.currentForm !== "undefined"
         },
 
-        openSettings: function (data, rules, callbackFn) {
+        openSettings: function (data, rules, callbackFn, reopen=true) {
 
             // check if a different settings panel is already open and close if so
-            if (Editor.Settings.isOpen()) {
+            if (Editor.Settings.isOpen() && reopen) {
                 Editor.Settings.closeSettings()
             }
 
@@ -325,7 +343,7 @@ export default {
             // TODO: rename data to initialValues
 
             // reset the settings to the initial values of the form
-            Editor.Settings.currentForm.reset()
+            if (Editor.Settings.currentForm) Editor.Settings.currentForm.reset()
 
             // transition out the settings panel
             d3.select("#settings")
@@ -338,11 +356,11 @@ export default {
         openNodeSettings: function (nodeID) {
             // retrieve the current settings and rules for a node
             const nodeRenderer = Editor.Tree.renderers.get(nodeID)
-            const rules = nodeRenderer.getCurrentRules()
-            const values = nodeRenderer.getCurrentSettings()
+            const rules = nodeRenderer.view.rules
+            const values = nodeRenderer.settings
 
             // do not open settings when there are no rules for the node
-            if (Object.keys(Object.flatten(rules)).length === 0) return
+            if (Object.keys(Object.flatten(rules)).length === 0) return false
 
             // get the node for which the settings were opened
             // this will be the content of the onNodeSettingsChange function
@@ -359,6 +377,8 @@ export default {
             d3.select("#settings")
               .insert("h3", ":first-child")
               .text("Node Settings")
+
+            return true
         },
 
         openGlobalSettings: function () {
@@ -386,24 +406,26 @@ export default {
             // get the value of the applyTo variable
             let applyTo = event.values.applyTo
 
-            // when the user has selected only this node or the event is not a submission event
-            // update only the given node
-            if (applyTo === "this" || event.type !== "settings-submit") {
-                applyTo = [Editor.Tree.renderers.get(nodeID)]
-            }
+            Editor.updateView(applyTo === "this" ? nodeID : applyTo, view)
 
-            // with view and submit events, update all nodes that use the same view
-            if (applyTo === "view") {
-                applyTo = Array.from(Editor.Tree.renderers.values()).filter(renderer => renderer.view === view)
-            }
-
-            // with all and submit events, update all nodes and change the view
-            if (applyTo === "all") {
-                applyTo = Array.from(Editor.Tree.renderers.values())
-            }
-
-            // update settings and view for the nodes to which the settings are applied
-            applyTo.map(renderer => renderer.updateSettings(event.values, view))
+            // // when the user has selected only this node or the event is not a submission event
+            // // update only the given node
+            // if (applyTo === "this" || event.type !== "settings-submit") {
+            //     applyTo = [Editor.Tree.renderers.get(nodeID)]
+            // }
+            //
+            // // with view and submit events, update all nodes that use the same view
+            // if (applyTo === "view") {
+            //     applyTo = Array.from(Editor.Tree.renderers.values()).filter(renderer => renderer.view === view)
+            // }
+            //
+            // // with all and submit events, update all nodes and change the view
+            // if (applyTo === "all") {
+            //     applyTo = Array.from(Editor.Tree.renderers.values())
+            // }
+            //
+            // // update settings and view for the nodes to which the settings are applied
+            // applyTo.map(renderer => renderer.updateSettings(event.values, view))
         },
 
         onGlobalSettingsChange: function (event) {
@@ -421,62 +443,64 @@ export default {
         }
     },
 
-    Hints: {
+    Hints: Hints,
 
-        hints: [
-            {
-                "selector": ".group-header",
-                "title": "Legend Grouping",
-                "hint": "Legend entries may be grouped. This helps the user to clean up the legend and maintain an overview over all features and classes.<p>Right-clicking the group header allows the user to delete or rename the group. Here, the group entries can also be linked, to have the same color.</p>"
-            },
-            {
-                "selector": ".entry",
-                "title": "Legend Entries",
-                "hint": "Each legend entry represents one class or feature.<p>Its color may be changed by clicking the colored panel.</p>"
-            },
-            {
-                "selector": ".group-toggle",
-                "title": "Hiding a Group",
-                "hint": "By clicking the little eye icon, the user is able to hide groups from the legend.<p>Entries that are inside a hidden group have their colorcoding removed. In the tree visualization they appear without a color.</p>"
-            },
-            {
-                "selector": ".entry-toggle-mono",
-                "title": "Highlighting Entries",
-                "hint": "By clicking the little M icon, the user can highlight any one class or feature in the visualization. <p>For the selected entry, the color is changed to a bright red, while the colorcoding of all other entries is removed. Only one entry can be highlighted at all times.</p>"
-            },
-            {
-                "selector": ".TextView",
-                "title": "Node: Basic Info",
-                "hint": "The most basic node visualization gives some information on the split's feature and location (Sp), the voted class and class distribution (V) and the sample number (S). <p>Note, how class and feature names are colored according to the legend entries.</p>"
-            },
-            {
-                "selector": ".CCircleIconView",
-                "title": "Node: Pie Charts",
-                "hint": "This node visualization illustrates the class distribution at this node as a pie chart. For the sake of simplicity, only the five most abundand classes are shown. <p>Note, how class colors are related to the legend.</p>"
-            },
-            {
-                "selector": "#group-new",
-                "title": "Adding a Group",
-                "hint": "By clicking the \"New group\" button, the user can add an empty group to the legend. A popup menu requests the groups name so make sure that you browser does not block Forester."
-            }
-        ],
-
-        onMouseOver: function (event) {
-            const hintID = d3.select(this).attr("hintID")
-            console.log(Editor.Hints.hints[hintID].title, Editor.Hints.hints[hintID].hint)
-        },
-
-        onElementAdded: function (mutations, observer) {
-
-            // update the hints
-            for (const i in Editor.Hints.hints) {
-                d3.selectAll(Editor.Hints.hints[i].selector + ":not(.hinted)")
-                  .classed("hinted", true)
-                  .attr("hintID", i)
-                  .on("mouseover", Editor.Hints.onMouseOver)
-            }
-        }
-    },
+    // Hints: {
+    //
+    //     hints: [
+    //         {
+    //             "selector": ".group-header",
+    //             "title": "Legend Grouping",
+    //             "hint": "Legend entries may be grouped. This helps the user to clean up the legend and maintain an overview over all features and classes.<p>Right-clicking the group header allows the user to delete or rename the group. Here, the group entries can also be linked, to have the same color.</p>"
+    //         },
+    //         {
+    //             "selector": ".entry",
+    //             "title": "Legend Entries",
+    //             "hint": "Each legend entry represents one class or feature.<p>Its color may be changed by clicking the colored panel.</p>"
+    //         },
+    //         {
+    //             "selector": ".group-toggle",
+    //             "title": "Hiding a Group",
+    //             "hint": "By clicking the little eye icon, the user is able to hide groups from the legend.<p>Entries that are inside a hidden group have their colorcoding removed. In the tree visualization they appear without a color.</p>"
+    //         },
+    //         {
+    //             "selector": ".entry-toggle-mono",
+    //             "title": "Highlighting Entries",
+    //             "hint": "By clicking the little M icon, the user can highlight any one class or feature in the visualization. <p>For the selected entry, the color is changed to a bright red, while the colorcoding of all other entries is removed. Only one entry can be highlighted at all times.</p>"
+    //         },
+    //         {
+    //             "selector": ".TextView",
+    //             "title": "Node: Basic Info",
+    //             "hint": "The most basic node visualization gives some information on the split's feature and location (Sp), the voted class and class distribution (V) and the sample number (S). <p>Note, how class and feature names are colored according to the legend entries.</p>"
+    //         },
+    //         {
+    //             "selector": ".CCircleIconView",
+    //             "title": "Node: Pie Charts",
+    //             "hint": "This node visualization illustrates the class distribution at this node as a pie chart. For the sake of simplicity, only the five most abundand classes are shown. <p>Note, how class colors are related to the legend.</p>"
+    //         },
+    //         {
+    //             "selector": "#group-new",
+    //             "title": "Adding a Group",
+    //             "hint": "By clicking the \"New group\" button, the user can add an empty group to the legend. A popup menu requests the groups name so make sure that you browser does not block Forester."
+    //         }
+    //     ],
+    //
+    //     onMouseOver: function (event) {
+    //         const hintID = d3.select(this).attr("hintID")
+    //         console.log(Editor.Hints.hints[hintID].title, Editor.Hints.hints[hintID].hint)
+    //     },
+    //
+    //     onElementAdded: function (mutations, observer) {
+    //
+    //         // update the hints
+    //         for (const i in Editor.Hints.hints) {
+    //             d3.selectAll(Editor.Hints.hints[i].selector + ":not(.hinted)")
+    //               .classed("hinted", true)
+    //               .attr("hintID", i)
+    //               .on("mouseover", Editor.Hints.onMouseOver)
+    //         }
+    //     }
+    // },
 
     save: function () {
 
@@ -569,90 +593,4 @@ export default {
     }
 }
 
-// $('document').ready(function () {
-//
-//     window.intro = introJs().setOptions({
-//         steps: [
-//             {
-//                 title: "🏳️‍🌈 Legend",
-//                 element: document.getElementById("legend"),
-//                 intro: "The legend displays information on the colorcoding of classes and features.",
-//                 position: "left"
-//             },
-//             {
-//                 element: document.querySelector(".group"),
-//                 intro: "Entries are initially grouped based on classes and features.",
-//                 position: "left"
-//             },
-//             {
-//                 element: document.querySelector(".group-toggle"),
-//                 intro: "Click this icon to hide a group.",
-//                 position: "left"
-//             },
-//             {
-//                 element: document.querySelector(".entry"),
-//                 intro: "Each entry represents one visible feature or class and is matched to one color.",
-//                 position: "left"
-//             },
-//             {
-//                 element: document.querySelector(".entry .colorcoded"),
-//                 intro: "Click this field to change a color.",
-//                 position: "left"
-//             },
-//             {
-//                 element: document.querySelector("#group-new"),
-//                 intro: "Click this button to add a new group.",
-//                 position: "left",
-//                 onchange: function () {
-//                     console.log("Something happened")
-//                 }
-//             }
-//         ]
-//     })
-//
-//     /**
-//      * HINTS
-//      */
-//     fetch("../static/hints.json")
-//         .then(obj => obj.json())
-//         .then(function (hints) {
-//             for (let hint of hints) {
-//                 d3.selectAll(hint.selector)
-//                   .classed("hinted", true)
-//                   .attr("hint-title", hint.title)
-//                   .attr("hint-text", hint.hint)
-//                   .on("mouseover", function (event) {
-//                       event.stopPropagation()
-//                       const hinted = d3.select(this)
-//                       d3.select("#hint .hint-title")
-//                         .html(hinted.attr("hint-title"))
-//                       d3.select("#hint .hint-text")
-//                         .html(hinted.attr("hint-text"))
-//                   })
-//             }
-//         })
-//
-//     d3.select("#hint")
-//       .on("click", function () {
-//           const hint = d3.select(this)
-//           const content = hint.select(".hint-content")
-//           const icon = hint.select(".fa-info")
-//           const open = hint.attr("open")
-//
-//           if (open === "false") {
-//               hint
-//                   .transition()
-//                   .style("width", "300px")
-//                   .style("height", "200px")
-//               hint.attr("open", true)
-//               content.style("visibility", "visible")
-//           } else {
-//               hint
-//                   .transition()
-//                   .style("width", "25px")
-//                   .style("height", "25px")
-//               hint.attr("open", false)
-//               content.style("visibility", "hidden")
-//           }
-//       })
-// })
+import "./Hints.js"

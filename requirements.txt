@@ -1,0 +1,11 @@
+numpy
+matplotlib
+flask>=2.2
+flask-restful
+scipy
+pyreadr
+loguru
+pymongo
+treelib
+flask-sqlalchemy
+tinydb

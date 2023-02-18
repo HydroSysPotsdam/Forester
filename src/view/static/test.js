@@ -4,8 +4,6 @@
  * Forester: Interactive human-in-the-loop web-based visualization of machine learning trees
  */
 
-import {Tree} from "./editor/TreeRenderer.js";
-
 Tree.fetch_json("../../../examples/R/diabetes.json")
     .then(draw_box1)
 

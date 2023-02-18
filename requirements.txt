@@ -1,11 +1,9 @@
 numpy
-matplotlib
 flask>=2.2
 flask-restful
-scipy
-pyreadr
+rpy2
 loguru
-pymongo
 treelib
 flask-sqlalchemy
 tinydb
+dataclasses_json

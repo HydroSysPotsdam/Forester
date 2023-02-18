@@ -139,6 +139,6 @@ def save_project(uuid):
 
 @API.route("/formats")
 def formats():
-    path = os.path.join(PACKAGE_PATH, "instance", "formats.json")
+    path = os.path.join(PACKAGE_PATH, "formats.json")
     file = open(path)
     return jsonify(json.load(file))

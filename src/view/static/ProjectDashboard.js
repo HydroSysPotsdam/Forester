@@ -261,7 +261,7 @@ ProjectCreationDialog = {
             d3.select("#format-info")
               .style("visibility", (format.note ? "visible" : "hidden"))
               .select("span")
-              .text(format.note)
+              .html(format.note)
         }
 
         // set the format options that the user can select

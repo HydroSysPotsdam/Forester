@@ -1,0 +1,25 @@
+[
+  {
+    "vendor": "Matlab",
+    "origin": "fitctree",
+    "type": "json",
+    "note": "Tree derived by <code>fitctree</code> and exported using <code>jsonify</code>",
+    "deprecated": false
+  },
+
+  {
+    "vendor": "R",
+    "origin": "rpart",
+    "type": "rdata",
+    "note": "Tree derived by <code>rpart</code> and exported as <i>.RData</i>",
+    "deprecated": false
+  },
+
+  {
+    "vendor": "Forester",
+    "origin": "export",
+    "type": "json",
+    "note": "Export from another Forester user",
+    "deprecated": false
+  }
+]

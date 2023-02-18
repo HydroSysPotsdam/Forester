@@ -8,7 +8,7 @@ import json
 
 from .project import Project
 from .errors import *
-from src.forester import parser
+from .. import parser
 
 
 def create_project_from_files(self, name, paths, **kwargs):

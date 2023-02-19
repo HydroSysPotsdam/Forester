@@ -36,7 +36,7 @@ export class TreeRenderer {
                 const nodeSettings = save.renderers[i].settings
                 this.renderers.set(node.id, new NodeRenderer(node, view, nodeSettings))
             } catch (e) {
-                this.renderers.set(node.id, new NodeRenderer(node, Object.values(Views)[Math.round(Math.random()*4)]))
+                this.renderers.set(node.id, new NodeRenderer(node, Views.BasicView))
             }
         })
 
@@ -287,9 +287,8 @@ export class TreeRenderer {
     }
 
     updateSettings(settings, changed) {
-
         if (changed && changed.length > 0) {
-           this.draw(settings)
+            this.draw(settings)
         }
     }
 

@@ -13,7 +13,7 @@ import SettingsForm from "../ruleset/SettingsForm.js";
 
 import Hints from "./Hints.js";
 
-import * as FloatingUI from 'https://cdn.jsdelivr.net/npm/@floating-ui/dom@1.2.0/+esm';
+// import * as FloatingUI from 'https://cdn.jsdelivr.net/npm/@floating-ui/dom@1.2.0/+esm';
 
 export default {
 
@@ -39,8 +39,6 @@ export default {
 
     openFromData: async function (data) {
 
-        console.log(data)
-
         // add a handle to the window
         window.Editor = this
 
@@ -50,7 +48,7 @@ export default {
         // load the global settings
         this.loadGlobalSettings(data.save)
 
-        // load the nodes from the data
+        // create the hierarchic node structure from the data
         let nodes = new FNode(d3.hierarchy(data.tree.tree), data.tree.meta)
 
         nodes.descendants().forEach(function (node) {
@@ -58,14 +56,25 @@ export default {
             node.data.samplesFractionScaled = n / nodes.descendants().length
         })
 
+        // create the tree illustration
         this.Tree = new TreeRenderer(nodes, data.save)
         this.Tree.draw(Editor.GlobalSettings)
 
-        // generate the legend
+        // create the legend
         Legend.generate(data.save)
         this.Legend = Legend
 
-        this.setupInteractivity()
+        // add pan and zoom funcionality
+        this.Panzoom = new Panzoom(document.getElementById(Editor.Tree.id))
+
+        // add a keyboard listener for opening the settings and saving
+        d3.select(document)
+          .on("keydown", Editor.onKeyPress)
+
+        // add listeners for interactivity to the tree
+        d3.select("#" + Editor.Tree.id)
+          .on("view-ready", Editor.onViewReady)
+          .on("view-change", Editor.onViewChange)
     },
 
     loadGlobalSettings: function (save) {
@@ -75,67 +84,79 @@ export default {
         Editor.GlobalSettings = initialSettings
     },
 
-    setupInteractivity: function () {
-
-        // add pan and zoom funcionality
-        this.Panzoom = new Panzoom(document.getElementById(Editor.Tree.id))
-
-        // add all the listeners that are needed for interaction
-        d3.selectAll(".tree-node")
-          .on("click", function (event) {
-              // prevent default
-              event.preventDefault()
-
-              // get the id of the node
-              const nodeID = d3.select(this).attr("forID")
-
-              // shift click opens settings, click would hide the node
-              if (event.shiftKey) {
-                  Editor.Settings.openNodeSettings(nodeID)
-                  return
-              }
-
-              Editor.collapseNode(nodeID)
-          })
-          .on("mouseenter", function (event) {
-              // get the id of the node
-              const nodeID = d3.select(this).attr("forID")
-              Editor.Lens.open(nodeID)
-          })
-          .on("mouseleave", function (event){
-              Editor.Lens.close()
-          })
-
-        d3.select(document)
-          .on("keydown", function (event) {
-              if (event.code === "Escape") {
-                  if (Editor.Settings.isOpen()) {
-                      Editor.Settings.closeSettings()
-                  } else {
-                      Editor.Settings.openGlobalSettings()
-                  }
-              }
-
-              if (event.code === "KeyS") {
-                  Editor.save()
-              }
-          })
-
-        // update the currently used settings form, when the view changes
-        d3.select("#" + Editor.Tree.id)
-          .on("view-change", function (event) {
-              // TODO: update the settings panel
-              // updating would need the panel to keep track of the node from which the settings
-              // come from. Otherwise you change the view of another node, but the settings panel
-              // still works for the old one.
-              Editor.Settings.closeSettings()
-          })
-
-    },
-
     highlightNodes(...nodeIDs) {
         d3.selectAll(".tree-node")
           .classed("highlighted", renderer => nodeIDs.includes(renderer.node.id))
+    },
+
+    onKeyPress(event) {
+        if (event.code === "Escape") {
+            if (Editor.Settings.isOpen()) {
+                Editor.Settings.closeSettings()
+            } else {
+                Editor.Settings.openGlobalSettings()
+            }
+        }
+
+        if (event.code === "KeyS") {
+            Editor.save()
+        }
+    },
+
+    /**
+     * Called when the illustration of a node is changed.
+     * It triggers the Editor to close the settings panel.
+     * TODO: Update the settings panel on view-change and not close it.
+     */
+    onViewChange(event) {
+        Editor.Settings.closeSettings()
+    },
+
+    /**
+     * Called when a node finished drawing.
+     * It is used to (re)add the listeners for clicking and hovering to the node that
+     * allow opening the settings, collapsing the subtree and changing the view.
+     * TODO: When performance is poor, the MutationListener can also be used to add the listeners.
+     */
+    onViewReady(event) {
+        d3.select(event.target)
+          .on("click", Editor.onNodeClick)
+          .on("mouseenter", Editor.onNodeEnter)
+          .on("mouseleave", Editor.onNodeLeave)
+          // disable double click on node
+          // otherwise the event would trigger Panzoom centering
+          .on("dblclick", event => event.stopPropagation())
+    },
+
+    /**
+     * Called when the user clicks on a node.
+     * Collapses the nodes subtree.
+     */
+    onNodeClick(event) {
+        // disable default and propagation so that Panzoom does not react
+        event.preventDefault()
+        event.stopPropagation()
+        // get the node id and collapse the subtree
+        const nodeID = d3.select(this).attr("forID")
+        Editor.collapseNode(nodeID)
+    },
+
+    /**
+     * Called when the cursor enters a node.
+     * Opens the node lens menu.
+     */
+    onNodeEnter(event) {
+        // get the id of the node and open lens
+        const nodeID = d3.select(this).attr("forID")
+        Editor.Lens.open(nodeID)
+    },
+
+    /**
+     * Called when the cursor leaves a node.
+     * Closes the lens menu.
+     */
+    onNodeLeave(event) {
+        Editor.Lens.close()
     },
 
     async collapseNode(nodeID, duration = 200) {

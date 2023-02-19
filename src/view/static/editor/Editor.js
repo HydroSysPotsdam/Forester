@@ -38,7 +38,6 @@ export default {
         "layout.dendrogram": "boolean|default:false",
         "path.style": "in:linear,curved,ragged|default:linear",
         "path.flow": "in:none,linear,scaled,colorcoded|default:none"
-        // "path.colorcoding": "boolean|default:false"
     },
 
     openFromData: async function (data) {

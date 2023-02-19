@@ -5,6 +5,7 @@
  */
 
 import Views from "../views/Views.js"
+import View from "../views/View.js"
 
 import {NodeRenderer} from "./NodeRenderer.js";
 import {BasicLinkRenderer, FlowLinkRenderer} from "./LinkRenderer.js";
@@ -41,6 +42,87 @@ export class TreeRenderer {
         })
 
         this.observer = new MutationObserver((mutations, observer) => this.#onNodePositionUpdate.call(this, mutations, observer))
+    }
+
+    select(...selectors) {
+
+        let renderers = [...this.renderers.values()]
+
+        // default selection is all
+        if (selectors.length == 0) selectors = ["*"]
+
+        let selection = selectors.map(selector => {
+
+            // selector all elements
+            if (selector === "*" || selector === "all") {
+                return Array(this.renderers.size).fill(true)
+            }
+
+            // selection based on view
+            if (selector instanceof View) {
+                return renderers.map(renderer => renderer.view === selector)
+            }
+
+            // selection based on view name
+            if (Object.keys(Views).includes(selector)) {
+                return renderers.map(renderer => renderer.view.name === selector)
+            }
+
+            // selection based on id
+            if (this.renderers.has(selector)) {
+                return renderers.map(renderer => renderer.node.id === selector)
+            }
+
+            // selection based on subtree
+            // TODO: can this be combined with other selections than id?
+            if (selector === "subtree") {
+                let id = selectors.find(selector => this.renderers.has(selector))
+                if (id) {
+                    const node = this.renderers.get(id).node
+                    const ids  = node.descendants().map(node => node.id)
+                    return renderers.map(renderer => ids.includes(renderer.node.id))
+                }
+            }
+
+            // selection based on leaf nodes
+            if (selector == "leaf" || selector === "leafs") {
+                return renderers.map(renderer => renderer.node.children ? false : true)
+            }
+
+            // selection based on root position
+            if (selector === "root") {
+                return renderers.map(renderer => !renderer.node.parent)
+            }
+
+            // selection based on internal position
+            if (selector === "internal") {
+                return renderers.map(renderer => (renderer.node.parent && renderer.node.children) ? true : false)
+            }
+        })
+
+        selection = function (arr) {
+            return arr.reduce((acc, val) => {
+                val.forEach((bool, ind) => acc[ind] = acc[ind] || bool);
+                return acc;
+            }, []);
+        }(selection)
+
+        selection = renderers.filter((_, i) => selection[i])
+
+        if (selection.length === 1) {
+            return selection[0]
+        } else {
+            return selection
+        }
+    }
+
+    selectNodes (...selectors) {
+        const renderers = this.select(...selectors)
+        if (Array.isArray(renderers)) {
+            return renderers.map(renderer => renderer.node)
+        } else {
+            return renderers.node
+        }
     }
 
     #initializeContainer(elem) {

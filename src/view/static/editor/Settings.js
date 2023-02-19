@@ -71,7 +71,7 @@ let Settings = {
         const srcNode = d3.select(".tree-node[forID='" + nodeRenderer.node.id + "']").node()
 
         // add a input element for the applyTo parameter
-        rules.applyTo = "in:this,view,similar,all|default:this"
+        rules.applyTo = "in:this,view,subtree,all|default:this"
 
         // open the settings with them
         // callback function is onNodeSettingsChange
@@ -109,29 +109,31 @@ let Settings = {
         const nodeID = d3.select(this).attr("forID")
         const view = Editor.Tree.renderers.get(nodeID).view
 
-        // get the value of the applyTo variable
+        // transform application field into selectors on tree
         let applyTo = event.values.applyTo
+        delete event.values.applyTo
+        switch (applyTo) {
+            case "this":
+                applyTo = nodeID
+                break
+            case "view":
+                applyTo = view.name
+                break
+            case "subtree":
+                applyTo = [nodeID, "subtree"]
+                break
+            case "all":
+                applyTo = "*"
+                break
+        }
 
-        Editor.updateView(applyTo === "this" ? nodeID : applyTo, view)
+        // only update other nodes when settings are submitted
+        applyTo = event.type === "settings-submit" ? applyTo : nodeID
 
-        // // when the user has selected only this node or the event is not a submission event
-        // // update only the given node
-        // if (applyTo === "this" || event.type !== "settings-submit") {
-        //     applyTo = [Editor.Tree.renderers.get(nodeID)]
-        // }
-        //
-        // // with view and submit events, update all nodes that use the same view
-        // if (applyTo === "view") {
-        //     applyTo = Array.from(Editor.Tree.renderers.values()).filter(renderer => renderer.view === view)
-        // }
-        //
-        // // with all and submit events, update all nodes and change the view
-        // if (applyTo === "all") {
-        //     applyTo = Array.from(Editor.Tree.renderers.values())
-        // }
-        //
-        // // update settings and view for the nodes to which the settings are applied
-        // applyTo.map(renderer => renderer.updateSettings(event.values, view))
+        // select and update nodes
+        let selection = Editor.Tree.select(applyTo)
+        selection = Array.isArray(selection) ? selection : [selection]
+        selection.map(renderer => renderer.updateSettings(event.values, view))
     }
 ,
 

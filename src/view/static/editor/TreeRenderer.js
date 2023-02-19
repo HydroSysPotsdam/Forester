@@ -48,8 +48,11 @@ export class TreeRenderer {
 
         let renderers = [...this.renderers.values()]
 
+        selectors = selectors.flat(Infinity)
+
         // default selection is all
         if (selectors.length == 0) selectors = ["*"]
+
 
         let selection = selectors.map(selector => {
 
@@ -100,12 +103,12 @@ export class TreeRenderer {
             }
         })
 
-        selection = function (arr) {
+        selection = function (...arr) {
             return arr.reduce((acc, val) => {
                 val.forEach((bool, ind) => acc[ind] = acc[ind] || bool);
                 return acc;
             }, []);
-        }(selection)
+        }(...selection)
 
         selection = renderers.filter((_, i) => selection[i])
 

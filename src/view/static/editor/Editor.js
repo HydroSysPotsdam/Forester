@@ -11,9 +11,9 @@ import {Panzoom} from "../Panzoom.js";
 import {BasicLinkRenderer, FlowLinkRenderer} from "./LinkRenderer.js";
 import SettingsForm from "../ruleset/SettingsForm.js";
 
-import Hints from "./Hints.js";
-
-// import * as FloatingUI from 'https://cdn.jsdelivr.net/npm/@floating-ui/dom@1.2.0/+esm';
+// submodules for the editor to improve code readability
+import Hints from "./Hints.js"
+import Settings from "./Settings.js"
 
 export default {
 
@@ -22,6 +22,10 @@ export default {
     Tree: undefined,
 
     Panzoom: undefined,
+
+    Settings: Settings,
+
+    Hints: Hints,
 
     GlobalSettings: {},
 
@@ -82,11 +86,6 @@ export default {
         const initialSettings = save ? save["global-settings"] : {}
         new Validator(initialSettings, this.GlobalSettingRules).passes()
         Editor.GlobalSettings = initialSettings
-    },
-
-    highlightNodes(...nodeIDs) {
-        d3.selectAll(".tree-node")
-          .classed("highlighted", renderer => nodeIDs.includes(renderer.node.id))
     },
 
     onKeyPress(event) {
@@ -157,6 +156,11 @@ export default {
      */
     onNodeLeave(event) {
         Editor.Lens.close()
+    },
+
+    highlightNodes(...nodeIDs) {
+        d3.selectAll(".tree-node")
+          .classed("highlighted", renderer => nodeIDs.includes(renderer.node.id))
     },
 
     async collapseNode(nodeID, duration = 200) {
@@ -244,7 +248,7 @@ export default {
             }
         }
 
-        // indicate collapse of
+        // indicate collapse of node
         renderer.collapsed = !renderer.collapsed
     },
 
@@ -324,204 +328,6 @@ export default {
         }
 
     },
-
-    Settings: {
-
-        currentForm: undefined,
-
-        isOpen: function () {
-            // return whether a settings panel is open
-            return typeof Editor.Settings.currentForm !== "undefined"
-        },
-
-        openSettings: function (data, rules, callbackFn, reopen=true) {
-
-            // check if a different settings panel is already open and close if so
-            if (Editor.Settings.isOpen() && reopen) {
-                Editor.Settings.closeSettings()
-            }
-
-            // clear the settings panel and the listeners
-            d3.select("#settings")
-              .selectAll("*")
-              .remove()
-
-            // generate the settings form
-            // store the settings form object
-            Editor.Settings.currentForm = new SettingsForm(data, rules, d3.select("#settings").node())
-
-            // bind the callback to the settings panel
-            d3.select("#settings")
-              .on("settings-submit settings-reset settings-change", callbackFn)
-
-            // transition in
-            d3.select("#settings")
-              .classed("settings-open", true)
-        },
-
-        closeSettings: function () {
-            // TODO: add a reset function to the settings form that resets to initial values and dispatches a submit event
-            // TODO: rename data to initialValues
-
-            // reset the settings to the initial values of the form
-            if (Editor.Settings.currentForm) Editor.Settings.currentForm.reset()
-
-            // transition out the settings panel
-            d3.select("#settings")
-              .classed("settings-open", false)
-
-            // remove the parameter
-            Editor.Settings.currentForm = undefined
-        },
-
-        openNodeSettings: function (nodeID) {
-            // retrieve the current settings and rules for a node
-            const nodeRenderer = Editor.Tree.renderers.get(nodeID)
-            const rules = nodeRenderer.view.rules
-            const values = nodeRenderer.settings
-
-            // do not open settings when there are no rules for the node
-            if (Object.keys(Object.flatten(rules)).length === 0) return false
-
-            // get the node for which the settings were opened
-            // this will be the content of the onNodeSettingsChange function
-            const srcNode = d3.select(".tree-node[forID='" + nodeRenderer.node.id + "']").node()
-
-            // add a input element for the applyTo parameter
-            rules.applyTo = "in:this,view,similar,all|default:this"
-
-            // open the settings with them
-            // callback function is onNodeSettingsChange
-            Editor.Settings.openSettings(values, rules, event => Editor.Settings.onNodeSettingsChange.call(srcNode, event))
-
-            // use the nodes view name as a title
-            d3.select("#settings")
-              .insert("h3", ":first-child")
-              .text("Node Settings")
-
-            return true
-        },
-
-        openGlobalSettings: function () {
-            // retrieve the global settings and rules
-            // open the settings with them
-            // callback function is onGlobalSettingsChange
-            Editor.Settings.openSettings(Editor.GlobalSettings, Editor.GlobalSettingRules, Editor.Settings.onGlobalSettingsChange)
-
-            // add a title to the settings panel
-            d3.select("#settings")
-              .insert("h3", ":first-child")
-              .text("Global Settings")
-        },
-
-        onNodeSettingsChange: function (event) {
-            // when only the applyTo parameter changed, do not process the event
-            // the applyTo parameter is only used for finding the nodes to
-            // which the settings should be applied
-            if (event.changed.length === 1 && event.changed.includes("applyTo")) return
-
-            // get information on the node
-            const nodeID = d3.select(this).attr("forID")
-            const view = Editor.Tree.renderers.get(nodeID).view
-
-            // get the value of the applyTo variable
-            let applyTo = event.values.applyTo
-
-            Editor.updateView(applyTo === "this" ? nodeID : applyTo, view)
-
-            // // when the user has selected only this node or the event is not a submission event
-            // // update only the given node
-            // if (applyTo === "this" || event.type !== "settings-submit") {
-            //     applyTo = [Editor.Tree.renderers.get(nodeID)]
-            // }
-            //
-            // // with view and submit events, update all nodes that use the same view
-            // if (applyTo === "view") {
-            //     applyTo = Array.from(Editor.Tree.renderers.values()).filter(renderer => renderer.view === view)
-            // }
-            //
-            // // with all and submit events, update all nodes and change the view
-            // if (applyTo === "all") {
-            //     applyTo = Array.from(Editor.Tree.renderers.values())
-            // }
-            //
-            // // update settings and view for the nodes to which the settings are applied
-            // applyTo.map(renderer => renderer.updateSettings(event.values, view))
-        },
-
-        onGlobalSettingsChange: function (event) {
-
-            // store the settings
-            Editor.GlobalSettings = event.values
-
-            // set the settings for the tree and legend
-            Editor.Tree.updateSettings(event.values, event.changed)
-
-            // collapse if the event type submit
-            if (event.type === "settings-submit") {
-                Editor.Settings.closeSettings()
-            }
-        }
-    },
-
-    Hints: Hints,
-
-    // Hints: {
-    //
-    //     hints: [
-    //         {
-    //             "selector": ".group-header",
-    //             "title": "Legend Grouping",
-    //             "hint": "Legend entries may be grouped. This helps the user to clean up the legend and maintain an overview over all features and classes.<p>Right-clicking the group header allows the user to delete or rename the group. Here, the group entries can also be linked, to have the same color.</p>"
-    //         },
-    //         {
-    //             "selector": ".entry",
-    //             "title": "Legend Entries",
-    //             "hint": "Each legend entry represents one class or feature.<p>Its color may be changed by clicking the colored panel.</p>"
-    //         },
-    //         {
-    //             "selector": ".group-toggle",
-    //             "title": "Hiding a Group",
-    //             "hint": "By clicking the little eye icon, the user is able to hide groups from the legend.<p>Entries that are inside a hidden group have their colorcoding removed. In the tree visualization they appear without a color.</p>"
-    //         },
-    //         {
-    //             "selector": ".entry-toggle-mono",
-    //             "title": "Highlighting Entries",
-    //             "hint": "By clicking the little M icon, the user can highlight any one class or feature in the visualization. <p>For the selected entry, the color is changed to a bright red, while the colorcoding of all other entries is removed. Only one entry can be highlighted at all times.</p>"
-    //         },
-    //         {
-    //             "selector": ".TextView",
-    //             "title": "Node: Basic Info",
-    //             "hint": "The most basic node visualization gives some information on the split's feature and location (Sp), the voted class and class distribution (V) and the sample number (S). <p>Note, how class and feature names are colored according to the legend entries.</p>"
-    //         },
-    //         {
-    //             "selector": ".CCircleIconView",
-    //             "title": "Node: Pie Charts",
-    //             "hint": "This node visualization illustrates the class distribution at this node as a pie chart. For the sake of simplicity, only the five most abundand classes are shown. <p>Note, how class colors are related to the legend.</p>"
-    //         },
-    //         {
-    //             "selector": "#group-new",
-    //             "title": "Adding a Group",
-    //             "hint": "By clicking the \"New group\" button, the user can add an empty group to the legend. A popup menu requests the groups name so make sure that you browser does not block Forester."
-    //         }
-    //     ],
-    //
-    //     onMouseOver: function (event) {
-    //         const hintID = d3.select(this).attr("hintID")
-    //         console.log(Editor.Hints.hints[hintID].title, Editor.Hints.hints[hintID].hint)
-    //     },
-    //
-    //     onElementAdded: function (mutations, observer) {
-    //
-    //         // update the hints
-    //         for (const i in Editor.Hints.hints) {
-    //             d3.selectAll(Editor.Hints.hints[i].selector + ":not(.hinted)")
-    //               .classed("hinted", true)
-    //               .attr("hintID", i)
-    //               .on("mouseover", Editor.Hints.onMouseOver)
-    //         }
-    //     }
-    // },
 
     save: function () {
 
@@ -613,5 +419,3 @@ export default {
             })
     }
 }
-
-import "./Hints.js"

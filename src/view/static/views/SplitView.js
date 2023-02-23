@@ -61,7 +61,7 @@ class SplitView extends View {
                .attr("width", "100%")
                .attr("height", "70%")
                .attr("class", "colorcoded")
-               .attr("legend_key", Legend.byLabel(data.splitFeature).key)
+               .attr("legend_key", Legend.get(data.splitFeature).key)
                .style("stroke", "black")
                .style("fill", "var(--highlight-color)")
 
@@ -88,7 +88,7 @@ class SplitView extends View {
                .attr("x", "50%")
                .attr("y", "35%")
                .attr("class", "colorcoded")
-               .attr("legend_key", Legend.byLabel(data.splitFeature).key)
+               .attr("legend_key", Legend.get(data.splitFeature).key)
                .style("fill", "var(--contrast-color)")
                .html(data.splitFeature)
 

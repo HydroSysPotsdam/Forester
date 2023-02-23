@@ -4,33 +4,10 @@
  * Forester: Interactive human-in-the-loop web-based visualization of machine learning trees
  */
 
-/*
- * CC-0 2023.
- * David Strahl, University of Potsdam
- * Forester: Interactive human-in-the-loop web-based visualization of machine learning trees
- */
-
-/*
- * CC-0 2022.
- * David Strahl, University of Potsdam
- * Forester: Interactive human-in-the-loop web-based visualization of machine learning trees
- */
 
 import Editor from "../Editor.js";
 
 $("#legend").ready(function () {
-
-    console.log("Legend ready")
-
-    // clear everything
-    // d3.select("#legend")
-    //   .selectAll("*")
-    //   .remove()
-
-    // add the group container
-    // d3.select("#legend")
-    //   .append("div")
-    //   .attr("id", "groups")
 
     // add the new group button
     d3.select("#legend")
@@ -104,8 +81,8 @@ class LegendGroup {
                 function (event, ui) {
                     const ui_entry = $(ui.item)
                     const ui_group = $(event.target).closest(".group")
-                    const entry = Legend.byKey(ui_entry.attr("key"))
-                    const group = Legend.byGroupKey(ui_group.attr("key"))
+                    const entry = Legend.get(ui_entry.attr("key"))
+                    const group = Legend.get(ui_group.attr("key"))
                     group.entries.push(entry)
                     entry.group = group.key
                 },
@@ -113,8 +90,8 @@ class LegendGroup {
                 function (event, ui) {
                     const ui_entry = $(ui.item)
                     const ui_group = $(event.target).closest(".group")
-                    const entry = Legend.byKey(ui_entry.attr("key"))
-                    const group = Legend.byGroupKey(ui_group.attr("key"))
+                    const entry = Legend.get(ui_entry.attr("key"))
+                    const group = Legend.get(ui_group.attr("key"))
                     group.entries.splice(group.entries.indexOf(entry), 1)
                 }
         }).disableSelection()
@@ -129,6 +106,36 @@ class LegendGroup {
         //         "delete": {name: "Delete", icon: "fa-trash", callback: callFromGroup("delete")}
         //     }
         // })
+    }
+
+    get size () {
+        return this.entries.length
+    }
+
+    /**
+     * Assigns a colorscale to the legend group.
+     *
+     * Colors are assigned in the order of which entries have
+     * been added. When there are more colors than entries in one
+     * group, the remaining colors are used for the next group.
+     *
+     * Scales that are longer than the number of legend entries are
+     * trimmed by removing the unnecessary elements from the end.
+     *
+     * **Does not update the legend!**
+     *
+     * @param colorscale - Array of valid `CSS` color strings.
+     * @param spare - Color that should be used when scale is empty.
+     * Default: `white`
+     *
+     * @see Legend.assign
+     */
+    assign (colorscale, spare="white") {
+        colorscale = [...colorscale]
+        for (const entry of this.entries) {
+            let color = colorscale.shift()
+            entry.color = color ? color : spare
+        }
     }
 
     addEntries(entries) {
@@ -277,7 +284,7 @@ class LegendEntry {
     }
 
     recolor(color) {
-        const group = Legend.byGroupKey(this.group)
+        const group = Legend.get(this.group)
 
          if (color) {
             color = typeof color === "string" ? color : color.toHexString()
@@ -294,7 +301,7 @@ class LegendEntry {
     }
 
     getColor () {
-        let group = Legend.byGroupKey(this.group)
+        let group = Legend.get(this.group)
 
         // overwrite when mono is selected
         if (Legend.anyMono()) return this.mono ? "red" : "white"
@@ -320,7 +327,7 @@ let callFromGroup = function (func) {
     return function () {
         const ui_source = $(this)
         const ui_group = ui_source.closest(".group")
-        const group = Legend.byGroupKey(ui_group.attr("key"))
+        const group = Legend.get(ui_group.attr("key"))
         group[func]()
     }
 }
@@ -334,7 +341,7 @@ let callFromEntry = function (func) {
     return function () {
         const ui_source = $(this)
         const ui_entry = ui_source.closest(".entry")
-        const entry = Legend.byKey(ui_entry.attr("key"))
+        const entry = Legend.get(ui_entry.attr("key"))
         entry[func]()
     }
 }
@@ -355,6 +362,8 @@ export let Legend = {
     },
 
     generate: function (save) {
+        // TODO: better to do this as a constructor?
+
         Legend.clear()
 
         if (save) {
@@ -363,34 +372,20 @@ export let Legend = {
             return
         }
 
-        const n_classes  = Editor.Tree.classNames().length
-        const n_features = Editor.Tree.featureNames().length
-        let colors = Array.from(chroma.brewer.Pastel1)
-
-        if (n_classes + n_features > colors.length) {
-            // numer of colored classes
-            let m_classes = Math.min(n_classes, Math.ceil(colors.length / 2))
-            // number of colored features
-            let m_features = colors.length - m_classes
-            // add class colors if necessary
-            if (n_classes - m_classes > 0) {
-                colors.splice(m_classes, 0, Array(n_classes - m_classes).fill("white"))
-            }
-            if (n_features - m_features > 0) {
-                colors = colors.concat(Array(n_features - m_features).fill("white"))
-            }
-        }
-
         // add the legend entries for the classes
-        let class_entries = Editor.Tree.classNames().map(label => new LegendEntry(label, colors.shift(), "C"))
+        let class_entries = Editor.Tree.classNames().map(label => new LegendEntry(label, "white", "C"))
         let classes = new LegendGroup("Classes")
         classes.addEntries(class_entries)
 
         // add the legend entries for the classes
-        let feature_entries = Editor.Tree.featureNames().map(label => new LegendEntry(label, colors.shift(), "F"))
+        let feature_entries = Editor.Tree.featureNames().map(label => new LegendEntry(label, "white", "F"))
         let features = new LegendGroup("Features")
         features.addEntries(feature_entries)
 
+        // assign the default colorscale
+        let colorscale = Editor.GlobalSettings.legend["colorscale"]
+        colorscale = chroma.brewer[colorscale]
+        Legend.assign(colorscale)
         Legend.update()
     },
 
@@ -407,30 +402,77 @@ export let Legend = {
         }
     },
 
-    update: function () {
-        // update all the colors
-        d3.selectAll(".colorcoded").each(
-            function (d) {
-                const colorcoded = d3.select(this)
-                const color_key = colorcoded.attr("legend_key")
-                const entry = Legend.byKey(color_key)
-                const color = entry ? entry.getColor() : "gray"
-                colorcoded.style("--highlight-color", color)
-                colorcoded.style("--contrast-color", chroma(color).luminance() > 0.5 ? "black" : "white")
-            })
+    /**
+     * Assigns a new colorscale to the legend.
+     *
+     * Colors are assigned in the order of which entries have
+     * been added. When there are more colors than entries in one
+     * group, the remaining colors are used for the next group.
+     *
+     * Scales that are longer than the number of legend entries are
+     * trimmed by removing the unnecessary elements from the end.
+     *
+     * **Does not update the legend!**
+     *
+     * @param colorscale - Array of valid `CSS` color strings.
+     * @param spare - Color that should be used when scale is empty.
+     * Default: `white`.
+     */
+    assign: function (colorscale, spare="white") {
+        colorscale = [...colorscale]
+        for (let group of this.groups) {
+            const size  = group.size
+            const slice = colorscale.splice(0, size)
+            group.assign(slice, spare)
+        }
     },
 
-    byLabel: function (label) {
-        const entry = Legend.entries.find(e => (e.label.toUpperCase() === label.toUpperCase()))
-        return (entry ? entry : {key: undefined, label: "undefined", color: "white", origin:"undefined", group:"undefined", mono:false})
+    /**
+     * Updates the highlighting and contrast color of elements based on their `legend_key` attribute.
+     *
+     * @param selector Either a valid css selector or a DOM element. Elements that do not
+     * have a `legend_key` attribute are excluded from the selection. In both cases, child
+     * elements are included in the color-coding.
+     *
+     * @return A d3 selection of the updated elements.
+     */
+    update: function (selector=".colorcoded") {
+
+        // select all elements to color code based on selector
+        const selection = selector instanceof Element ?
+            d3.selectAll(selector).selectAll(".colorcoded") : d3.selectAll(selector)
+
+        // go through the selection and assign colors based on keys
+        return selection.each(function (d) {
+            const colorcoded = d3.select(this)
+            const color_key = colorcoded.attr("legend_key")
+            const entry = Legend.get(color_key)
+            const color = entry ? entry.getColor() : "gray"
+            colorcoded.style("--highlight-color", color)
+            colorcoded.style("--contrast-color", chroma(color).luminance() > 0.5 ? "black" : "white")
+        })
     },
 
-    byKey: function (key) {
-        return Legend.entries.find(e => (e.key === key))
-    },
+    /**
+     * Retrieves the first matching legend entry or group that is associated
+     * with a given key or label.
+     *
+     * @param selector Selector for the entry or group. May either be the key
+     * (UUID) or the label.
+     */
+    get: function (selector) {
 
-    byGroupKey: function (key) {
-        return Legend.groups.find(g => (g.key === key))
+        if (!selector) return undefined
+
+        // go through all the entries and test keys and labels
+        for (const entry of this.entries) {
+            if (entry.key === selector || entry.label.toUpperCase() === selector.toUpperCase()) return entry
+        }
+
+        // go through all the groups and test keys and labels
+        for (const group of this.groups) {
+            if (group.key === selector || group.label.toUpperCase() === selector.toUpperCase()) return group
+        }
     },
 
     anyMono: function () {
@@ -474,7 +516,7 @@ let LegendColorPicker = {
     change: function (color) {
         const ui_source = $(this)
         const ui_entry = ui_source.closest(".entry")
-        const entry = Legend.byKey(ui_entry.attr("key"))
+        const entry = Legend.get(ui_entry.attr("key"))
         entry.recolor(color)
     },
     hide: Legend.update

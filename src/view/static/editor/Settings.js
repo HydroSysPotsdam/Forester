@@ -145,6 +145,15 @@ let Settings = {
         // set the settings for the tree and legend
         Editor.Tree.updateSettings(event.values, event.changed)
 
+        // update the legend's colorscale
+        if (event.changed.includes("legend.colorscale")) {
+            const colorscale = chroma.brewer[event.values.legend.colorscale]
+            if (colorscale) {
+                Legend.assign(colorscale)
+                Legend.update()
+            }
+        }
+
         // collapse if the event type submit
         if (event.type === "settings-submit") {
             Settings.closeSettings()

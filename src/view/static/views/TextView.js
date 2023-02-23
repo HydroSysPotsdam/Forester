@@ -109,7 +109,7 @@ class TextView extends View {
               d3.select(view)
                 .insert("rect", ":first-child")
                 .attr("class", "colorcoded")
-                .attr("legend_key", Legend.byLabel(d3.select(this).text()).key)
+                .attr("legend_key", Legend.get(d3.select(this).text()).key)
                 .attr("x", bbox.x + "px")
                 .attr("y", bbox.y + "px")
                 .attr("width",  bbox.width + "px")

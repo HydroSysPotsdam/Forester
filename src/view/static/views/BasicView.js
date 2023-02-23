@@ -46,17 +46,17 @@ class BasicView extends View {
               .append("circle")
               .attr("class", "colorcoded")
               .attr("r", 5)
-              .attr("legend_key", Legend.byLabel(data.vote).key)
+              .attr("legend_key", Legend.get(data.vote).key)
         } else {
             d3.select(this)
               .append("polygon")
               .attr("points", "2,2 12,2 2,12")
               .attr("class", "colorcoded")
-              .attr("legend_key", Legend.byLabel(data.splitFeature).key)
+              .attr("legend_key", Legend.get(data.splitFeature).key)
             d3.select(this).append("polygon")
               .attr("points", "12,12 12,2 2,12")
               .attr("class", "colorcoded")
-              .attr("legend_key", Legend.byLabel(data.splitFeature).key)
+              .attr("legend_key", Legend.get(data.splitFeature).key)
         }
 
         d3.select(this)

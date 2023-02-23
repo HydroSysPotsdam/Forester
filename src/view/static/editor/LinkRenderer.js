@@ -107,7 +107,13 @@ export class FlowLinkRenderer extends BasicLinkRenderer {
                     .classed("flow-link", true)
                     .style("stroke-width", ((stroke_max_width - 1) * data.samplesFractionScaled + 1))
                 break;
-            case "colorcoded": //TODO: the coloring follows the order in the distribution but should be from largest to smallest
+            case "colorcoded":
+                // sort the classes based on the distribution value
+                let strokes = _.zip(data.distribution, data.classes)
+                strokes = _.sortBy(strokes, stroke => stroke[0]).reverse()
+                data.distribution = _.unzip(strokes)[0]
+                data.classes = _.unzip(strokes)[1]
+
                 let curve = path.node()
 
                 // sample points along curve
@@ -154,6 +160,7 @@ export class FlowLinkRenderer extends BasicLinkRenderer {
                 let areas = curves.slice(0, -1)
                                   .map((c, i) => [...Array.from(c), ...Array.from(curves[i + 1]).reverse()])
 
+                strokes = _.zip(data.distribution, areas, data.classes)
 
                 // remove old link
                 path.remove()
@@ -164,20 +171,16 @@ export class FlowLinkRenderer extends BasicLinkRenderer {
                     .attr("class", "link flow-link")
 
                 group.selectAll("path")
-                     .data(areas)
+                     .data(strokes)
                      .enter()
                      .append("path")
                      .attr("class", "flow-link-area colorcoded")
-                     .attr("d", c => d3.line().curve(d3.curveLinearClosed)(c.map(p => [p.x, p.y])))
+                     .attr("d", stroke => d3.line().curve(d3.curveLinearClosed)(stroke[1].map(p => [p.x, p.y])))
                      .style("fill", "var(--highlight-color)")
                      .style("stroke", "none")
-                     .attr("legend_key", function (c, i) {
-                         let class_name = data.classes[i]
-                         return Legend.byLabel(class_name).key
-                     })
+                     .attr("legend_key", stroke => Legend.get(stroke[2]).key)
 
-                // TODO: this should not happen every time or only this element should be updated
-                Legend.update()
+                Legend.update(group.node())
 
                 return group
         }

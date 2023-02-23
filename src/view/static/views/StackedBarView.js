@@ -141,7 +141,7 @@ class StackedBarView extends View {
           .each(function (d) {
               if (d[2] !== "Other") {
                   d3.select(this)
-                    .attr("legend_key", Legend.byLabel(d[2]).key)
+                    .attr("legend_key", Legend.get(d[2]).key)
                     .style("fill", "var(--highlight-color)")
               } else {
                   d3.select(this)

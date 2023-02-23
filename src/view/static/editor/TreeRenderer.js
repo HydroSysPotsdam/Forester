@@ -207,7 +207,6 @@ export class TreeRenderer {
         const range = x => Math.max(...x) - Math.min(...x)
 
         const algorithm = dendro ? d3.cluster() : d3.tree()
-        console.log(settings)
 
 
         // calculate the tree layout

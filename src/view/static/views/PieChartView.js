@@ -70,7 +70,7 @@ class PieChartView extends View {
           .join("path")
           .attr("d", d3.arc().innerRadius(0).outerRadius(radius))
           .attr("class", "colorcoded")
-          .attr("legend_key", (d, i) => Legend.byLabel(data.classes[i]).key)
+          .attr("legend_key", (d, i) => Legend.get(data.classes[i]).key)
           .style("fill", "var(--highlight-color)")
           .style("stroke", "black")
     }

@@ -30,8 +30,7 @@ export default {
     GlobalSettings: {},
 
     GlobalSettingRules: {
-        "legend.colorscale": "in:Brewer 1,Brewer 2, Brewer 3|default:Brewer 2",
-        "legend.distribute": "in:Classes,Features,Between|default:Between",
+        "legend.colorscale": `in:${Object.keys(chroma.brewer).sort().slice(0,36).toString()}|default:Pastel2`,
         "layout.direction": "in:top-bottom,left-right|default:top-bottom",
         "layout.lspace": "numeric|min:0.5|max:2|default:1",
         "layout.bspace": "numeric|min:0.5|max:2|default:1",

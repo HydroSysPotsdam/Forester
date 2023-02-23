@@ -67,3 +67,7 @@
     margin-top: auto;
     grid-template-columns: 1fr 2fr;
 }
+
+select[id='legend.colorscale'] > option {
+    background-color: orange;
+}

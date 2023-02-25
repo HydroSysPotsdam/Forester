@@ -3,70 +3,82 @@
  * David Strahl, University of Potsdam
  * Forester: Interactive human-in-the-loop web-based visualization of machine learning trees
  */
-
-#hint {
-    position: fixed;
-    width:  25px;
-    height: 25px;
-    margin: 10px;
-    bottom: 0%;
-    left: 0%;
-    background: #ddddddee;
-    border: solid 1px rgb(221, 221, 221);
-    border-radius: 3px;
-    overflow: hidden;
-
-    transition: width linear 100ms, height linear 100ms;
-}
-
-#hint[open="true"] {
-    width:  400px;
+.hint {
+    width:  500px;
     height: 200px;
+    position: absolute;
+    left: 1em;
+    bottom: 1em;
+
+    color: #333333;
+    background: #e9e9e9;
+    border: 1px solid #dddddd;
+    border-radius: 4px;
+
+    padding: 0.5em 1em;
+
+    transition: width linear 150ms, height linear 150ms
 }
 
-/*.hint-icon {*/
-/*    position: absolute;*/
-/*    width: 25px;*/
-/*    height: 25px;*/
-/*    text-align: center;*/
-/*    line-height: 25px;*/
-/*}*/
+/*OPEN HINT*/
 
-/*#hint[open="false"] .hint-icon {*/
-/*    top: 0%;*/
-/*    left: 0%;*/
-/*}*/
-
-/*#hint[open="true"] .hint-icon {*/
-/*    top: 4%;*/
-/*    right: 2%;*/
-/*}*/
-
-.hint-content {
-    width: 100%;
-    height: 100%;
-
-    margin: 1em;
+.hint[open="true"] {
+    display: grid;
+    grid-template-columns: min-content 1fr;
+    grid-template-rows: min-content 1fr;
+    gap: 10px 10px;
+    grid-template-areas:
+    "icon title"
+    "content content";
 }
 
-#hint[open="false"] .hint-content {
-    visibility: hidden;
-}
-
-#hint[open="true"] .hint-content {
-    visibility: visible;
-}
-
-.hint-image {
-    grid-area: image;
-    background: red;
+.hint-icon {
+    grid-area: icon;
+    font-size: large;
 }
 
 .hint-title {
-    grid-area: header;
+    grid-area: title;
+
+    font-weight: bold;
+    font-size: large;
+
+    overflow: clip;
 }
 
-.hint-text {
+.hint-content {
     grid-area: content;
     overflow: scroll;
+}
+
+/*CLOSED HINT*/
+
+.hint[open="false"] {
+    width: 30px;
+    height: 30px;
+    padding: 0px;
+    margin: 3em 3em 0em 0em;
+}
+
+.hint[open="false"]:active {
+    transform: scale(0.95);
+}
+
+.hint[open="false"] > .hint-icon {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%)
+}
+
+.hint[open="false"]:hover > .hint-icon {
+    color: var(--forester_highlight)
+}
+
+.hint[open="false"] > * {
+    visibility: hidden;
+}
+
+.hint[open="false"] > .hint-icon {
+    visibility: visible;
 }

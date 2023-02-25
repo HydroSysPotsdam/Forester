@@ -1,0 +1,72 @@
+[
+  {
+    "selector": ".group-header",
+    "title": "Legend Grouping",
+    "hint": "Legend entries may be grouped. This helps the user to clean up the legend and maintain an overview over all features and classes.<p>Right-clicking the group header allows the user to delete or rename the group. Here, the group entries can also be linked, to have the same color.</p>"
+  },
+  {
+    "selector": ".entry",
+    "title": "Legend Entries",
+    "hint": "Each legend entry represents one class or feature.<p>Its color may be changed by clicking the colored panel.</p>"
+  },
+  {
+    "selector": ".group-toggle",
+    "title": "Hiding a Group",
+    "hint": "By clicking the little eye icon, the user is able to hide groups from the legend.<p>Entries that are inside a hidden group have their colorcoding removed. In the tree visualization they appear without a color.</p>"
+  },
+  {
+    "selector": ".entry-toggle-mono",
+    "title": "Highlighting Entries",
+    "hint": "By clicking the little M icon, the user can highlight any one class or feature in the visualization. <p>For the selected entry, the color is changed to a bright red, while the colorcoding of all other entries is removed. Only one entry can be highlighted at all times.</p>"
+  },
+  {
+    "selector": ".TextView",
+    "title": "Node: Basic Info",
+    "hint": "The most basic node visualization gives some information on the split's feature and location (Sp), the voted class and class distribution (V) and the sample number (S). <p>Note, how class and feature names are colored according to the legend entries.</p>"
+  },
+  {
+    "selector": ".CCircleIconView",
+    "title": "Node: Pie Charts",
+    "hint": "This node visualization illustrates the class distribution at this node as a pie chart. For the sake of simplicity, only the five most abundand classes are shown. <p>Note, how class colors are related to the legend.</p>"
+  },
+  {
+    "selector": "#group-new",
+    "title": "Adding a Group",
+    "hint": "By clicking the \"New group\" button, the user can add an empty group to the legend. A popup menu requests the groups name so make sure that you browser does not block Forester."
+  },
+  {
+    "selector": ".settings-group[for='legend']",
+    "title": "Default Colorscale for the Legend",
+    "hint": "This option controls the legend's default colorscale. All scales from <a href='https://colorbrewer2.org/#type=sequential&scheme=BuGn&n=3' target='_blank'>ColorBrewer</a> can be selected.<p>When you open a new project in Forester, the scale <i>Pastel 2</i> is used. The assignment of the colors follows the initial order of the entries in the legend. The first two colors <span style='background:#b3e2cd'>#b3e2cd</span> and <span style='background:#fdcdac'>#fdcdac</span> are assigned to the first two entries and so on. When there are more entries than colors, the entry is colored <span style='background:#ffffff'>white</span>.</p>"
+  },
+  {
+    "selector": ".settings-entry[for='layout.direction'], .settings-entry[for='layout.lspace'], .settings-entry[for='layout.bspace']",
+    "title": "Layout Settings",
+    "hint": "This section controls the layout algorithm that determines positions of the nodes within the tree. <p>The option <b>Layout Direction</b> determines the flow of the tree. The value may either be <span><i class='fa fa-solid fa-arrow-down'></i> top-bottom</span> for vertical or <span><i class='fa fa-solid fa-arrow-right'></i> left-right</span> for horizontal placement.</p><p>The two options <b>Level and Branch Space</b> determine the distance between levels and branches in the tree. Note, that these settings work in combination with the layout direction.</p>"
+  },
+  {
+    "selector": ".settings-entry[for='layout.dendrogram']",
+    "title": "Aligning Leaves at one Level",
+    "hint": "By enabling the <b>Dendrogram</b> option, the layout algorithm aligns all leaves at the last level. This improves comparability between leaves and works very well in combination with the <i>Bar Chart Views</i>.<p>Note, that the dendrogram is much wider than the default layout. We advice to switch to square links between nodes.</p>"
+  },
+  {
+    "selector": ".settings-group[for='path']",
+    "title": "Link Style",
+    "hint": "The option <b>Path style</b> controls the shape of links between nodes. The three values <i>linear</i>, <i>curved</i> and <i>ragged</i> use lines, sigmoidal curves and step functions respectively.<p>Information regarding the sample number and the class distribution can be encoded in the links. The option <b>Path Flow</b> can be used to encode the sample number in a link. When it is set to <i>linear</i> or <i>scaled</i> the link thickness encodes the number of samples that flow along a path. Based on the value, the number of samples is either scaled linearly or using a algorithm that homogenizes the sample number over many magnitudes. With the value <i>colorcoded</i>, the class distribution is additionally encoded within the link."
+  },
+  {
+    "selector": ".settings-submit",
+    "title": "Previewing and Saving Settings",
+    "hint": "Most settings automatically trigger changes within the illustration. This preview is however not persistent. When you close the dialog, the settings are restored to their old values.<p>Only by clicking the submit button are settings permanently changed. Be careful, Forster is currently missing an <i>Undo</i> feature!</p>"
+  },
+  {
+    "selector": ".lens",
+    "title": "Node Context Menu",
+    "hint": "Whenever you hover over a node, a context menu appears. Don't underestimate it! Although it is small it is very powerful.<p>By clicking the <span><i class='fa fa-solid fa-gear'></i> gear<span> you can open node-specific settings. They allow you to fine-tune a node's illustration. <br> Some views do not have changeable settings. For them, the icon is blocked: <i class='fa fa-solid fa-gear fa-shake' style='color:red'></i></p><p>With the <span><i class='fa fa-solid fa-arrow-left'></i> left<span> and <span><i class='fa fa-solid fa-arrow-right'></i> right<span> arrows, you can quickly scroll through all possible views for a node."
+  },
+  {
+    "selector": ".settings-entry[for='applyTo']",
+    "title": "Applying Settings for Multiple Nodes",
+    "hint": "Using the <b>Apply To</b> option, you can update settings for multiple views at once.<ul style='padding-inline-start:20px'><li>With the value <i>this</i>, only the settings of the currently targeted node are updated.</li><li>With <i>subtree</i> this node and all it's children are updated.</li><li>With <i>view</i>, all nodes that currently use the same view are updated.</li><li><i>All</i> obviously updates all nodes of the tree.</li></ul><p>Note, that when settings for a view should be applied to a node that currently uses another view, that view is changed. This feature is not previewed and only takes effect when the changes are submitted."
+  }
+]

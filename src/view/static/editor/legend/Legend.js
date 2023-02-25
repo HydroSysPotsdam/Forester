@@ -131,6 +131,11 @@ class LegendGroup {
      * @see Legend.assign
      */
     assign (colorscale, spare="white") {
+
+        // store the colorscale
+        this.colorscale = colorscale
+
+        // assign the colorscale to the entries
         colorscale = [...colorscale]
         for (const entry of this.entries) {
             let color = colorscale.shift()
@@ -419,6 +424,11 @@ export let Legend = {
      * Default: `white`.
      */
     assign: function (colorscale, spare="white") {
+
+        // store the current colorscale
+        Legend.colorscale = colorscale
+
+        // assign the colorscale to the entries
         colorscale = [...colorscale]
         for (let group of this.groups) {
             const size  = group.size
@@ -494,16 +504,7 @@ window.Legend = Legend
 
 let LegendColorPicker = {
     type: "color",
-    showPalette: true,
-    palette: [
-        ["#8dd3c7", "#ffffb3"],
-        ["#bebada", "#fb8072"],
-        ["#80b1d3", "#fdb462"],
-        ["#b3de69", "#fccde5"],
-        ["#d9d9d9", "#bc80bd"],
-        ["#ccebc5", "#ffed6f"],
-        ["#ffffff"]
-    ],
+    showPalette: false,
     showAlpha: false,
     allowEmpty: false,
     move: function (color) {

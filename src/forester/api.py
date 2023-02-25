@@ -5,7 +5,7 @@
 import os
 import json
 
-from flask import Blueprint, render_template, current_app, jsonify, request, Response, make_response
+from flask import Blueprint, render_template, current_app, jsonify, request, Response, make_response, url_for
 
 from datetime import datetime
 
@@ -140,5 +140,12 @@ def save_project(uuid):
 @API.route("/formats")
 def formats():
     path = os.path.join(PACKAGE_PATH, "formats.json")
+    file = open(path)
+    return jsonify(json.load(file))
+
+
+@API.route("/hints")
+def hints():
+    path = os.path.join(PACKAGE_PATH, "hints.json")
     file = open(path)
     return jsonify(json.load(file))

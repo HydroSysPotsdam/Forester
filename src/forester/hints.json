@@ -12,12 +12,12 @@
   {
     "selector": ".group-toggle",
     "title": "Hiding a Group",
-    "hint": "By clicking the little eye icon, the user is able to hide groups from the legend.<p>Entries that are inside a hidden group have their colorcoding removed. In the tree visualization they appear without a color.</p>"
+    "hint": "By clicking the little eye icon, the user is able to hide groups from the legend.<p>Entries that are inside a hidden group have their color-coding removed. In the tree visualization they appear without a color.</p>"
   },
   {
     "selector": ".entry-toggle-mono",
     "title": "Highlighting Entries",
-    "hint": "By clicking the little M icon, the user can highlight any one class or feature in the visualization. <p>For the selected entry, the color is changed to a bright red, while the colorcoding of all other entries is removed. Only one entry can be highlighted at all times.</p>"
+    "hint": "By clicking the little M icon, the user can highlight any one class or feature in the visualization. <p>For the selected entry, the color is changed to a bright red, while the color-coding of all other entries is removed. Only one entry can be highlighted at all times.</p>"
   },
   {
     "selector": ".TextView",

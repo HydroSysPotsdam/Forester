@@ -24,12 +24,12 @@
 
 .hint[open="true"] {
     display: grid;
-    grid-template-columns: min-content 1fr;
+    grid-template-columns: min-content 1fr min-content;
     grid-template-rows: min-content 1fr;
     gap: 10px 10px;
     grid-template-areas:
-    "icon title"
-    "content content";
+      "icon title settings"
+      "content content content";
 }
 
 .hint-icon {
@@ -44,6 +44,21 @@
     font-size: large;
 
     overflow: clip;
+}
+
+.hint-autoopen {
+    grid-area: settings;
+    min-width: 100px;
+    font-size: small;
+    text-align: right;
+}
+
+.hint-autoopen > .fa:hover  {
+    color: var(--forester_highlight)
+}
+
+.hint-autoopen > .fa:active  {
+    transform: scale(0.95)
 }
 
 .hint-content {

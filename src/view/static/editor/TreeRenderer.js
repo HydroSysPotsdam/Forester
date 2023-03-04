@@ -283,7 +283,7 @@ export class TreeRenderer {
             this.redrawNode(node)
         }
 
-        Legend.update()
+        Legend.colorize()
     }
 
     redrawNode(node) {

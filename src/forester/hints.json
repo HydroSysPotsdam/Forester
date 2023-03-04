@@ -2,27 +2,17 @@
   {
     "selector": ".group-header",
     "title": "Legend Grouping",
-    "hint": "Legend entries may be grouped. This helps the user to clean up the legend and maintain an overview over all features and classes.<p>Right-clicking the group header allows the user to delete or rename the group. Here, the group entries can also be linked, to have the same color.</p>"
+    "hint": "Groups help you organize your color-coding. <p>Forester automatically creates two groups for <i>classes</i> and <i>features</i>. Of course you can move elements freely within groups by dragging them around. Mixing of classes and features is also possible.</p><p>By clicking the <span><i class='fa fa-solid fa-eye-slash'></i></span> icon, you can hide a whole group. All elements in the group are then colored <span style='background:#ffffff'>white</span>.</p><p>You can add a new group by clicking the respective button at the bottom of the legend.</p>"
   },
   {
     "selector": ".entry",
     "title": "Legend Entries",
-    "hint": "Each legend entry represents one class or feature.<p>Its color may be changed by clicking the colored panel.</p>"
-  },
-  {
-    "selector": ".group-toggle",
-    "title": "Hiding a Group",
-    "hint": "By clicking the little eye icon, the user is able to hide groups from the legend.<p>Entries that are inside a hidden group have their color-coding removed. In the tree visualization they appear without a color.</p>"
-  },
-  {
-    "selector": ".entry-toggle-mono",
-    "title": "Highlighting Entries",
-    "hint": "By clicking the little M icon, the user can highlight any one class or feature in the visualization. <p>For the selected entry, the color is changed to a bright red, while the color-coding of all other entries is removed. Only one entry can be highlighted at all times.</p>"
+    "hint": "Each legend entry corresponds to one <i>class</i> or <i>feature</i>. To keep track, even when you move entries between groups, this is indicated by a small letter <code>C</code> or <code>F</code>.<p>You can change the color of an entry by clicking on the color indicator.</p><p>By clicking on the <code>M</code> icon, you can temporarily highlight one entry. It's color is changed to <span style='background:#ff0000'>red</span> while all other entries are shown in <span style='background:#ffffff'>white</span>.</p>"
   },
   {
     "selector": ".TextView",
-    "title": "Node: Basic Info",
-    "hint": "The most basic node visualization gives some information on the split's feature and location (Sp), the voted class and class distribution (V) and the sample number (S). <p>Note, how class and feature names are colored according to the legend entries.</p>"
+    "title": "View: Node Summary",
+    "hint": "This view summarizes the most relevant information for a node. <p>It displays the split feature and location (<b>Sp</b>), the sample number (<b>S</b>) and the class vote, as well as it's relative abundance (<b>V</b>). The names of features and classes are color-coded to make it easier to see patterns.</p><p>In the node settings, you can decide what information is shown or hidden.</p>"
   },
   {
     "selector": ".CCircleIconView",
@@ -37,7 +27,7 @@
   {
     "selector": ".settings-group[for='legend']",
     "title": "Default Colorscale for the Legend",
-    "hint": "This option controls the legend's default colorscale. All scales from <a href='https://colorbrewer2.org/#type=sequential&scheme=BuGn&n=3' target='_blank'>ColorBrewer</a> can be selected.<p>When you open a new project in Forester, the scale <i>Pastel 2</i> is used. The assignment of the colors follows the initial order of the entries in the legend. The first two colors <span style='background:#b3e2cd'>#b3e2cd</span> and <span style='background:#fdcdac'>#fdcdac</span> are assigned to the first two entries and so on. When there are more entries than colors, the entry is colored <span style='background:#ffffff'>white</span>.</p>"
+    "hint": "This option controls the legend's default colorscale. All scales from <a href='https://colorbrewer2.org/#type=sequential&scheme=BuGn&n=3' target='_blank'>ColorBrewer</a> can be selected.<p>When you open a new project in Forester, the scale <i>Pastel 2</i> is used. The assignment of the colors follows the initial order of the entries in the legend. The first two colors <span style='background:#b3e2cd'>#b3e2cd</span> and <span style='background:#fdcdac'>#fdcdac</span> are assigned to the first two entries and so on. When there are more entries than colors, they are colored <span style='background:#ffffff'>white</span>.</p>"
   },
   {
     "selector": ".settings-entry[for='layout.direction'], .settings-entry[for='layout.lspace'], .settings-entry[for='layout.bspace']",

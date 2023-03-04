@@ -429,7 +429,7 @@ export class NodeRenderer {
         this.#updateTransform()
 
         // update legend
-        Editor.Legend.update()
+        Editor.Legend.colorize()
 
         // show the view
         this.#elem

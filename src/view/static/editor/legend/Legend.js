@@ -32,7 +32,7 @@ $("#legend").ready(function () {
     });
 
     // update colors
-    Legend.update()
+    Legend.colorize()
 })
 
 class LegendGroup {
@@ -205,7 +205,7 @@ class LegendGroup {
         // update group label in ui
         ui_group_label.text(this.label + (this.collapsed ? " (" + this.entries.length + ")" : ""))
 
-        Legend.update()
+        Legend.colorize()
     }
 
     rename() {
@@ -248,7 +248,7 @@ class LegendGroup {
         // enable link icon
         ui_link_icon.toggleClass("fa-fw fa-link")
 
-        Legend.update()
+        Legend.colorize()
     }
 
     save () {
@@ -285,7 +285,7 @@ class LegendEntry {
         // update color of mono button
         ui_mono_button.css("color", this.mono ? "red" : "black")
 
-        Legend.update()
+        Legend.colorize()
     }
 
     recolor(color) {
@@ -302,7 +302,7 @@ class LegendEntry {
             }
         }
 
-        Legend.update()
+        Legend.colorize()
     }
 
     getColor () {
@@ -373,7 +373,7 @@ export let Legend = {
 
         if (save) {
             Legend.generateFromSave(save)
-            Legend.update()
+            Legend.colorize()
             return
         }
 
@@ -391,7 +391,7 @@ export let Legend = {
         let colorscale = Editor.GlobalSettings.legend["colorscale"]
         colorscale = chroma.brewer[colorscale]
         Legend.assign(colorscale)
-        Legend.update()
+        Legend.colorize()
     },
 
     generateFromSave: function (save) {
@@ -446,7 +446,7 @@ export let Legend = {
      *
      * @return A d3 selection of the updated elements.
      */
-    update: function (selector=".colorcoded") {
+    colorize: function (selector=".colorcoded") {
 
         // select all elements to color code based on selector
         const selection = selector instanceof Element ?
@@ -520,5 +520,5 @@ let LegendColorPicker = {
         const entry = Legend.get(ui_entry.attr("key"))
         entry.recolor(color)
     },
-    hide: Legend.update
+    hide: Legend.colorize
 }

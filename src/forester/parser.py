@@ -293,7 +293,8 @@ def _parse_fitctree(path, **kwargs) -> dict:
             'type': 'root' if fit['Parent'][i] == 0 else ('leaf' if sum(fit['Children'][i]) == 0 else 'node'),
             'samples': int(fit['NodeSize'][i]),
             'distribution': [int(s) for s in fit['ClassCount'][i]],
-            'vote': int(np.argmax(fit['ClassProbability'][i]))
+            'vote': int(np.argmax(fit['ClassProbability'][i])),
+            'parent': fit['Parent'][i] - 1
         }
 
         # add info about split, whenever node is not leaf
@@ -306,8 +307,18 @@ def _parse_fitctree(path, **kwargs) -> dict:
 
         nodes.append(node)
 
+    for i in reversed(range(fit['NumNodes'])):
+        node = nodes[i]
+
+        if (j := node["parent"]) >= 0:
+            parent = nodes[j]
+            parent["children"].append(node)
+            nodes[j] = parent
+
+        del node["parent"]
+
     # assemble tree structure
-    return {'meta': meta, 'tree': _build_tree(nodes)}
+    return {'meta': meta, 'tree': nodes[0]}
 
 
 FORMATS = {

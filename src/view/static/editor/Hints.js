@@ -7,6 +7,7 @@
 class Hints {
     //TODO: add method to programmatically add hint
     //TODO: reset text when closing
+    //TODO: do not start timer when hint panel is opened but when mouse leaves hinted element
 
     // the ui element
     #hint
@@ -169,6 +170,7 @@ class Hints {
      * @param event - The intercepted mouse event.
      */
     #onHintLeave (event) {
+        console.log(event)
         if (this.#hint.contains(event.toElement)) return
         this.#startCloseTimer()
     }
@@ -187,10 +189,6 @@ class Hints {
           .select("i")
           .classed("fa-circle-info", true)
           .classed("fa-info", false)
-
-        if (this.auto && this.open) {
-            this.#startCloseTimer()
-        }
     }
 
     /**

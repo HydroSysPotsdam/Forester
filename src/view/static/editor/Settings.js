@@ -150,7 +150,7 @@ let Settings = {
             const colorscale = chroma.brewer[event.values.legend.colorscale]
             if (colorscale) {
                 Legend.assign(colorscale)
-                Legend.update()
+                Legend.colorize()
             }
         }
 

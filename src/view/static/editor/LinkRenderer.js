@@ -180,7 +180,7 @@ export class FlowLinkRenderer extends BasicLinkRenderer {
                      .style("stroke", "none")
                      .attr("legend_key", stroke => Legend.get(stroke[2]).key)
 
-                Legend.update(group.node())
+                Legend.colorize(group.node())
 
                 return group
         }

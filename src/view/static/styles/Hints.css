@@ -64,6 +64,8 @@
 .hint-content {
     grid-area: content;
     overflow: scroll;
+    text-align: justify;
+    text-justify: auto;
 }
 
 /*CLOSED HINT*/

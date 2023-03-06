@@ -449,8 +449,13 @@ export let Legend = {
     colorize: function (selector=".colorcoded") {
 
         // select all elements to color code based on selector
-        const selection = selector instanceof Element ?
-            d3.selectAll(selector).selectAll(".colorcoded") : d3.selectAll(selector)
+        let selection = undefined
+        if (selector instanceof Element) {
+            selection = d3.select(selector).selectAll(".colorcoded")
+            if (d3.select(selector).classed(".colorcoded")) selection = selection.join(d3.select(selector))
+        } else {
+            selection = d3.selectAll(selector)
+        }
 
         // go through the selection and assign colors based on keys
         return selection.each(function (d) {

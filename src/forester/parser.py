@@ -328,9 +328,7 @@ FORMATS = {
 
 # # R diabetes dataset
 # r = parse("../../examples/R/diabetes.RData")
-# file = open("../../examples/R/diabetes.json", "w")
-# file.write(json.dumps(r))
-# file.close()
+
 #
 # # R iris dataset
 # r = parse("../../examples/R/iris.RData")

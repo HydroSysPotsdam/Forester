@@ -1,0 +1,40 @@
+/*
+ * CC-0 2023.
+ * David Strahl, University of Potsdam
+ * Forester: Interactive human-in-the-loop web-based visualization of machine learning trees
+ */
+
+.custom-style-table td {
+    vertical-align: top;
+    background-color: unset;
+    border-radius: 0;
+    border: unset !important;
+    padding: 0;
+}
+
+.custom-style-table tbody {
+    background: var(--color-code-background);
+    border-radius: .25rem;
+}
+
+.custom-style-table {
+    box-shadow: unset !important;
+}
+
+.custom-style-table > caption {
+    background-color: var(--color-code-background);
+    border-bottom: 1px solid;
+    border-bottom-color: var(--color-background-border);
+    border-radius: .25rem;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    border-left-color: var(--color-background-border);
+    border-right-color: var(--color-background-border);
+    border-top-color: var(--color-background-border);
+    color: var(--color-code-foreground);
+    font-weight: 300;
+    padding: .625rem .875rem;
+    font-size: var(--font-size--small);
+    text-align: left;
+}
+

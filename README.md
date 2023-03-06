@@ -63,7 +63,7 @@ We think Foresters illustration far outperforms R or Matlab.
 
 <br>
 
-![](./docs/html/_images/preview.png)
+![](docsource/html/_images/preview.png)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -94,7 +94,7 @@ The following features are planned:
 
 <br>
 
-![](./docs/html/_images/upcoming_v0.png)
+![](docsource/html/_images/upcoming_v0.png)
 
 
 ### Data-Driven Visualization (2023/Q4)
@@ -109,7 +109,7 @@ The second introduces a data-driven approach, allowing access to the original tr
   
 <br>
   
-![](./docs/html/_images/upcoming_v1.png)
+![](docsource/html/_images/upcoming_v1.png)
 
 ### A Human in the Loop
 

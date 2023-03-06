@@ -264,6 +264,11 @@ ProjectCreationDialog = {
               .html(format.note)
         }
 
+        // remove all old options
+        d3.select("#format")
+          .selectAll("option")
+          .remove()
+
         // set the format options that the user can select
         d3.select("#format")
           .on("change", onFormatChange)

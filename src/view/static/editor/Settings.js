@@ -103,7 +103,8 @@ let Settings = {
         // when only the applyTo parameter changed, do not process the event
         // the applyTo parameter is only used for finding the nodes to
         // which the settings should be applied
-        if (event.changed.length === 1 && event.changed.includes("applyTo")) return
+
+        if (event.type === "settings-change" && event.changed.length === 1 && event.changed.includes("applyTo")) return
 
         // get information on the node
         const nodeID = d3.select(this).attr("forID")

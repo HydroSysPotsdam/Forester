@@ -40,19 +40,26 @@ You can set the *name* of the project in the corresponding field. Because Forest
 
 After you clicked *Create Project* the server parses the file and creates a new project for you. When no error occurs, the dialog is closed automatically und you will find the new project in the dashboard. When an error occurs, it is displayed in the dialog.
 
+.. card-carousel:: 2
+   :class: project-creation
 
-.. |img1| image:: _static/new_project_selection.png
-          :alt: uploading a file for parsing
+   .. card::
+      :img-bottom: _static/new_project_selection.png
+      :width: 50%
 
-.. |img2| image:: _static/new_project_options_fitctree.png
-          :alt: uploading a file for parsing
+      :fas:`upload` Upload a File
 
-.. table:: Adding a Matlab project to Forester
-   :class: custom-style-table
+   .. card::
+      :img-bottom: _static/new_project_options_fitctree.png
+      :width: 50%
 
-   ====== ======
-   |img1| |img2|
-   ====== ======
+      :fas:`pen` Fill in the required fields
+
+   .. card::
+      :img-bottom: _static/new_project_error.png
+      :width: 50%
+
+      :fas:`circle-exclamation` You should not see this error
 
 All done! You are now ready to continue working on your project in the :ref:`editor <Editor>`.
 

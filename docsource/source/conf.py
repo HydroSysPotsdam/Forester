@@ -31,8 +31,10 @@ release = ''
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    "sphinx_js",
-    'sphinx.ext.autosectionlabel'
+    #"sphinx_js",
+    'sphinx.ext.autosectionlabel',
+    "sphinx_design",
+    "sphinx_copybutton"
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -50,6 +52,19 @@ exclude_patterns = []
 # a list of builtin themes.
 #
 html_theme = 'furo'
+html_logo = "_static/logo.svg"
+
+html_theme_options = {
+    "sidebar_hide_name": True,
+    "light_css_variables": {
+        "color-brand-primary": "#69823c",
+        "color-brand-content": "#69823c",
+    },
+    "dark_css_variables": {
+        "color-brand-primary": "#83a24b",
+        "color-brand-content": "#83a24b",
+    },
+}
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
@@ -60,6 +75,9 @@ html_static_path = ['_static']
 # or fully qualified paths (eg. https://...)
 html_css_files = [
     'css/forester.css',
+    "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css"
 ]
 
-js_source_path = '../../src/view/static'
+html_js_files = [
+    "https://code.jquery.com/jquery-3.6.3.min.js"
+]

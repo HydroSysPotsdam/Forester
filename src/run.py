@@ -7,4 +7,4 @@ from forester import server
 
 if __name__ == "__main__":
     app = server.create_app()
-    Flask.run(app, port=8000, debug=True)
+    Flask.run(app, port=5000, debug=True)

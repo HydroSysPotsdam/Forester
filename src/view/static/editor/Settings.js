@@ -38,8 +38,7 @@ let Settings = {
         // transition in
         d3.select("#settings")
           .classed("settings-open", true)
-    }
-,
+    },
 
     closeSettings: function () {
         // TODO: add a reset function to the settings form that resets to initial values and dispatches a submit event
@@ -54,8 +53,15 @@ let Settings = {
 
         // remove the parameter
         Settings.currentForm = undefined
-    }
-,
+    },
+
+    toggleGlobalSettings: function () {
+        if (Editor.Settings.isOpen()) {
+            Editor.Settings.closeSettings()
+        } else {
+            Editor.Settings.openGlobalSettings()
+        }
+    },
 
     openNodeSettings: function (nodeID) {
         // retrieve the current settings and rules for a node

@@ -169,8 +169,7 @@ class LegendGroup {
                 entry.append("text")
                      .text(entry => entry.label)
                 entry.append("span")
-                     .attr("class", "entry-toggle-mono")
-                     .text("M")
+                     .attr("class", "entry-toggle-mono fa fa-solid fa-lightbulb")
                      .on("click", callFromEntry("highlight"))
             })
 
@@ -284,6 +283,13 @@ class LegendEntry {
 
         // update color of mono button
         ui_mono_button.css("color", this.mono ? "red" : "black")
+        if (this.mono) {
+            ui_mono_button.addClass("fa-regular")
+            ui_mono_button.removeClass("fa-solid")
+        } else {
+            ui_mono_button.removeClass("fa-regular")
+            ui_mono_button.addClass("fa-solid")
+        }
 
         Legend.colorize()
     }

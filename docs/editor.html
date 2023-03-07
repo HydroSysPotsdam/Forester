@@ -3,14 +3,17 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="prev" title="Adding a Project" href="new_project.html" />
+<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Views and Node Illustrations" href="views.html" /><link rel="prev" title="Adding a Project" href="new_project.html" />
 
     <meta name="generator" content="sphinx-5.0.1, furo 2022.06.04.1"/>
-        <title>Editor - Forester documentation</title>
+        <title>Getting Started - Forester documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=40978830699223671f4072448e654b5958f38b89" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="_static/design-style.4045f2051d55cab465a707391d5b2007.min.css" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
     <link rel="stylesheet" type="text/css" href="_static/css/forester.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" />
     
     
 
@@ -19,18 +22,24 @@
   body {
     --color-code-background: #f8f8f8;
   --color-code-foreground: black;
+  --color-brand-primary: #69823c;
+  --color-brand-content: #69823c;
   
   }
   @media not print {
     body[data-theme="dark"] {
       --color-code-background: #202020;
   --color-code-foreground: #d0d0d0;
+  --color-brand-primary: #83a24b;
+  --color-brand-content: #83a24b;
   
     }
     @media (prefers-color-scheme: dark) {
       body:not([data-theme="light"]) {
         --color-code-background: #202020;
   --color-code-foreground: #d0d0d0;
+  --color-brand-primary: #83a24b;
+  --color-brand-content: #83a24b;
   
       }
     }
@@ -144,10 +153,12 @@
   <aside class="sidebar-drawer">
     <div class="sidebar-container">
       
-      <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
+      <div class="sidebar-sticky"><a class="sidebar-brand centered" href="index.html">
   
+  <div class="sidebar-logo-container">
+    <img class="sidebar-logo" src="_static/logo.svg" alt="Logo"/>
+  </div>
   
-  <span class="sidebar-brand-text">Forester  documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
@@ -155,10 +166,19 @@
   <input type="hidden" name="area" value="default">
 </form>
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
-  <ul class="current">
+  <p class="caption" role="heading"><span class="caption-text">Workflows</span></p>
+<ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="new_project.html">Adding a Project</a></li>
-<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Editor</a></li>
+<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Getting Started</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Further Reading</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="views.html">Views and Node Illustrations</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Other</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="contribute.html">Contribute and Test</a></li>
 </ul>
 
 </div>
@@ -192,20 +212,112 @@
           </label>
         </div>
         <article role="main">
-          <section id="editor">
-<h1>Editor<a class="headerlink" href="#editor" title="Permalink to this heading">#</a></h1>
-<p>This section will guide you through the core functionality of Forester’s editor. All functionality is described along the Fisher’s Iris example. Of course you can follow this section with any other project, too.</p>
-<section id="overview">
-<h2>Overview<a class="headerlink" href="#overview" title="Permalink to this heading">#</a></h2>
+          <section id="getting-started">
+<span id="editor"></span><h1>Getting Started<a class="headerlink" href="#getting-started" title="Permalink to this heading">#</a></h1>
+<p>This workflow will guide you through the core functionality of Forester’s editor. It illustrates our approach to building plots interactively and at the same time exploring your model.</p>
+<p>Our goal is to build a tree that illustrates what split features are relevant, how they affect the distribution of classes and how leaves in the tree compare with each other. All at the same time. Quite a lot to do with one plot, but you will see that it is quite easy with Forester!</p>
+<p>All functionality is described using the example Fisher’s Iris. Of course you could follow this workflow with any other project, too. But for a start it is probably best to stick to a small and easy model. So go ahead:</p>
+<div class="learn admonition">
+<p class="admonition-title">Open the Project</p>
+<p>Please open the example <em>Fisher’s Iris</em> from the project dashboard.</p>
+</div>
+<section id="obtain-an-overview">
+<h2>Obtain an Overview<a class="headerlink" href="#obtain-an-overview" title="Permalink to this heading">#</a></h2>
+<p>Forester’s editor is designed as lightweight as possible. In the center you see a classification tree for Fisher’s Iris data. Each node in the decision tree represents a subset of the training data. For internal nodes, the training algorithm assigned a feature split, e.g. a threshold to partition the dataset. For leaf nodes the algorithm decided that it is sufficient not to add another split.</p>
+<p>In the header you find Forester’s logo. It guides you back to the project dashboard when you click on it. Additionally, you find links to the <a class="reference external" href="https://github.com/HydroSysPotsdam/Forester">GitHub repository</a>, the documentation (that you are reading now) and our work at the <a class="reference external" href="https://www.uni-potsdam.de/de/umwelt/forschung/hysys">University of Potsdam</a>.</p>
+<p>There is a lot to explore, but we start with something small and very important - the hint panel.</p>
+<div class="sd-card sd-sphinx-override sd-mb-3 sd-shadow-sm docutils">
+<img alt="card-img-top" class="sd-card-img-top" src="_images/editor.png" />
+<div class="sd-card-body docutils">
+<p class="sd-card-text">Fisher’s Iris Classification Tree in Forester’s Editor</p>
+</div>
+</div>
 </section>
 <section id="hints">
 <h2>Hints<a class="headerlink" href="#hints" title="Permalink to this heading">#</a></h2>
+<p>Move you mouse around. When you hover over certain elements of the user interface a hint panel opens up automatically. It displays some information on their functionality and how they could help you with model interpretation.</p>
+<p>The hint panel opens automatically when you hover over a hinted element and closes after five seconds. When you find this annoying (because you are already an experienced forester) you can disable this functionality by clicking the <em>Automatic</em> button on the upper-right corner. You then need to open and close the panel manually.</p>
+<div class="sd-card sd-sphinx-override sd-mb-3 sd-shadow-sm docutils">
+<img alt="card-img-top" class="sd-card-img-top" src="_images/hint_panel.gif" />
+<div class="sd-card-body docutils">
+<p class="sd-card-text">Forester’s hint panel helps you getting started.</p>
+</div>
+</div>
 </section>
 <section id="legend">
 <h2>Legend<a class="headerlink" href="#legend" title="Permalink to this heading">#</a></h2>
+<p>On the right side of the user interface you can see the legend. By default, Forester groups classes and features separately to clearly distinguish them. Colors are assigned based on the <a class="reference external" href="https://colorbrewer2.org/#type=sequential&amp;scheme=BuGn&amp;n=3">Brewer</a> scale <em>Pastel 2</em>. The first color of the scale is assigned to the first class and so on. Once all classes are colored, the assignment proceeds with the features. When there are not enough colors in the scale, entries are colored white.</p>
+<p>The color mapping is used all over Forester. You can see this already in the nodes of the tree. The two internal nodes seem to reflect the two features <em>Petal.Length</em> and <em>Petal.Width</em> and the leaf nodes represent classes. But let’s not get ahead of ourself.</p>
+<p>Explore what you can do with the legend:</p>
+<ul class="simple">
+<li><p>Update the color of an entry by clicking on the colored field.</p></li>
+<li><p>Highlight a class or feature by clicking on the <span class="far fa-lightbulb"></span>.</p></li>
+<li><p>Drag an entry into another group. The small letter in the color selector indicates whether the entry represents a class or feature even when you move it into another group.</p></li>
+<li><p>Collapse a group by clicking the <span class="fas fa-eye-slash"></span> icon. Notice, how the entries of this group will be colored white.</p></li>
+</ul>
+<div class="learn admonition">
+<p class="admonition-title">Highlight Classes</p>
+<p>Hide the group <em>Features</em>. If you too think that the class Virginia should be coloured purple, go ahead and do this.</p>
+</div>
+</section>
+<section id="the-tree">
+<h2>The Tree<a class="headerlink" href="#the-tree" title="Permalink to this heading">#</a></h2>
+<p>Finally, we will take a look at what is most important: your model.</p>
+<p>Forester illustrates classification models using a classical tree representation, where nodes are connected using links. However, in Forester this illustration is interactive.</p>
+<ul class="simple">
+<li><p>Move the tree around by clicking and dragging. You don’t need to click on a node or link, somewhere in-between is fine.</p></li>
+<li><p>Zoom in or out by scrolling with your mouse. The zoom level is limited, so that you don’t loose track of where you are.</p></li>
+<li><p>Sometimes you may loose orientation. Re-center the tree by double clicking anywhere on the free area. The centering works relative to the other user interface elements, so that no parts of the tree are occluded.</p></li>
+<li><p>Collapse a node by clicking on it.</p></li>
+</ul>
+<p>At the moment the nodes are illustrated quite simply. For leafs, a colored circle represents the class with the highest number of samples at this node. For internal nodes, a colored box shows the feature that was used to partition the dataset.</p>
+<p>This representation is alright, but of course we want to do better. It would be nice to additionally see the value at which the split was done and the whole class distribution, not just the vote.</p>
+<p>You have probably already noticed, that a small context menu opens up when you hover over a node. From this you make all the changes that change the illustration of nodes.</p>
+<ul class="simple">
+<li><p>With the two arrows <span class="fas fa-arrow-left-long"></span> and <span class="fas fa-arrow-right-long"></span> you can cycle through different illustrations for one node. We call them views, as they allow you to see a node from different perspectives. They all highlight their own aspects and of course not all views are applicable for all nodes: for leaf nodes you can not show split values. There is a whole page dedicated to the different <a class="reference external" href="ViewsandNodeIllustrations">views and node illustrations</a>.</p></li>
+<li><p>The <span class="fas fa-gear"></span> icon is used to change node specific settings for the illustration. This will be described in a later <a class="reference external" href="NodeSettings">section</a>.</p></li>
+</ul>
+<div class="learn admonition">
+<p class="admonition-title">Change the Views</p>
+<p>Change the views of the internal nodes to give more information on the split feature and location and the leaf nodes to represent the class distribution.</p>
+</div>
+<div class="sd-card sd-sphinx-override sd-mb-3 sd-shadow-sm docutils">
+<img alt="card-img-top" class="sd-card-img-top" src="_images/node_views.gif" />
+<div class="sd-card-body docutils">
+<p class="sd-card-text">Cycle through views to highlight different aspects of the node.</p>
+</div>
+</div>
 </section>
 <section id="settings">
 <h2>Settings<a class="headerlink" href="#settings" title="Permalink to this heading">#</a></h2>
+<p>Open the global settings by either pressing <em>Esc</em> or using the <span class="fas fa-gears"></span> button. In the opened dialog you can change settings that affect the whole tree.</p>
+<p>The tree is updated whenever you change an option. However, changes are lost when you close the settings again. You can update the settings permanently by clicking the submit button.</p>
+<p>Settings are grouped into three categories:</p>
+<ul class="simple">
+<li><p>Under <em>Legend</em> you can change the default colorscale of the legend. Note, that this overwrites the colors of you entries and can not be reverted.</p></li>
+<li><p><em>Layout</em> settings affect the placement of the nodes. Level and branch space change the distance between nodes on the same level or branch. The option <em>dendrogram</em> places all leaves along one line.</p></li>
+<li><p>The <em>path</em> settings change the style of links that connect nodes. You can update the shape of the links and encode information on the sample number with it.</p></li>
+</ul>
+<div class="learn admonition">
+<p class="admonition-title">Change the Global Settings</p>
+<p>Place all leaves on one level for easier comparison. Enable flow colorcoding to see how the class distribution is affected by splits.</p>
+</div>
+<div class="sd-card sd-sphinx-override sd-mb-3 sd-shadow-sm docutils">
+<img alt="card-img-top" class="sd-card-img-top" src="_images/global_settings.gif" />
+<div class="sd-card-body docutils">
+</div>
+</div>
+</section>
+<section id="node-settings">
+<h2>Node Settings<a class="headerlink" href="#node-settings" title="Permalink to this heading">#</a></h2>
+<p>each view can also hold its own settings</p>
+<p>click on the gear in the context menu of a leaf to open its node settings
+here you can see the settings that are specific to its current view
+increase the radius and see what happens</p>
+<p>your leaves should all have the same view.
+wouldn’t it be nice to update them all at once?
+before you click submit to update the settings permanently, change the apply to field to view
+when you click submit now, the settings of all nodes with the same view are updated</p>
 </section>
 </section>
 
@@ -214,7 +326,15 @@
       <footer>
         
         <div class="related-pages">
-          
+          <a class="next-page" href="views.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">Views and Node Illustrations</div>
+              </div>
+              <svg><use href="#svg-arrow-right"></use></svg>
+            </a>
           <a class="prev-page" href="new_project.html">
               <svg><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
@@ -258,11 +378,13 @@
         <div class="toc-tree-container">
           <div class="toc-tree">
             <ul>
-<li><a class="reference internal" href="#">Editor</a><ul>
-<li><a class="reference internal" href="#overview">Overview</a></li>
+<li><a class="reference internal" href="#">Getting Started</a><ul>
+<li><a class="reference internal" href="#obtain-an-overview">Obtain an Overview</a></li>
 <li><a class="reference internal" href="#hints">Hints</a></li>
 <li><a class="reference internal" href="#legend">Legend</a></li>
+<li><a class="reference internal" href="#the-tree">The Tree</a></li>
 <li><a class="reference internal" href="#settings">Settings</a></li>
+<li><a class="reference internal" href="#node-settings">Node Settings</a></li>
 </ul>
 </li>
 </ul>
@@ -280,5 +402,9 @@
     <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="_static/doctools.js"></script>
     <script src="_static/scripts/furo.js"></script>
+    <script src="_static/clipboard.min.js"></script>
+    <script src="_static/copybutton.js"></script>
+    <script src="_static/design-tabs.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.3.min.js"></script>
     </body>
 </html>

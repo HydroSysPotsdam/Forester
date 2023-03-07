@@ -31,13 +31,17 @@
 }
 
 .forester-ui-button {
-    width: 25px;
-    height: 25px;
-    margin: 10px;
+    width: 30px;
+    height: 30px;
     text-align: center;
     -webkit-user-select: none;
     user-select: none;
     cursor: pointer;
+    background: var(--forester_background);
+    border: var(--forester_border);
+    border-radius: 4px;
+    color: var(--forester_text_color);
+    line-height: 30px;
 }
 
 .forester-ui-button::before {
@@ -199,4 +203,24 @@ label {
 
 .lens-button:active {
     transform: scale(1)
+}
+
+#buttons {
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    top: 1em;
+    left: 1em;
+}
+
+#buttons > * {
+    margin-bottom: 0.5em;
+}
+
+#button-zoom {
+    margin-top: 1em;
+}
+
+#button-save {
+    margin-top: 1em;
 }

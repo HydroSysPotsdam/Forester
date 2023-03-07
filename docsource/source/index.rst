@@ -4,8 +4,24 @@
    contain the root `toctree` directive.
 
 
+Forester
+========
+
+Forester is an interactive and web-based visualization tool for decision trees. With Forester, decision trees finally become beautiful and informative!
+
 .. toctree::
+   :caption: Workflows
 
    quickstart
    new_project
    editor
+
+.. toctree::
+   :caption: Further Reading
+
+   views
+
+.. toctree::
+   :caption: Other
+
+   contribute

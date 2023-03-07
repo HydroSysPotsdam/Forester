@@ -77,6 +77,20 @@ export default {
         d3.select("#" + Editor.Tree.id)
           .on("view-ready", Editor.onViewReady)
           .on("view-change", Editor.onViewChange)
+
+        // listeners for the buttons
+        d3.select("#button-settings")
+          .on("click", event => Editor.Settings.toggleGlobalSettings())
+        d3.select("#button-zoom")
+          .on("click", event => Editor.Panzoom.centerOnStage())
+        d3.select("#button-zoom-in")
+          .on("click", event => Editor.Panzoom.zoomIn())
+        d3.select("#button-zoom-out")
+          .on("click", event => Editor.Panzoom.zoomOut())
+        d3.select("#button-save")
+          .on("click", event => Editor.save())
+        d3.select("#button-export")
+          .on("click", event => alert("Exporting not implemented yet!"))
     },
 
     loadGlobalSettings: function (save) {

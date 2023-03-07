@@ -44,9 +44,8 @@ Welcome to Forester! You will start all your projects from the project dashboard
 
 The next section explains how you can add a new project based on your files from *Matlab, R* or *Forester*. If you can't wait, open an example of your choice by clicking on the corresponding tile. We think you should start with :ref:`Fisher's Iris <Editor>` - to preserve the tradition.
 
-.. figure:: _static/dashboard.png
-   :width: 100 %
-   :alt: forester's project dashboard
-   :align: center
+.. card::
+   :img-top: _static/dashboard.png
 
    Phew! You did everything correctly when you see Forester's project dashboard in your browser.
+

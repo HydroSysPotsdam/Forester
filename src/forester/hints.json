@@ -58,5 +58,15 @@
     "selector": ".settings-entry[for='applyTo']",
     "title": "Applying Settings for Multiple Nodes",
     "hint": "Using the <b>Apply To</b> option, you can update settings for multiple views at once.<ul style='padding-inline-start:20px'><li>With the value <i>this</i>, only the settings of the currently targeted node are updated.</li><li>With <i>subtree</i> this node and all it's children are updated.</li><li>With <i>view</i>, all nodes that currently use the same view are updated.</li><li><i>All</i> obviously updates all nodes of the tree.</li></ul><p>Note, that when settings for a view should be applied to a node that currently uses another view, that view is changed. This feature is not previewed and only takes effect when the changes are submitted."
+  },
+  {
+    "selector": ".panzoom",
+    "title": "Moving the Tree Around",
+    "hint": "You can move the tree around freely by clicking and dragging with you mouse. It is not necessary to click on a node or link, any space in-between will do too.<p>Whenever you loose the tree, you can simply re-center it by double clicking on the free space. The tree is centered between all other visible elements, so that it does not lie partly behind hints, legend or settings.</p><p>Sometimes you want to take a closer look: By hovering over the tree and scrolling, you can zoom in and out. The zoom level is limited, so that you don't shrink it down too much.</p>"
+  },
+  {
+    "selector": "#buttons",
+    "title": "Interface Buttons",
+    "hint": "This button opens and closes the global settings."
   }
 ]

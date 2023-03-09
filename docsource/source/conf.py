@@ -64,6 +64,32 @@ html_theme_options = {
         "color-brand-primary": "#83a24b",
         "color-brand-content": "#83a24b",
     },
+    "footer_icons": [
+        {
+            "name": "Banner",
+            "html": "Made with <span class='fa fa-solid fa-heart'></span> in Potsdam."
+        },
+        {
+            "name": "GitHub",
+            "url": "https://github.com/HydroSysPotsdam/Forester",
+            "html": "<span class='fa fa-brands fa-github' style='margin-left:1em'></span>",
+        },
+        {
+            "name": "About Us",
+            "url": "https://www.uni-potsdam.de/de/umwelt/forschung/hysys",
+            "html": "<span class='fa fa-solid fa-people-group' style='margin-left:1em'></span>"
+        }
+    ],
+}
+
+html_sidebars = {
+    "**": [
+        "sidebar/brand.html",
+        "sidebar/search.html",
+        "sidebar/navigation.html",
+        "sidebar/ethical-ads.html",
+        "sidebar/buttons.html"
+    ]
 }
 
 # Add any paths that contain custom static files (such as style sheets) here,

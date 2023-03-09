@@ -289,11 +289,12 @@ export default {
 
             // relocate lens
             const bbox = d3.select(`.tree-node[forID='${node.id}']`).node().getBoundingClientRect()
+            const cont = d3.select(".forester-content").node().getBoundingClientRect()
             d3.select(".lens")
               .attr("forID", node.id)
               .style("visibility", "visible")
-              .style("left", bbox.left + bbox.width/2 + "px")
-              .style("top",  bbox.bottom - 0.2*bbox.height + "px")
+              .style("left", bbox.left + bbox.width/2 + - cont.left + "px")
+              .style("top",  bbox.bottom - 0.2*bbox.height - cont.top + "px")
 
             // when the mouse leaves the lens or node
             d3.select(".lens")

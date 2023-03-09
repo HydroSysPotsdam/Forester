@@ -2,10 +2,12 @@
 <html class="no-js" lang="en">
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
-    <meta name="color-scheme" content="light dark"><link rel="author" title="About these documents" href="about.html" /><link rel="index" title="Index" href="#" /><link rel="search" title="Search" href="search.html" />
+    <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+<link rel="author" title="About these documents" href="about.html" /><link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Contribute" href="contribute.html" /><link rel="prev" title="Getting Started" href="editor.html" />
 
-    <meta name="generator" content="sphinx-5.0.1, furo 2022.06.04.1"/><title>Index - Forester documentation</title>
-<link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <meta name="generator" content="sphinx-5.0.1, furo 2022.06.04.1"/>
+        <title>Testing Forester - Forester documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=40978830699223671f4072448e654b5958f38b89" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
     <link rel="stylesheet" type="text/css" href="_static/design-style.4045f2051d55cab465a707391d5b2007.min.css" />
@@ -142,7 +144,7 @@
           <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
         </button>
       </div>
-      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
         <div class="visually-hidden">Toggle table of contents sidebar</div>
         <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
       </label>
@@ -171,8 +173,9 @@
 <li class="toctree-l1"><a class="reference internal" href="editor.html">Getting Started</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Other</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="test.html">Testing Forester</a></li>
+<ul class="current">
+<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Testing Forester</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contribute.html">Contribute</a></li>
 <li class="toctree-l1"><a class="reference internal" href="about.html">About Us</a></li>
 </ul>
 
@@ -211,16 +214,65 @@
               <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
             </button>
           </div>
-          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
             <div class="visually-hidden">Toggle table of contents sidebar</div>
             <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
           </label>
         </div>
         <article role="main">
-          
-<section class="genindex-section">
-  <h1 id="index">Index</h1>
-  <div class="genindex-jumpbox"></div>
+          <section id="testing-forester">
+<h1>Testing Forester<a class="headerlink" href="#testing-forester" title="Permalink to this heading">#</a></h1>
+<p>Thank you so much for concidering to test Forester. It would really help a lot!</p>
+<p>After reading this you probably want to look at the <a class="reference internal" href="quickstart.html#quickstart"><span class="std std-ref">quickstart</span></a> workflow.</p>
+<p>The will be a lot of bugs. Some so subtle that we have not noticed them and some painfully obvious that we are sorry you had to see them. We need your help to find them all!</p>
+<div class="help bug admonition">
+<p class="admonition-title">Reporting a Bug</p>
+<p>Please report bugs on our GitHub reposity by creating a <a class="reference external" href="https://github.com/HydroSysPotsdam/Forester/issues/new?assignees=&amp;labels=bug&amp;template=bug-report.md&amp;title=">Bug Report Issue</a>. Make sure that the issue is labeled as a <span class="sd-sphinx-override sd-badge sd-bg-danger sd-bg-text-danger">bug</span> and add the label <span class="sd-sphinx-override sd-badge sd-bg-danger sd-bg-text-danger">severe</span> when the bug prevents you from using Forester properly. It would also be very helpful when you check beforehand if the same bug has already been reported.</p>
+</div>
+<section id="where-we-need-help">
+<h2>Where We Need Help<a class="headerlink" href="#where-we-need-help" title="Permalink to this heading">#</a></h2>
+<p>There are multiple aspects that need to be tested. Of course we hope that you will concider all of them but even covering some is tremendously helpful to us. Below we listed what we concider to be important and suggest some questions to ask yourself.</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>Please try to actively break Forester. We can only build a robust product when we know where the software fails.</p>
+</div>
+<p><strong>Documentation</strong></p>
+<ul class="simple">
+<li><p>Was the documentation helpful to get you started?</p></li>
+<li><p>Where was it unclear and confused you?</p></li>
+<li><p>Where should it be expanded?</p></li>
+<li><p>What aspects of Forester are not represented in the documentation but should be?</p></li>
+<li><p>Are parts of the documentation unnessecarily long?</p></li>
+</ul>
+<p><strong>Installation</strong></p>
+<ul class="simple">
+<li><p>Have you been able to run Forester on your machine and browser?</p></li>
+<li><p>Are there problems with the installation that prevent you from using Forester?</p></li>
+</ul>
+<p><strong>Your Projects</strong></p>
+<ul class="simple">
+<li><p>Have you been able to load your own models in Forester?</p></li>
+<li><p>Are there differences to similar plots for your own models?</p></li>
+<li><p>Does Forester fail to convey some important aspects of you model?</p></li>
+<li><p>What routines are you using that do not work with Forester?</p></li>
+</ul>
+<p><strong>Features</strong></p>
+<ul class="simple">
+<li><p>What features are you missing?</p></li>
+<li><p>How could existing features be improved?</p></li>
+<li><p>Are there features that are unncessecarily complicated and confuse you?</p></li>
+</ul>
+</section>
+<section id="your-ideas-improve-forester">
+<h2>Your Ideas Improve Forester<a class="headerlink" href="#your-ideas-improve-forester" title="Permalink to this heading">#</a></h2>
+<div class="help feature admonition">
+<p class="admonition-title">Requesting a Feature</p>
+<p>Please request features on out GitHub repository by creating a <a class="reference external" href="https://github.com/HydroSysPotsdam/Forester/issues/new?assignees=&amp;labels=feature-request&amp;template=feature-request.md&amp;title=">Feature Request Issue</a>. When your request builds on an existing feature add the badge <span class="sd-sphinx-override sd-badge sd-bg-info sd-bg-text-info">improvement</span> and <span class="sd-sphinx-override sd-badge sd-bg-info sd-bg-text-info">documentation</span> when it is related to the documentation.</p>
+</div>
+</section>
+<section id="further-contributions">
+<h2>Further Contributions<a class="headerlink" href="#further-contributions" title="Permalink to this heading">#</a></h2>
+</section>
 </section>
 
         </article>
@@ -228,8 +280,26 @@
       <footer>
         
         <div class="related-pages">
-          
-          
+          <a class="next-page" href="contribute.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">Contribute</div>
+              </div>
+              <svg><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="editor.html">
+              <svg><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">Getting Started</div>
+                
+              </div>
+            </a>
         </div>
         <div class="bottom-of-page">
           <div class="left-details">
@@ -253,8 +323,29 @@
         
       </footer>
     </div>
-    <aside class="toc-drawer no-toc">
+    <aside class="toc-drawer">
       
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            Contents
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">Testing Forester</a><ul>
+<li><a class="reference internal" href="#where-we-need-help">Where We Need Help</a></li>
+<li><a class="reference internal" href="#your-ideas-improve-forester">Your Ideas Improve Forester</a></li>
+<li><a class="reference internal" href="#further-contributions">Further Contributions</a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
       
       
     </aside>

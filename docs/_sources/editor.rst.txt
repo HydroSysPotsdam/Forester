@@ -101,12 +101,12 @@ Settings are grouped into three categories:
 
 * Under *Legend* you can change the default colorscale of the legend. Note, that this overwrites the colors of you entries and can not be reverted.
 * *Layout* settings affect the placement of the nodes. Level and branch space change the distance between nodes on the same level or branch. The option *dendrogram* places all leaves along one line.
-* The *path* settings change the style of links that connect nodes. You can update the shape of the links and encode information on the sample number with it.
+* The *path* settings change the style of links that connect nodes. You can update the shape of the links and encode information on the sample number with it. The option *linar* scales the line thickness with the sample number. `Scaled` does so too, but applies a scaling to equalize sample numbers with different magnitudes. With *colorcoded* enabled, the link is split into multiple lines whose thickness and color represent the classes that flow along this link.
 
 .. admonition:: Change the Global Settings
    :class: learn
 
-   Place all leaves on one level for easier comparison. Enable flow colorcoding to see how the class distribution is affected by splits.
+   Place all leaves on one level for easier comparison. Enable flow color-coding to see how the class distribution is affected by splits.
 
 .. card::
    :img-top: _static/global_settings.gif
@@ -114,13 +114,18 @@ Settings are grouped into three categories:
 Node Settings
 -------------
 
-each view can also hold its own settings
+Each view can hold it's own settings that are unique to the node.
 
-click on the gear in the context menu of a leaf to open its node settings
-here you can see the settings that are specific to its current view
-increase the radius and see what happens
+Click on the :fas:`gear` icon in the node context menu to open the node specific settings. The settings that are displayed of course depend on the currently employed view and the selected node. You can read more on the individual fields in the section on `views <Views and Node Illustrations>`_.
 
-your leaves should all have the same view.
-wouldn't it be nice to update them all at once?
-before you click submit to update the settings permanently, change the apply to field to view
-when you click submit now, the settings of all nodes with the same view are updated
+Previously we asked you to change the view of all leaves. You probably did this by hand and are now quite annoyed. Wouldn't it be nice if you could just change settings or views for a set of nodes?
+
+At the bottom of every node settings panel you see a field called *"Apply to"*. With this you can control to what nodes the settings change is applied. When you apply view-related settings to a node with a different view, it's illustration is updated. This is therefore another way to quickly change the views of many nodes at once.
+
+* With *this* selected, the change is just applied to the node on which the settings have been opened.
+* With *view* selected, the change is applied to all nodes that currently use the same view.
+* With *position* selected, the change is either applied to leaves or internal node for which the settings have been opened.
+* With *subtree* selected, the change is applied to the selected node and all it's descendants.
+* With *all* selected, the change is applied to the whole tree.
+
+Note, that changed settings are previewed on the node for which the settings have been opened regardless of the selection to which they should be applied. Without submitting the new settings, the values are reverted.

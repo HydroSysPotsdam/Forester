@@ -99,7 +99,7 @@ export class TreeRenderer {
 
             // selection based on internal position
             if (selector === "internal") {
-                return renderers.map(renderer => (renderer.node.parent && renderer.node.children) ? true : false)
+                return renderers.map(renderer => renderer.node.children ? true : false)
             }
         })
 

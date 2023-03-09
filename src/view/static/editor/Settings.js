@@ -77,7 +77,7 @@ let Settings = {
         const srcNode = d3.select(".tree-node[forID='" + nodeRenderer.node.id + "']").node()
 
         // add a input element for the applyTo parameter
-        rules.applyTo = "in:this,view,subtree,all|default:this"
+        rules.applyTo = "in:this,view,position,subtree,all|default:this"
 
         // open the settings with them
         // callback function is onNodeSettingsChange
@@ -89,8 +89,7 @@ let Settings = {
           .text("Node Settings")
 
         return true
-    }
-,
+    },
 
     openGlobalSettings: function () {
         // retrieve the global settings and rules
@@ -102,8 +101,7 @@ let Settings = {
         d3.select("#settings")
           .insert("h3", ":first-child")
           .text("Global Settings")
-    }
-,
+    },
 
     onNodeSettingsChange: function (event) {
         // when only the applyTo parameter changed, do not process the event
@@ -126,6 +124,9 @@ let Settings = {
             case "view":
                 applyTo = view.name
                 break
+            case "position":
+                applyTo = Editor.Tree.select(nodeID).node.children ? "internal" : "leaf"
+                break
             case "subtree":
                 applyTo = [nodeID, "subtree"]
                 break
@@ -141,8 +142,7 @@ let Settings = {
         let selection = Editor.Tree.select(applyTo)
         selection = Array.isArray(selection) ? selection : [selection]
         selection.map(renderer => renderer.updateSettings(event.values, view))
-    }
-,
+    },
 
     onGlobalSettingsChange: function (event) {
 

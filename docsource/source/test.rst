@@ -3,14 +3,14 @@ Testing Forester
 
 Thank you so much for concidering to test Forester. It would really help a lot!
 
-After reading this you probably want to look at the :ref:`quickstart <Quickstart>` workflow.
-
-The will be a lot of bugs. Some so subtle that we have not noticed them and some painfully obvious that we are sorry you had to see them. We need your help to find them all!
+There will be a lot of bugs. A lot! Some so subtle that we have not noticed them and some painfully obvious that we are sorry you had to see them. We need your help to find them all!
 
 .. admonition:: Reporting a Bug
    :class: help bug
 
-   Please report bugs on our GitHub reposity by creating a `Bug Report Issue <https://github.com/HydroSysPotsdam/Forester/issues/new?assignees=&labels=bug&template=bug-report.md&title=>`_. Make sure that the issue is labeled as a :bdg-danger:`bug` and add the label :bdg-danger:`severe` when the bug prevents you from using Forester properly. It would also be very helpful when you check beforehand if the same bug has already been reported.
+   Please report bugs on our GitHub reposity by creating a `Bug Report Issue <https://github.com/HydroSysPotsdam/Forester/issues/new?assignees=&labels=bug&template=bug-report.md&title=>`_. Make sure that the issue is labeled as a :bdg-danger:`bug` and add the label :bdg-danger:`severe` when the bug prevents you from using Forester properly. What information to include in the issue is described on the bug report page. It would also be very helpful when you check beforehand if the same bug has already been reported.
+
+After reading this you probably want to look at the :ref:`quickstart <Quickstart>` workflow.
 
 Where We Need Help
 ------------------

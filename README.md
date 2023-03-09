@@ -16,119 +16,59 @@
   <p align="center">
     <a href="https://hydrosyspotsdam.github.io/Forester/"><strong>Explore the docs »</strong></a>
     <br />
-    <a href="https://github.com/HydroSysPotsdam/Forester/issues">Report Bug</a>
+    <a href="https://github.com/HydroSysPotsdam/Forester/issues/new?assignees=&labels=bug&template=bug-report.md&title=">Report Bug</a>
     ·
-    <a href="https://github.com/HydroSysPotsdam/Forester/issues">Request Feature</a>
+    <a href="https://github.com/HydroSysPotsdam/Forester/issues/new?assignees=&labels=feature-request&template=feature-request.md&title=">Request Feature</a>
   </p>
 </div>
 
 ## Quickstart
 
-For now, Forester may only be installed by cloning the GitHub repository.
+To run Forester, you need to have a working installation of Python and a web-browser of you choice.
+
+You can install Forester by cloning the GitHub repository to you machine. When you have installed Git, this can be 
+done by running the command:
 
 ```
 git clone https://github.com/HydroSysPotsdam/Forester.git
 ```
 
-Once the repository is installed, run the following command inside the project folder. Make sure, that you have installed Python.
+Alternatively you can also download a compressed version of Forester directly from the GitHub repository by clicking 
+*Code* and *Download Zip*. Please decompress the archive at a suitable location.
+
+Forester needs some dependencies to work correctly. You will find a list of them under `Forester/requirements.txt`. You can install the dependencies using pip or conda:
+
+```
+pip install -r requirements.txt
+```
+```
+conda install --yes --file requirements.txt
+```
+
+Congratulations! Forester can now be started by navigating to its root directory 
+and calling
 
 ```
 python run.py
 ```
 
-Now go to the displayed address in your browser. The default value is [http://127.0.0.1:8000](http://127.0.0.1:8000).
+This will start a local webserver. In the terminal, it will display the address that is used to access the server. By default this is [127.0.0.1:8000](127.0.0.1:8000). Open this link in your preferred browser and you should see Forester's project dashboard. If you can't access the website, check whether a different address or port are displayed in the terminal.
 
-We are planning on simplifying the installation dramatically. We want Forester to be installable with Conda and Pip and runnable using a simple script.
-
-## Table of Contents
-<ol>
-    <li><a href="#about-the-project">About The Project</a></li>
-    <li><a href="#roadmap">Roadmap</a></li>
-    <li><a href="#contributing">Contributing</a></li>
-    <li><a href="#license">License</a></li>
-    <li><a href="#contact-us">Contact Us</a></li>
-</ol>
-
----
+Learn more about Forester by reading the section [Getting Started](https://hydrosyspotsdam.github.io/Forester/editor.html) in the docs.
 
 ## About The Project
 
-Forester is an interactive web-based visualization tool for decision trees. With Forester, decision trees finally become beautiful __and__ informative!
+## Testing
+Thank you so much for concidering to test Forester. It would really help a lot!
 
-With our modular approach, one decision tree can take on many forms. Of course, any one looks good by itself!
-This allows the user to exactly convey what is important.
-
-Below you can see a classification for the infamous Fisher Iris dataset. 
-We think Foresters illustration far outperforms R or Matlab.
-
-<br>
-
-![](docsource/html/_images/preview.png)
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-Learn more about Forester by reading the section [Getting Started]() in the docs. Or you just try it out yourself!
-
-## Roadmap
-
-We are planning to publish Forester in three development steps.
-
-Forester is usable in any of these steps, allowing user to test it and contribute to its functionality.
-
-### Basic Functionality (2023/Q1):
-The first development iteration focuses mainly on the visualization of already calculated decision trees. 
-From user generated _classification_ decision trees in R, Matlab or Python, Forester will generate publication ready plots.
-The following features are planned:
-- [x] Support for R's _rpart_ and Matlab's _fitctree_
-- [x] Different Visualization approaches
-  - [x] Text summary
-  - [x] Class distribution charts
-  - [x] Focussed on features and splitting values
-- [x] Customizable legend
-- [x] Sample flow indicator
-- [ ] Custom layout algorithm
-- [ ] Support for Python classification libraries
-- [ ] Interactive Tutorial
-- [ ] Customizing visualization for every node
-- [ ] Export as svg, png, pdf
-
-<br>
-
-![](docsource/html/_images/upcoming_v0.png)
-
-
-### Data-Driven Visualization (2023/Q4)
-The second introduces a data-driven approach, allowing access to the original training data and much more insightful visualizations.
-
-- [ ] Support for regression trees
-- [ ] Advanced node visualizations
-  - [ ] Class distribution based on feature values
-  - [ ] Regression value based on feature values
-  - [ ] Feature space illustrations
-  - [ ] Partial dependence plots
-  
-<br>
-  
-![](docsource/html/_images/upcoming_v1.png)
-
-### A Human in the Loop
-
-The third one focuses on the human-in-the-loop approach by allowing the user to influence the training algorithm by interacting with the illustration.
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-## Contributing
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+We have provided some guidelines and tips for testing Forester on the [related page](https://hydrosyspotsdam.github.io/Forester/test.html) in the documentation. 
 
 ## License
 Distributed under the [CC-BY-NC][license-url] license.
 
 ## Contact Us
 
-Send a mail to 💌 [David Strahl](<mailto:david.strahl@uni-potsdam.de>) or 💌 [Robert Reinecke](<mailto:robert.reinecke@uni-potsdam.de>).
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+Made with <span class="fa fa-solid fa-heart"></span> in Potsdam. For further questions, send a mail to 💌 [David Strahl](<mailto:david.strahl@uni-potsdam.de>) or 💌 [Robert Reinecke](<mailto:robert.reinecke@uni-potsdam.de>).
 
 
 <!-- MARKDOWN LINKS & IMAGES -->

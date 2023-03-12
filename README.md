@@ -64,7 +64,7 @@ Thank you so much for concidering to test Forester. It would really help a lot!
 We have provided some guidelines and tips for testing Forester on the [related page](https://hydrosyspotsdam.github.io/Forester/test.html) in the documentation. 
 
 ## License
-Distributed under the [CC-BY-NC][license-url] license.
+Distributed under the [GPL-3.0][license-url] license.
 
 ## Contact Us
 
@@ -81,8 +81,8 @@ Made with <span class="fa fa-solid fa-heart"></span> in Potsdam. For further que
 [stars-url]: https://github.com/HydroSysPotsdam/Forester/stargazers
 [issues-shield]: https://img.shields.io/github/issues/HydroSysPotsdam/Forester.svg?style=for-the-badge
 [issues-url]: https://github.com/HydroSysPotsdam/Forester/issues
-[license-shield]: https://img.shields.io/badge/License-CC_BY--NC_4.0-lightgrey.svg?style=for-the-badge
-[license-url]: https://creativecommons.org/licenses/by-nc/4.0/
+[license-shield]: https://img.shields.io/badge/License-GPLv3-lightgrey.svg?style=for-the-badge
+[license-url]: https://opensource.org/license/gpl-3-0/
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
 [linkedin-url]: https://linkedin.com/in/linkedin_username
 [product-screenshot]: images/screenshot.png

@@ -34,7 +34,8 @@ extensions = [
     #"sphinx_js",
     'sphinx.ext.autosectionlabel',
     "sphinx_design",
-    "sphinx_copybutton"
+    "sphinx_copybutton",
+    "sphinxext.opengraph"
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -80,6 +81,7 @@ html_theme_options = {
             "html": "<span class='fa fa-solid fa-people-group' style='margin-left:1em'></span>"
         }
     ],
+    "announcement": "Welcome testers! Head to the section '<a class='reference internal' href='test.html'>Testing Forester</a>'",
 }
 
 html_sidebars = {

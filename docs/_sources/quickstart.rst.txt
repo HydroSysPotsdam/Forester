@@ -18,7 +18,7 @@ Forester needs some Python packages to work correctly. You will find a list of t
 
 or conda::
 
-    conda install --yes --file requirements.txt
+    conda install --yes --file requirements.txt -c conda-forge
 
 Congratulations! You are now ready to run Forester.
 
@@ -27,7 +27,7 @@ Running Forester
 
 Forester can now be started by navigating to its root directory and running::
 
-    python run.py
+    python src/run.py
 
 This will start a webserver. In the terminal, it will display the address that is used to access the server. By default this is::
 

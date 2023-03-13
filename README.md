@@ -42,14 +42,14 @@ Forester needs some dependencies to work correctly. You will find a list of them
 pip install -r requirements.txt
 ```
 ```
-conda install --yes --file requirements.txt
+conda install --yes --file requirements.txt -c conda-forge
 ```
 
 Congratulations! Forester can now be started by navigating to its root directory 
 and calling
 
 ```
-python run.py
+python src/run.py
 ```
 
 This will start a local webserver. In the terminal, it will display the address that is used to access the server. By default this is [127.0.0.1:8000](127.0.0.1:8000). Open this link in your preferred browser and you should see Forester's project dashboard. If you can't access the website, check whether a different address or port are displayed in the terminal.

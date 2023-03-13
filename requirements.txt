@@ -6,4 +6,4 @@ loguru
 treelib
 flask-sqlalchemy
 tinydb
-dataclasses_json
+dataclasses-json

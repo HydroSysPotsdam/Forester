@@ -10,10 +10,6 @@ Forester
 Forester is an interactive and web-based visualization tool for decision trees.
 
 .. toctree::
-
-   test
-
-.. toctree::
    :caption: Workflows
 
    quickstart
@@ -24,4 +20,5 @@ Forester is an interactive and web-based visualization tool for decision trees.
 .. toctree::
    :caption: Other
 
+   test
    about

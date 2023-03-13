@@ -96,16 +96,16 @@ class LegendGroup {
                 }
         }).disableSelection()
 
-        // // update context menu
-        // $("#groups").contextMenu({
-        //     selector: ".group-header",
-        //     className: "group-context-menu",
-        //     items: {
-        //         "linked": {name: "Link/unlink entries", icon: "fa-link", callback: callFromGroup("link")},
-        //         "rename": {name: "Rename", icon: "fa-edit", callback: callFromGroup("rename")},
-        //         "delete": {name: "Delete", icon: "fa-trash", callback: callFromGroup("delete")}
-        //     }
-        // })
+        // update context menu
+        $("#groups").contextMenu({
+            selector: ".group-header",
+            className: "group-context-menu",
+            items: {
+                // "linked": {name: "Link/unlink entries", icon: "fa-link", callback: callFromGroup("link")},
+                "rename": {name: "Rename", icon: "fa-edit", callback: callFromGroup("rename")},
+                "delete": {name: "Delete", icon: "fa-trash", callback: callFromGroup("delete")}
+            }
+        })
     }
 
     get size () {

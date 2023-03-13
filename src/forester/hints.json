@@ -67,6 +67,6 @@
   {
     "selector": "#buttons",
     "title": "Interface Buttons",
-    "hint": "This button opens and closes the global settings."
+    "hint": "These buttons provide some shortcuts to basic functionality of the Editor. <p>With the button <i class='fa fa-solid fa-gears'></i> you can open the global settings. The same is possible using the <i>Esc</i> key.</p><p>With the button <i class='fa fa-solid fa-arrows-to-dot'></i> you can center the tree on the page. The same can be done by double clicking on the free area.</p><p>With the two buttons <i class='fa fa-solid fa-magnifying-glass-plus'></i> and <i class='fa fa-solid fa-magnifying-glass-minus'></i> you can zoom in and out. This can also be done by scrolling.</p><p>The button <i class='fa fa-solid fa-floppy-disk'></i> saves the project.</p><p>The button <i class='fa fa-solid fa-file-export'></i> is a placeholder for exporting the project as an image. <b>This is currently not possible!</b> However, you can make a screenshot or use the browsers 'print-to-pdf' option.</p>"
   }
 ]

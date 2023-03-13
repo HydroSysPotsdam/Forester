@@ -90,7 +90,7 @@ export default {
         d3.select("#button-save")
           .on("click", event => Editor.save())
         d3.select("#button-export")
-          .on("click", event => alert("Exporting not implemented yet!"))
+          .on("click", event => alert("We are working hard on the export of our plots.\nFor now you can either take a screenshot or use the browsers 'print-to-pdf' option to export the whole page."))
     },
 
     loadGlobalSettings: function (save) {
@@ -271,7 +271,9 @@ export default {
             const lens = d3.select(".lens").node()
             const node = d3.select(`.tree-node[forID='${lens.getAttribute("forID")}']`).node()
 
-            if (lens.contains(event.toElement) || node.contains(event.toElement)) return
+            let target = event.toElement || event.relatedTarget
+
+            if (lens.contains(target) || node.contains(target)) return
 
             Editor.Lens.close()
         },
@@ -368,13 +370,16 @@ export default {
             switch (this.status) {
                 case 200:
                     console.log("Sucessfully saved")
+                    alert("Sucessfully saved!")
                     break;
                 case 500:
                     console.log("Error during save")
+                    alert("Error during saving!")
                     break;
                 default:
                     response = {message: this.status + " - unknown response from the server"}
                     console.log(response)
+                    alert(response)
                     break;
             }
         }

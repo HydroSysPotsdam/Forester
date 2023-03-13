@@ -77,10 +77,18 @@ ProjectDashboard = {
         let createTile = function (project) {
 
             // add the thumbnail image
+            // d3.select(this)
+            //   .append("img")
+            //   .attr("class", "forester-projects-entry-img")
+            //   .attr("src", "../../static/img/" + project.name + ".png")
             d3.select(this)
-              .append("img")
+              .append("div")
               .attr("class", "forester-projects-entry-img")
-              .attr("src", "../../static/img/" + project.name + ".png")
+              .html("<span><i class='fa fa-solid fa-person-digging'></i> This location will soon hold a project thumbnail...</span>")
+              .style("display", "flex")
+              .style("align-items", "center")
+              .style("justify-content", "center")
+              .style("padding", "0.5em")
 
             // add the example icon if necessary
             if (project.example) {

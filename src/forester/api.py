@@ -16,7 +16,6 @@ API = Blueprint("api", __name__, url_prefix="/api", template_folder="./api_templ
 
 # start the database
 database = Database(os.path.join(PACKAGE_PATH, "instance"))
-database.purge()
 database.load_examples(directory="../examples")
 
 
@@ -149,3 +148,9 @@ def hints():
     path = os.path.join(PACKAGE_PATH, "hints.json")
     file = open(path)
     return jsonify(json.load(file))
+
+@API.route("/purge")
+def purge():
+    database.purge()
+    database.load_examples(directory="../examples")
+    return "Sucessfully purged the database and reloaded all examples."

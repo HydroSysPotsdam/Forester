@@ -5,6 +5,8 @@ Thank you so much for concidering to test Forester. It would really help a lot!
 
 There will be a lot of bugs. A lot! Some so subtle that we have not noticed them and some painfully obvious that we are sorry you had to see them. We need your help to find them all!
 
+We know that Forester is generally usable on *Safari*, *Firefox* and *Chrome*. We did not try any other browsers yet. With this we mean that there shouldn't be any major bugs that prevent you from testing.
+
 .. admonition:: Reporting a Bug
    :class: help bug
 

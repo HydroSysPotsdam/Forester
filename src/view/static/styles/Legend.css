@@ -99,5 +99,6 @@
     font-family: Verdana !important;
     font-weight: 400 !important;
     font-size: 1em !important;
+    color: var(--forester_text_color)
 }
 

@@ -247,8 +247,8 @@ export class TreeRenderer {
         // update the size of the svg image
         this.#ui_elem
             .select("svg")
-            .style("width", width)
-            .style("height", height)
+            .style("width", width + "px")
+            .style("height", height + "px")
 
         for (const node of this.nodes) {
             let renderer = this.renderers.get(node.id)

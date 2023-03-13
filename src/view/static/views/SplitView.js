@@ -23,8 +23,8 @@ class SplitView extends View {
     constructor() {
 
         const rules = {
-            samples: "boolean|default:false",
-            yesno:   "boolean|default:false"
+            // samples: "boolean|default:false",
+            // yesno:   "boolean|default:false"
         }
 
         super("SplitView", rules);
@@ -52,41 +52,41 @@ class SplitView extends View {
             const svg = d3.select(this)
               .append("svg")
               .attr("width", 100)
-              .attr("height", 60)
+              .attr("height", 40)
 
             // rect for feature of split
             svg.append("rect")
                .attr("x", 0)
                .attr("y", 0)
                .attr("width", "100%")
-               .attr("height", "70%")
+               .attr("height", "100%")
                .attr("class", "colorcoded")
                .attr("legend_key", Legend.get(data.splitFeature).key)
                .style("stroke", "black")
                .style("fill", "var(--highlight-color)")
 
             // rect for left option
-            svg.append("rect")
-               .attr("x", 0)
-               .attr("y", "70%")
-               .attr("width", "50%")
-               .attr("height", "30%")
-               .style("stroke", "black")
-               .style("fill", "lightgrey")
+            // svg.append("rect")
+            //    .attr("x", 0)
+            //    .attr("y", "70%")
+            //    .attr("width", "50%")
+            //    .attr("height", "30%")
+            //    .style("stroke", "black")
+            //    .style("fill", "lightgrey")
 
             // rect for right option
-            svg.append("rect")
-               .attr("x", "50%")
-               .attr("y", "70%")
-               .attr("width", "50%")
-               .attr("height", "30%")
-               .style("stroke", "black")
-               .style("fill", "lightgrey")
+            // svg.append("rect")
+            //    .attr("x", "50%")
+            //    .attr("y", "70%")
+            //    .attr("width", "50%")
+            //    .attr("height", "30%")
+            //    .style("stroke", "black")
+            //    .style("fill", "lightgrey")
 
             // text for split
             svg.append("text")
                .attr("x", "50%")
-               .attr("y", "35%")
+               .attr("y", "45%")
                .attr("class", "colorcoded")
                .attr("legend_key", Legend.get(data.splitFeature).key)
                .style("fill", "var(--contrast-color)")

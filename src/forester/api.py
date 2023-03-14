@@ -152,5 +152,5 @@ def hints():
 @API.route("/purge")
 def purge():
     database.purge()
-    database.load_examples(directory="../examples")
-    return "Sucessfully purged the database and reloaded all examples."
+    examples = database.load_examples(directory="../examples")
+    return f"Sucessfully purged the database and reloaded {examples} examples."

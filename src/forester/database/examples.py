@@ -30,6 +30,9 @@ def load_examples(database, directory, reload=False):
 		int:
 		The number of new examples added.
 	"""
+
+	logger.info(f"Loading examples from {os.path.normpath(directory)}")
+
 	# carry for the number of examples loaded
 	new_examples = 0;
 

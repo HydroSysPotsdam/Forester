@@ -16,7 +16,7 @@ API = Blueprint("api", __name__, url_prefix="/api", template_folder="./api_templ
 
 # start the database
 database = Database(os.path.join(PACKAGE_PATH, "instance"))
-database.load_examples(directory="../examples")
+database.load_examples(directory=os.path.join(PACKAGE_PATH, "../../examples"))
 
 
 @API.errorhandler(DatabaseException)

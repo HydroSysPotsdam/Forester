@@ -28,7 +28,7 @@ If applicable, add screenshots to help explain your problem.
 **Please add the following information:**
  - OS: [e.g. iOS, Windows, Linux]
  - Browser [e.g. Chrome, Safari, Firefox]
- - Version [e.g. 22]
+ - Python Version [e.g. 2.7, 3]
  - Screen Resolution
 
 **Additional context**

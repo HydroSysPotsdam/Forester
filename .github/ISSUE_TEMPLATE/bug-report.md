@@ -7,7 +7,7 @@ assignees: ''
 
 ---
 
-_For bugs that prevent you from using Forester, please add the label 'severe'!_
+_For bugs that prevent you from using Forester, please add [SEVERE] in front of the title!_
 
 **Describe the bug**
 A clear and concise description of what the bug is.

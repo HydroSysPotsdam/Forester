@@ -6,6 +6,9 @@ import os
 import shutil
 import json
 
+import traceback
+from loguru import logger
+
 from .project import Project
 from .errors import *
 from .. import parser
@@ -33,52 +36,62 @@ def create_project_from_files(self, name, paths, **kwargs):
 
 	Returns
 	-------
-	The added project.
+	The added project or None when an error occured.
 
 	"""
-	# the path where the database stores the project
-	project_path = os.path.join(self.data_path, name)
 
-	# create the project directory if not existing
-	if not os.path.isdir(project_path):
-		os.mkdir(project_path)
+	project = None
 
-	# delete the keys from kwargs just to make sure
-	kwargs.pop('name', None)
-	kwargs.pop('path', None)
+	try:
+		# the path where the database stores the project
+		project_path = os.path.normpath(os.path.join(self.data_path, name))
 
-	# create the project
-	project = Project(name, project_path, **kwargs)
+		# create the project directory if not existing
+		if not os.path.isdir(project_path):
+			os.mkdir(project_path)
 
-	# copy the file into the project directory
-	# add the file to the projects filename directory
-	if type(paths) is str:
-		# use the only path
-		path = paths
+		# delete the keys from kwargs just to make sure
+		kwargs.pop('name', None)
+		kwargs.pop('path', None)
 
-		# check if path exists and is a file
-		if not os.path.isfile(path):
-			raise DatabaseException(f"The given path {path} is not a file!")
+		# create the project
+		project = Project(name, project_path, **kwargs)
 
-		# copy the given file into the project directory
-		shutil.copy(path, project_path)
+		# copy the file into the project directory
+		# add the file to the projects filename directory
+		if type(paths) is str:
+			# use the only path
+			path = paths
 
-		# new path
-		new_path = os.path.join(project_path, os.path.basename(path))
+			# check if path exists and is a file
+			if not os.path.isfile(path):
+				raise DatabaseException(f"The given path {path} is not a file!")
 
-		# check if file was copied correctly
-		if not os.path.isfile(new_path):
-			raise DatabaseException(f"Copying the file {path} failed!")
+			# copy the given file into the project directory
+			shutil.copy(path, project_path, follow_symlinks=True)
 
-		# add the only file as the tree
-		project.files = {'tree': os.path.basename(path)}
+			# new path
+			new_path = os.path.join(project_path, os.path.basename(path))
 
-	if type(paths) is dict:
-		raise NotImplementedError(f"Creating a project from multiple files is not yet supported!")
+			# check if file was copied correctly
+			if not os.path.isfile(new_path):
+				raise DatabaseException(f"Copying the file {path} failed!")
+
+			# add the only file as the tree
+			project.files = {'tree': os.path.basename(path)}
+
+		if type(paths) is dict:
+			raise NotImplementedError(f"Creating a project from multiple files is not yet supported!")
+
+	except Exception as e:
+		project = None
+		logger.error(f"Skipping example '{name}' due to error.")
+		logger.error(traceback.format_exc())
 
 	# add the project to the database
-	self._add_project(project)
+	if project is not None: self._add_project(project)
 
+	# return the project
 	return project
 
 

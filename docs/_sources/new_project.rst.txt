@@ -8,7 +8,7 @@ Currently, Forester is only able to illustrate classification trees that have be
 Matlab's `fitctree`
 -------------------
 
-To illustrate a Matlab decision tree with Forester, you need to train your model using ``fitctree``. If you don't now how to do this, you can read up on the process `here <https://www.mathworks.com/help/stats/fitctree.html>`_.
+To illustrate a Matlab decision tree with Forester, you need to train your model using ``fitctree``. If you don't know how to do this, you can read up on the process `here <https://www.mathworks.com/help/stats/fitctree.html>`_.
 
 There is sadly no open-source software that reads Matlab files. It is therefore not possible to directly upload ``.m`` files and you need to use a small workaround. All you need to do is to export the model in a ``json`` format. This can be done by using the native Matlab function ``jsonencode`` more on which you can read `here <https://www.mathworks.com/help/matlab/ref/jsonencode.html?searchHighlight=jsonencode&s_tid=srchtitle_jsonencode_1>`_.
 

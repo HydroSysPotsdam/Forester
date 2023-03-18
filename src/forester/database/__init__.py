@@ -35,9 +35,9 @@ class Database:
 
 		# create the different paths
 		self.root_path = directory
-		self.base_path = os.path.join(directory, "database.json")
-		self.temp_path = os.path.join(directory, "temp")
-		self.data_path = os.path.join(directory, "data")
+		self.base_path = os.path.normpath(os.path.join(directory, "database.json"))
+		self.temp_path = os.path.normpath(os.path.join(directory, "temp"))
+		self.data_path = os.path.normpath(os.path.join(directory, "data"))
 
 		for path in [self.base_path, self.temp_path, self.data_path]:
 			if os.path.exists(path) and clean:

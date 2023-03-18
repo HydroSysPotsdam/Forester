@@ -1,7 +1,7 @@
 Testing Forester
 ================
 
-Thank you so much for concidering to test Forester. It would really help a lot!
+Thank you so much for considering to test Forester. It would really help a lot!
 
 There will be a lot of bugs. A lot! Some so subtle that we have not noticed them and some painfully obvious that we are sorry you had to see them. We need your help to find them all!
 
@@ -22,7 +22,7 @@ After reading this you probably want to look at the :ref:`quickstart <Quickstart
 Where We Need Help
 ------------------
 
-There are multiple aspects that need to be tested. Of course we hope that you will concider all of them but even covering some is tremendously helpful to us. Below we listed what we concider to be important and suggest some questions to ask yourself.
+There are multiple aspects that need to be tested. Of course we hope that you will consider all of them but even covering some is tremendously helpful to us. Below we listed what we consider to be important and suggest some questions to ask yourself.
 
 You don't need to give us feedback on everything that is listed below. The questions mainly aim at improving the documentation, finding bugs and improving on the current features.
 
@@ -68,8 +68,8 @@ Further Contributions
 
 If you enjoy Forester and would like to give web-development a try, we would be thrilled to work with you!
 
-We think you don not need to have a full-fledged background in web-development (at least we did not). Curiosity is all that is needed!
+We think you don't need to have a full-fledged background in web-development (at least we did not). Curiosity is all that is needed!
 
 Because there is no technical documentation on this page yet, it is probably best to contact `David Strahl <mailto:david.strahl@uni-potsdam.de>`_ directly to coordinate contributions. Alternatively, we will try to add the badge :bdg-info:`good-first-issue` for bugs and features that we think could be an entry point into developing Forester.
 
-.. important:: We kindly as you to create a new branch with your name as its title or fork the project before you contribute. This is to prevent issues when multiple contributors work on the same project.
+.. important:: We kindly ask you to create a new branch with your name as its title or fork the project before you contribute. This is to prevent issues when multiple contributors work on the same project.

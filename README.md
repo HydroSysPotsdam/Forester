@@ -24,9 +24,15 @@
 
 ## Quickstart
 
+> **Warning**
+> During testing we noticed that R seems to be required to install Forester. This was not planned and we are working on 
+> resolving this issue. 
+> When you encounter problems with the package ``rpy2`` during the installation, please head to the documentation 
+> section [Problems with R](https://hydrosyspotsdam.github.io/Forester/problemsr.html)
+
 To run Forester, you need to have a working installation of Python and a web-browser of you choice.
 
-You can install Forester by cloning the GitHub repository to you machine. When you have installed Git, this can be 
+You can install Forester by cloning the [GitHub repository](https://github.com/HydroSysPotsdam/Forester) to your machine. When you have installed Git, this can be 
 done by running the command:
 
 ```
@@ -59,7 +65,7 @@ Learn more about Forester by reading the section [Getting Started](https://hydro
 ## About The Project
 
 ## Testing
-Thank you so much for concidering to test Forester. It would really help a lot!
+Thank you so much for considering to test Forester. It would really help a lot!
 
 We have provided some guidelines and tips for testing Forester on the [related page](https://hydrosyspotsdam.github.io/Forester/test.html) in the documentation. 
 

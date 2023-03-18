@@ -14,4 +14,4 @@ if __name__ == "__main__":
     if not os.environ.get("WERKZEUG_RUN_MAIN"):
         webbrowser.open_new('http://127.0.0.1:8000/')
 
-    Flask.run(app, port=8000, debug=False)
+    Flask.run(app, port=8000, debug=True)

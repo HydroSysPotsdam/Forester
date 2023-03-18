@@ -14,10 +14,17 @@ from .database import *
 
 API = Blueprint("api", __name__, url_prefix="/api", template_folder="./api_templates", static_folder="./api_static")
 
-# start the database
-database = Database(os.path.join(PACKAGE_PATH, "instance"))
-database.load_examples(directory=os.path.join(PACKAGE_PATH, "../../examples"))
+def load_database():
+    # start the database
+    global database
+    database = Database(os.path.join(PACKAGE_PATH, "./instance"))
 
+    # purge the database when the app is in debug mode
+    # TODO: comment this out for roll-out
+    # database.purge()
+
+    # load new examples
+    database.load_examples(directory=os.path.join(PACKAGE_PATH, "../../examples"))
 
 @API.errorhandler(DatabaseException)
 def handle_database_exception(e):

@@ -3,7 +3,7 @@
 #  Forester: Interactive human-in-the-loop web-based visualization of machine learning trees
 
 from flask import Flask, redirect, url_for, render_template
-from .api import API
+from .api import API, load_database
 
 
 def create_app():
@@ -13,7 +13,9 @@ def create_app():
                 static_folder="../view/static")
 
     # register api routes
-    app.register_blueprint(API)
+    with app.app_context():
+        load_database()
+        app.register_blueprint(API)
 
     @app.route("/")
     def welcome():

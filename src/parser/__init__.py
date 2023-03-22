@@ -32,7 +32,6 @@ except Exception as e:
 # register the parser for R
 try:
 	from .R import _parse_rpart_class
-	raise Exception("Test")
 	register('rdata.r.rpart', _parse_rpart_class)
 except Exception as e:
 	logger.error(f"Unable to load R parsing module due to error:{e}")

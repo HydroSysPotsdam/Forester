@@ -326,3 +326,31 @@
 .ui-dialog-buttonpane {
     padding: .2em;
 }
+
+.deprecated-warning {
+
+    margin: 0.5em;
+    padding: 0.5em;
+    background: #ffa50044;
+    border-radius: 0.5em;
+
+    display: grid;
+    grid-template-columns: min-content 1fr;
+    grid-template-rows: min-content 1fr;
+    grid-gap: .2em .5em;
+    grid-template-areas:
+    "icon header"
+    ". text";
+}
+
+.deprecated-warning .fa {
+    grid-area: icon
+}
+
+.deprecated-warning b {
+    grid-area: header;
+}
+
+.deprecated-warning .note {
+    grid-area: text
+}

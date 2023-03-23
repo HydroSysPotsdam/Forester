@@ -163,7 +163,8 @@ def formats():
         if key != "json.forester.export" and not parser.has(key):
             logger.warning(f"No parsing module found for format {key}")
             fmt["deprecated"] = True
-            fmt["note"] = f"Forester will be unable to parse them due to an internal error!"
+            fmt["note"] = f"Forester will be unable to parse them due to an internal error!" \
+                if parser.error_message(key) is None else parser.error_message(key)
 
     return jsonify(fmts)
 

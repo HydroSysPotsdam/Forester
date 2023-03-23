@@ -11,6 +11,8 @@ from .errors import UnknownFormatException
 
 # supported formats for parsing a file
 FORMATS = {}
+# errors for the given formats
+ERRORS = {}
 
 def has(format):
 	return format.lower() in FORMATS.keys()
@@ -21,22 +23,35 @@ def register(format, parser):
 def unregister(format):
 	del FORMATS[format]
 
+def error_message(format):
+	if format.lower() in ERRORS.keys():
+		return ERRORS[format]
+	else:
+		return None
+
 # register the parser for matlab
 try:
 	from .Matlab import _parse_fitctree
 	register('json.matlab.fitctree', _parse_fitctree)
 except Exception as e:
-	logger.error(f"Unable to load Matlab parsing module due to error: {e}")
+	error = f"Unable to load Matlab parsing module due to error: {e}"
+	logger.error(error)
+	logger.error("Module will be disabled.")
 	logger.error(traceback.format_exc())
+	ERRORS['json.matlab.fitctree'] = error
+
 
 # register the parser for R
 try:
 	from .R import _parse_rpart_class
+	raise Exception("This is a test!")
 	register('rdata.r.rpart', _parse_rpart_class)
 except Exception as e:
-	logger.error(f"Unable to load R parsing module due to error:{e}")
+	error = f"Unable to load R parsing module due to error: {e}"
+	logger.error(error)
+	logger.error("Module will be disabled.")
 	logger.error(traceback.format_exc())
-	pass
+	ERRORS['rdata.r.rpart'] = error
 
 def parse(path, **kwargs):
     """

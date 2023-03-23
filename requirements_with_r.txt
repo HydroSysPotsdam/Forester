@@ -1,6 +1,7 @@
 numpy
 flask>=2.2
 flask-restful
+rpy2
 loguru
 treelib
 flask-sqlalchemy

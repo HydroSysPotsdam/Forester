@@ -2,11 +2,20 @@
 #  David Strahl, University of Potsdam
 #  Forester: Interactive human-in-the-loop web-based visualization of machine learning trees
 
+import os
 import numpy as np
-import rpy2.robjects as ro
 from loguru import logger
 
 from .utils import _humanize, _build_tree
+
+logger.info("Loading R parsing module...")
+
+# reset the R_HOME variable in the python environment
+import rpy2.situation
+os.environ["R_HOME"] = rpy2.situation.get_r_home()
+
+# finally try to load the robjects module
+import rpy2.robjects as ro
 
 
 def _parse_rpart_class(path, **kwargs):

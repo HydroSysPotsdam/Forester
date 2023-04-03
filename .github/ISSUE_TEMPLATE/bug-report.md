@@ -2,12 +2,12 @@
 name: Bug Report
 about: Report bugs to help us improve Forester. You work is valued tremendously!
 title: ''
-labels: bug
+labels: bug, feature-request
 assignees: ''
 
 ---
 
-_For bugs that prevent you from using Forester, please add the label 'severe'!_
+Sadly, non-contributors can not add labels to issues. _For bugs that prevent you from using Forester, please therefore add [SEVERE] in front of the title!_
 
 **Describe the bug**
 A clear and concise description of what the bug is.
@@ -28,7 +28,7 @@ If applicable, add screenshots to help explain your problem.
 **Please add the following information:**
  - OS: [e.g. iOS, Windows, Linux]
  - Browser [e.g. Chrome, Safari, Firefox]
- - Version [e.g. 22]
+ - Python Version [e.g. 2.7, 3]
  - Screen Resolution
 
 **Additional context**

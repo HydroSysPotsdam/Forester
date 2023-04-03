@@ -14,6 +14,7 @@ from loguru import logger
 
 from .errors import *
 
+
 @dataclass_json
 @dataclass
 class Project:

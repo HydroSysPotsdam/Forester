@@ -22,9 +22,42 @@ ProjectDashboard = {
      * @returns A promise of the list of retrieved projects.
      */
     initialize: async function () {
-        const uri    = window.origin + "/api/projects"
-        let projects = await fetch(uri).then(resp => resp.json())
+        let projects = await fetch(window.origin + "/api/projects").then(resp => resp.json())
         ProjectDashboard.createTiles(projects)
+
+        // load the formats that are currently supported
+        ProjectDashboard.formats = await fetch(window.origin + "/api/formats").then(resp => resp.json())
+        let formats = ProjectDashboard.formats
+
+        console.log(formats)
+
+        // set the allowed files
+        allowed_files = formats.filter(format => !format.deprecated).map(format => "." + format.type.toLowerCase())
+        allowed_files = [...new Set(allowed_files)].reduce((a, b) => a + "," + b)
+        d3.select(".forester-projects-new-droparea").attr("accept", allowed_files)
+
+        // display warnings for deprecated formats
+        deprecated_formats = formats.filter(format => format.deprecated)
+        d3.select("#forester-projects-new")
+          .insert("div", ":first-child")
+          .attr("class", "deprecated-warning-panel")
+          .selectAll("div")
+          .data(deprecated_formats)
+          .enter()
+          .append("div")
+          .attr("class", "deprecated-warning")
+          .each(function (format) {
+              d3.select(this)
+                .append("span")
+                .attr("class", "fa fa-solid fa-circle-exclamation")
+              d3.select(this)
+                .append("b")
+                .text("Warning for projects from " + format.vendor + "'s " + format.origin + ":")
+              d3.select(this)
+                .append("span")
+                .attr("class", "note")
+                .html(format.note)
+          })
     },
 
     /**
@@ -346,6 +379,8 @@ ProjectCreationDialog = {
             // parse the response string
             let response = this.responseType === "json" ? JSON.parse(this.response) : this.response
 
+            console.log(response)
+
             switch (this.status) {
                 case 200:
                     ProjectCreationDialog.onCreationSuccess(response)
@@ -412,10 +447,10 @@ ProjectCreationDialog = {
           .attr("class", "info-icon fa-solid fa-circle-xmark fa-shake fa-3x")
 
         // show the error message
-        if (response && response.description) {
+        if (response) {
             d3.select("#upload")
               .select(".info")
-              .text(response.description)
+              .text(response)
         }
     }
 }

@@ -11,7 +11,7 @@ from loguru import logger
 
 from .project import Project
 from .errors import *
-from .. import parser
+import parser
 
 
 def create_project_from_files(self, name, paths, **kwargs):
@@ -116,21 +116,18 @@ def create_project_from_vendor(self, name, path, **kwargs):
 	# path where the tree will be saved
 	tree_path = os.path.join(self.temp_path, "tree.json")
 
-	try:
-		# parse the file
-		# TODO: should happen in another thread
-		tree = parser.parse(os.path.abspath(path), **kwargs)
+	# parse the file
+	# TODO: should happen in another thread
+	tree = parser.parse(os.path.abspath(path), **kwargs)
 
-		# save the parsed file
-		file = open(tree_path, "w")
-		file.write(json.dumps(tree))
-		file.close()
+	# save the parsed file
+	file = open(tree_path, "w")
+	file.write(json.dumps(tree))
+	file.close()
 
-		# drop the name parameter from kwargs to be sure
-		# that no error happens
-		kwargs.pop('name', None)
+	# drop the name parameter from kwargs to be sure
+	# that no error happens
+	kwargs.pop('name', None)
 
-		# create the project
-		return self.create_project_from_files(name, tree_path)
-	finally:
-		os.remove(tree_path)
+	# create the project
+	return self.create_project_from_files(name, tree_path)

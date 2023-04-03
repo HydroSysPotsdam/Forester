@@ -4,15 +4,16 @@
 
 import os
 import json
-
 from flask import Blueprint, render_template, current_app, jsonify, request, Response, make_response, url_for
-
 from datetime import datetime
 
+import parser
 from . import PACKAGE_PATH
 from .database import *
 
+
 API = Blueprint("api", __name__, url_prefix="/api", template_folder="./api_templates", static_folder="./api_static")
+
 
 def load_database():
     # start the database
@@ -25,6 +26,7 @@ def load_database():
 
     # load new examples
     database.load_examples(directory=os.path.join(PACKAGE_PATH, "../../examples"))
+
 
 @API.errorhandler(DatabaseException)
 def handle_database_exception(e):
@@ -98,10 +100,16 @@ def new_project():
         # create the project
         database.create_project_from_vendor(name, file_path, **form)
 
-    finally:
-        os.remove(file_path)
+        return make_response("Success", 200)
 
-    return make_response("Success", 200)
+    except Exception as e:
+        logger.error(e)
+        return make_response(str(e), 500)
+    finally:
+        if os.path.exists(file_path):
+            os.remove(file_path)
+
+    return make_response("FAILED", 500)
 
 
 @API.route("/project/<uuid>", methods=["DELETE"])
@@ -147,14 +155,26 @@ def save_project(uuid):
 def formats():
     path = os.path.join(PACKAGE_PATH, "formats.json")
     file = open(path)
-    return jsonify(json.load(file))
+
+    fmts = json.load(file)
+
+    for fmt in fmts:
+        key = f"{fmt['type']}.{fmt['vendor']}.{fmt['origin']}".lower()
+        if key != "json.forester.export" and not parser.has(key):
+            logger.warning(f"No parsing module found for format {key}")
+            fmt["deprecated"] = True
+            fmt["note"] = f"Forester will be unable to parse them due to an internal error!" \
+                if parser.error_message(key) is None else parser.error_message(key)
+
+    return jsonify(fmts)
 
 
 @API.route("/hints")
 def hints():
-    path = os.path.join(PACKAGE_PATH, "hints.json")
-    file = open(path)
+    path  = os.path.join(PACKAGE_PATH, "hints.json")
+    file  = open(path)
     return jsonify(json.load(file))
+
 
 @API.route("/purge")
 def purge():

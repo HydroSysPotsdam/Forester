@@ -1,7 +1,7 @@
 ---
-title: 'Forester: Interactive visualization of tree-based machine learning'
+title: 'Forester: Web-Based and Interactive Visualization of Decision Trees'
 tags:
-  - machine learning
+  - machine learning trees
   - plotting
   - data visualization
 authors:
@@ -12,7 +12,7 @@ authors:
     equal-contrib: false
     affiliation: 1
   - name: Thorsten Wagener
-    corresponding: false
+    equal-contrib: false
     affiliation: 1
 affiliations:
  - name: University of Potsdam, Potsdam, Germany
@@ -21,54 +21,66 @@ date: 6 February 2023
 bibliography: paper/paper.bib
 ---
 
-# Summary
+# Summary 
 
-Tree-based machine learning methods, such as Classification and Regression Trees or Random Forest, are well-established and widely used. However, visualization tools provided by common machine-learning environments in Python, R, or Matlab often provide graphical representations that could be more visually appealing or helpful in conveying a clear message. Therefore, illustrations are often not usable in publications and need to be redone manually.
+Forester is a web-based and open-source software that produces visually appealing tree-based illustrations of 
+classification trees from arbitrary libraries or languages (currently Matlab and R). It creates publication-quality 
+plots, that are, at the same time, interactive figures that can guide the user in exploring the tree-based models. 
+By treating each aspect of the visualization (e.g., colors, node illustrations, links connecting nodes, ...) as an 
+opportunity to convey information, different statistical and structural aspects of the model can be highlighted. Visualizations can be streamlined to the user's requirements and offer a wide variety of insightful techniques. Forester improves on the often lacking transparency, interpretability, and explainability of the underlying models.
 
-Here we present FORESTER, a web-based and open-source software that produces visually appealing tree-based visualizations. Forester produces publication-ready plots that are, at the same time, interactive figures that can guide the user in interpreting the model. Visualizations can be streamlined to the user's requirements and offer a wide variety of insightful techniques. This makes Forester a promising alternative to currently used environments. Forester is open to collaborations, so we hope it will be extended within the Earth Science community and beyond, proving useful in other machine-learning-related fields.
 
 # Statement of Need
 
-Though tree-based machine learning methods are established and widely used, they can be complex and hard to interpret. It is often unclear how algorithms derive results and what properties of the data triggered certain decisions (Sarailidis 2023). This is especially problematic for research questions, as results need to be transparent, interpretable and explainable (Roscher 2020). Furthermore, problems arise when the model should mirror well-known physical processes but contradicts process understanding (Sarailidis 2023).
+Tree-based methods such as classification trees are well-established and widely used `[@loh]`. However, they are often 
+hard to interpret as it is unclear how algorithms arrive at a resulting tree and how robust this tree is given the 
+underlying data `[@sarailidis]`. These issues can be problematic in both research studies and in practical usage, where 
+results should be transparent, interpretable, and explainable `[@roscher]` or when models should mirror well-known 
+physical processes as is the case in the natural sciences `[@sarailidis`]. 
 
-Visualizations help practitioners to understand, analyze, and communicate their results (Liu 2005). They help interpret complex models by providing a graphical representation of both data and model performance. Visualizations can be used to understand the underlying patterns and trends in the data (Ankerst 2000), identify biases and errors, and diagnose problems with the model. They also help in communicating the results of the model to a non-technical audience by providing an intuitive and interactive way to present the findings.
-
-The visualization routines in common decision-tree environments have some problems that make them fall short of their full potential. Environments like R, Matlab or Python focus too much on illustrating the statistical properties of the resulting tree and not on the meaning behind their structure (Sarailidis 2023). The resulting visualization is therefore often cluttered with information and not visually appealing. 
-
-# Good Visualizations
-
-
-# Existing Software
-
-During our work, we have found three similiar open-source approaches: 
-1. _PaintingClass_ equally undestands visualizations as a tool for wider knowledge discovery (Teoh 2003). Here, each level of the tree is illustrated using a projection of the multi-dimensional feature space. The user may interacting with the training process by manually assigning classes to certain regions. 
-2. _BaobabView_ aims to achieve the "tight integration of visualization, interaction and algorithmic support" (Elzen 2011). The user is able to control the growith, optimization and pruning of the tree and is guided in the analysis using the generated figures. Although this approach is very similar to Forester, the project seems to be discontinued. 
-3. _dTreeViz_ is another Python library that focuses on the visualization of machine-learning trees. 
-
-
-Existing software seems to 
+To overcome these issues, adequate visualization should be employed. Visualization can guide users with model 
+interpretation, improve model comprehension `[@sarailidis; @roscher]` and help to diagnose biases and errors. 
+Additionally, it helps to communicate results to a non-technical audience by providing an intuitive way of representing the 
+findings.
+ 
+However, established tree visualization routines used across common statistical, numerical and machine-learning 
+environments frequently fall short of their full potential. Tools provided by Python, R or Matlab create only 
+rudimentary graphical representations that could be more visually appealing and helpful in conveying a clear message.
+They focus on illustrating the statistical properties of the model, but at the same time fail to illustrate or allow 
+exploration of the tree’s structure and its implications `[@sarailidis]`. Promising open-source approaches like 
+PaintingClass `[@teoh]`, BaobabView `[@van_den_elzen]` or dTreeViz, that equally try to overcome these issues by including interactivity exist, but seem to be discontinued. 
 
 
 # Forester
 
-Forester defines a general data format for decision trees that improves interoperability between different environments. This allows the separation of model training and result visualization. Forester provides parsers for the outputs of R's `rpart` and Matlab's `fitctree`. Support for further environments can be added by writing a custom parser and either including it in Forester (when done in Python) or loading the output. 
+Forester overcomes these issues by introducing modularity and interactivity into the visualization process. The user thus becomes an integral part in building the figures and ceases to be an observer only. This encourages model exploration and increases comprehension. Forester further enables the use to create high-quality visualizations to be used in publications.
 
-With its web-based approach, Forester simplifies building interactive illustrations and improves scalability. Very good visualization environments already exist (d3) and are used.t. Finden Sie jetzt heraus, ob Sie berechtigt sind.
+By designing Forester primarily as a tool for the visualization of already trained models we achieve a high interoperability between libraries or languages. Forester takes these models and converts them into a generalized format that it can visualize. In the released version, Forester comes with parsers for Matlab and R models. Fig. 1 shows how Forester can quickly illustrate an existing Matlab model.
 
-# Extensions
+Nodes within the tree are illustrated using what we call “views”. These are small, summarizing plots that allow a unique perspective onto a node and are drawn at the node’s location. Each view focuses on one aspect of the node only, e.g., the class distribution, the split variable or the flow of samples within the tree. The user now decides on what kind of representation should be shown by switching between views and streamlining the informational content of each one.
 
+The same is true for the links that connect nodes, as well as their placement. Layout settings may be changed to the user’s preference to declutter figures. Within the links, the sample number and classes can be encoded to understand what parts of the tree are not relevant and could be pruned.
 
-# Citations
-
-
-# Figures
-
-- comparison figure between matlab, r and different forester illustrations for iris dataset
+Forester treats color as an important mean for communication, too. Legend entries are generated for all classes and features and can be individually colored or grouped. By hiding some entries in the legend, the user can highlight individual features and gain an overview of their distribution in the tree. 
 
 
-# Acknowledgements
+# Model Exploration
 
-- financial support
+As an exemplary application, Fig. 2 shows a decision tree created from Fisher’s Iris data using Matlab that was illustrated with Forester. There are four available features and three classes. Forester very quickly clarifies that two out of the four features have never been used and seem to be unimportant. This can be learned by employing the split-view for all internal nodes. Additionally, by enabling the class flow representation in the links, it becomes evident that the tree could be pruned after the first petal-width split. The class distribution is already quite pure, and the two succeeding splits only introduce unnecessary complexity.
+
+
+# Limitations and Further Work
+
+In a first version of Forester, some features have been omitted that can be implemented at a later time. While Forester currently supports output from Matlab and R, the inclusion of common classification tree libraries from Python (sklearn) would be fruitful. An extension to regression trees would further increase the applicability of the software. Data-driven illustrations of the feature space or importance measures like partial dependence plots are planned but not yet implemented.
+
+Our vision for Forester is to bring standard tree visualization to a higher level, by creating a human-in-the-loop experience1. We understand this as including the user in the tree training process to combine the benefits of machine-learning algorithms with the expert’s knowledge and intuition. The user could force or constrain certain decisions onto the tree that are deemed to be plausible, create compound features and decide on pruning or split variable and threshold selection. Training is then done iteratively where the user’s assessment of how well the model recreates known physical processes is included in determining the “goodness” of a tree. We think that this approach greatly improves the transparency, interpretability and explainability of the model.
+
+
+# Acknowledgements and Author Contributions
+
+We acknowledge support from the Alexander von Humboldt Foundation in the framework of the Alexander von Humboldt Professorship endowed by the German Federal Ministry of Education and Research (BMBF).
+
+DS, RR, and TW designed the software and wrote the paper. DS implemented the majority of the software. RR designed the initial software architecture. RR and TW supervised DS in his work.
 
 
 # References

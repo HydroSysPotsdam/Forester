@@ -32,14 +32,14 @@ opportunity to convey information, different statistical and structural aspects 
 
 # Statement of Need
 
-Tree-based methods such as classification trees are well-established and widely used `[@loh]`. However, they are often 
+Tree-based methods such as classification trees are well-established and widely used [@loh]. However, they are often 
 hard to interpret as it is unclear how algorithms arrive at a resulting tree and how robust this tree is given the 
-underlying data `[@sarailidis]`. These issues can be problematic in both research studies and in practical usage, where 
-results should be transparent, interpretable, and explainable `[@roscher]` or when models should mirror well-known 
-physical processes as is the case in the natural sciences `[@sarailidis`]. 
+underlying data [@sarailidis]. These issues can be problematic in both research studies and in practical usage, where 
+results should be transparent, interpretable, and explainable [@roscher] or when models should mirror well-known 
+physical processes as is the case in the natural sciences [@sarailidis]. 
 
 To overcome these issues, adequate visualization should be employed. Visualization can guide users with model 
-interpretation, improve model comprehension `[@sarailidis; @roscher]` and help to diagnose biases and errors. 
+interpretation, improve model comprehension [@sarailidis; @roscher] and help to diagnose biases and errors. 
 Additionally, it helps to communicate results to a non-technical audience by providing an intuitive way of representing the 
 findings.
  
@@ -47,8 +47,8 @@ However, established tree visualization routines used across common statistical,
 environments frequently fall short of their full potential. Tools provided by Python, R or Matlab create only 
 rudimentary graphical representations that could be more visually appealing and helpful in conveying a clear message.
 They focus on illustrating the statistical properties of the model, but at the same time fail to illustrate or allow 
-exploration of the tree’s structure and its implications `[@sarailidis]`. Promising open-source approaches like 
-PaintingClass `[@teoh]`, BaobabView `[@van_den_elzen]` or dTreeViz, that equally try to overcome these issues by including interactivity exist, but seem to be discontinued. 
+exploration of the tree’s structure and its implications [@sarailidis]. Promising open-source approaches like 
+PaintingClass [@teoh], BaobabView [@van_den_elzen] or dTreeViz, that equally try to overcome these issues by including interactivity exist, but seem to be discontinued. 
 
 
 # Forester

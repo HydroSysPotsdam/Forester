@@ -18,7 +18,7 @@ affiliations:
  - name: University of Potsdam, Potsdam, Germany
    index: 1
 date: 6 February 2023
-bibliography: paper/paper.bib
+bibliography: paper.bib
 ---
 
 # Summary 

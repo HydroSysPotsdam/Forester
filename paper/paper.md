@@ -62,13 +62,11 @@ Our vision for Forester is to bring standard tree visualization to a higher leve
 
 # Figures
 
-![Workflow of how Forester quickly illustrates a pre-existing model and improves on the visualization.\label
-{fig:matlab}](fig1.png)
+![Workflow of how Forester quickly illustrates a pre-existing model and improves on the visualization.](fig1.png)
 
 ![Example workflow illustrating how Forester can be used to gain deeper insights about a model. The left red box 
 highlights nearly pure nodes, where further splits in the tree only introduce complexity. The right box in the 
-legend shows that two out of five features are not visible in the tree and seem to be unimportant in the model.\label
-{fig:exploration}](fig2.png)
+legend shows that two out of five features are not visible in the tree and seem to be unimportant in the model.](fig2.png)
 
 # Acknowledgements and Author Contributions
 

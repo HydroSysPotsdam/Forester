@@ -26,7 +26,7 @@ Forester is a web-based and open-source software that produces visually appealin
 
 Tree-based methods such as classification trees are well-established and widely used [@loh]. However, they are often hard to interpret as it is unclear how algorithms arrive at a resulting tree and how robust this tree is with respect to the underlying data [@sarailidis]. These issues can be problematic in both research studies and in practical usage, where results should be transparent, interpretable, and explainable [@roscher] or when models should mirror well-known physical processes as is the case in the natural sciences [@sarailidis]. 
 
-To overcome these issues, adequate visualization should be employed. Visualization can guide users with model interpretation, improve model comprehension [@roscher; @liu] and help to diagnose biases and errors. Additionally, it helps to communicate results to a non-technical audience by providing an intuitive way of representing the findings [@ankerst].
+To overcome these issues, adequate visualization should be employed. Visualization can guide users with model interpretation, improve model comprehension [@roscher; @liu] and help to diagnose biases and errors. Additionally, it helps to communicate results to a non-technical audience by providing an intuitive way of representing the findings.
  
 However, established tree visualization routines used across common statistical, numerical and machine-learning environments frequently fall short of their full potential. Tools provided by Python, R or Matlab create only rudimentary graphical representations that could be more visually appealing and helpful in conveying a clear message. They focus on illustrating the statistical properties of the model, but at the same time fail to illustrate or allow exploration of the tree’s structure and its implications [@sarailidis]. Promising open-source approaches like PaintingClass [@teoh], BaobabView [@van_den_elzen] or dTreeViz, that equally try to overcome these issues by including interactivity exist, but seem to be discontinued. 
 
@@ -37,7 +37,8 @@ Forester overcomes these issues by introducing modularity and interactivity into
 By designing Forester primarily as a tool for the visualization of already trained models we achieve a high 
 interoperability between libraries or languages. Forester takes these models and converts them into a generalized 
 format that are visualized in a web browser. In the released version, Forester comes with parsers for Matlab and R 
-models. \autoref{fig:matlab} shows how Forester can therefore be used to quickly improve the illustrations of a Matlab 
+models. Fig. 1 shows how Forester can therefore be used to quickly improve the illustrations of a 
+Matlab 
 model.
 
 Forester runs on a local Python web-server and is accessible using any browser. All visualizations are done within the browser. This client-server approach allows Forester to build on the strengths of modern web illustration libraries and SVG graphics to easily build interactive figures. 
@@ -50,7 +51,7 @@ Forester treats color as an important mean for communication, too. Legend entrie
 
 # Model Exploration
 
-As an exemplary application, \autoref{fig:exploration} shows a decision tree created from Fisher’s Iris data using 
+As an exemplary application, Fig. 2 shows a decision tree created from Fisher’s Iris data using 
 Matlab that was illustrated with Forester. There are four available features and three classes. Forester very quickly clarifies that two out of the four features have never been used and seem to be unimportant. This can be learned by employing the split-view for all internal nodes. Additionally, by enabling the class flow representation in the links, it becomes evident that the tree could be pruned after the first petal-width split. The class distribution is already quite pure, and the two succeeding splits only introduce unnecessary complexity.
 
 # Limitations and Further Work

@@ -6,15 +6,18 @@ tags:
   - data visualization
 authors:
   - name: David Strahl
-    affiliation: 1 
+    affiliation: 1
+    orcid: 0009-0007-1470-2221
   - name: Robert Reinecke
     affiliation: 1
+    orcid: 0000-0001-5699-8584
   - name: Thorsten Wagener
     affiliation: 1
+    orcid: 0000-0003-3881-5849
 affiliations:
  - name: University of Potsdam, Potsdam, Germany
    index: 1
-date: 6 February 2023
+date: 5 June 2023
 bibliography: paper.bib
 ---
 

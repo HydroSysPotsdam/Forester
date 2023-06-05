@@ -9,14 +9,16 @@ authors:
     affiliation: 1
     orcid: 0009-0007-1470-2221
   - name: Robert Reinecke
-    affiliation: 1
+    affiliation: "1, 2"
     orcid: 0000-0001-5699-8584
   - name: Thorsten Wagener
     affiliation: 1
     orcid: 0000-0003-3881-5849
 affiliations:
- - name: University of Potsdam, Potsdam, Germany
+ - name: Institute of Environmental Science and Geography, University of Potsdam
    index: 1
+ - name: Institute of Geography, University of Mainz
+ - index: 2
 date: 5 June 2023
 bibliography: paper.bib
 ---

@@ -18,7 +18,7 @@ affiliations:
  - name: Institute of Environmental Science and Geography, University of Potsdam
    index: 1
  - name: Institute of Geography, University of Mainz
- - index: 2
+   index: 2
 date: 5 June 2023
 bibliography: paper.bib
 ---

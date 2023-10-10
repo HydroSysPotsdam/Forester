@@ -25,11 +25,6 @@
             "scheme": "url", 
             "identifier": "https://github.com/HydroSysPotsdam/Forester/tree/v1.0-EGU", 
             "relation": "isSupplementTo"
-        }, 
-        {
-            "scheme": "doi", 
-            "identifier": "10.5281/zenodo.8427575", 
-            "relation": "isVersionOf"
         }
     ]
 }

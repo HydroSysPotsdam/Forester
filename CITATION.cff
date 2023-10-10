@@ -1,0 +1,15 @@
+cff-version: 1.0
+message: "If you use this software, please cite it as below."
+authors:
+  - family-names: Strahl
+    given-names: David
+    orcid: https://orcid.org/0009-0007-1470-2221
+  - family-names: Reinecke
+    given-names: Robert
+    orcid: https://orcid.org/0000-0001-5699-8584
+  - family-names: Wagner
+    given-names: Thorsten
+    orcid: https://orcid.org/0000-0003-3881-5849
+title: HydroSysPotsdam/Forester: Forester v1.0-EGU
+version: v1.0-EGU
+date-released: 2023-10-10

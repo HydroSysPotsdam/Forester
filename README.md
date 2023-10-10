@@ -63,6 +63,13 @@ This will start a local webserver. In the terminal, it will display the address 
 Learn more about Forester by reading the section [Getting Started](https://hydrosyspotsdam.github.io/Forester/editor.html) in the docs.
 
 ## About The Project
+Forester is a web-based and open-source software that produces visually appealing tree-based illustrations of 
+already trained classification trees from arbitrary libraries or languages (currently Matlab and R).  It creates 
+publication-quality plots, that are, at the same time, interactive figures that can guide the user in exploring 
+their tree-based models. By using each aspect of the visualization (e.g., colors, node illustrations, links, …) to 
+convey information, different statistical and structural aspects of the model can be highlighted. Visualizations can 
+be streamlined to the user's requirements and offer a wide variety of insightful techniques. Forester improves on 
+the often inadequate transparency, interpretability, and explainability of the underlying models.
 
 ## Testing
 Thank you so much for considering to test Forester. It would really help a lot!

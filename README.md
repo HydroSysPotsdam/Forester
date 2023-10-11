@@ -5,6 +5,7 @@
 [![Stargazers][stars-shield]][stars-url]
 [![Issues][issues-shield]][issues-url]
 [![MIT License][license-shield]][license-url]
+[![DOI][doi-shield]][doi-url]
 
 
 <br />
@@ -96,6 +97,8 @@ Made with <span class="fa fa-solid fa-heart"></span> in Potsdam. For further que
 [issues-url]: https://github.com/HydroSysPotsdam/Forester/issues
 [license-shield]: https://img.shields.io/badge/License-GPLv3-lightgrey.svg?style=for-the-badge
 [license-url]: https://opensource.org/license/gpl-3-0/
+[doi-shield]: https://img.shields.io/badge/DOI-10.5281/zenodo.8427820-83a24b?style=for-the-badge
+[doi-url]: https://doi.org/10.5281/zenodo.8427820
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
 [linkedin-url]: https://linkedin.com/in/linkedin_username
 [product-screenshot]: images/screenshot.png

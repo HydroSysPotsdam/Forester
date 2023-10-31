@@ -72,6 +72,8 @@ convey information, different statistical and structural aspects of the model ca
 be streamlined to the user's requirements and offer a wide variety of insightful techniques. Forester improves on 
 the often inadequate transparency, interpretability, and explainability of the underlying models.
 
+Further information can be found in the description document within the repository.
+
 ## Testing
 Thank you so much for considering to test Forester. It would really help a lot!
 
